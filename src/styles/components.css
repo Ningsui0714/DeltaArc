@@ -1,0 +1,352 @@
+.brand-block {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  border: 1px solid rgba(42, 94, 148, 0.18);
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--accent-info);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+}
+
+.brand-block h1,
+.workspace-header h2,
+.hero-panel h3,
+.panel-heading h3,
+.panel h4,
+.intel-card h3,
+.project-chip h2 {
+  margin: 0;
+}
+
+.brand-block h1,
+.workspace-header h2,
+.hero-panel h3,
+.panel h3,
+.panel h4,
+.report-card h4 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+}
+
+.project-chip,
+.panel,
+.hero-panel,
+.intel-card,
+.metric-card,
+.evidence-card,
+.persona-card,
+.strategy-card,
+.report-card,
+.rail-footer-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--line-subtle);
+  border-radius: 18px;
+  box-shadow: var(--shadow-cut);
+}
+
+.project-chip,
+.intel-card,
+.panel,
+.hero-panel {
+  padding: 22px;
+}
+
+.project-summary,
+.hero-copy,
+.panel p,
+.persona-card p,
+.hypothesis-item p,
+.report-card p,
+.timeline-item p {
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+}
+
+.mode-chip,
+.meta-chip,
+.tiny-chip,
+.panel-badge,
+.trust-chip,
+.stance-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  border: 1px solid transparent;
+}
+
+.mode-chip,
+.panel-badge {
+  background: rgba(141, 103, 0, 0.08);
+  color: var(--accent-alert);
+}
+
+.meta-chip,
+.tiny-chip {
+  background: rgba(42, 94, 148, 0.08);
+  color: var(--accent-info);
+}
+
+.stance-bullish {
+  color: var(--accent-good);
+  background: rgba(12, 122, 97, 0.08);
+}
+
+.stance-mixed {
+  color: var(--accent-alert);
+  background: rgba(141, 103, 0, 0.08);
+}
+
+.stance-bearish {
+  color: var(--accent-risk);
+  background: rgba(191, 93, 53, 0.08);
+}
+
+.trust-chip {
+  background: rgba(12, 122, 97, 0.08);
+}
+
+.trust-low {
+  color: var(--accent-risk);
+  background: rgba(191, 93, 53, 0.08);
+}
+
+.trust-medium {
+  color: var(--accent-alert);
+  background: rgba(141, 103, 0, 0.08);
+}
+
+.trust-high {
+  color: var(--accent-good);
+  background: rgba(12, 122, 97, 0.08);
+}
+
+.step-list {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 12px;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.42);
+  border: 1px solid transparent;
+  border-radius: 14px;
+  text-align: left;
+  transition: 180ms ease;
+}
+
+.step-item:hover,
+.step-item.is-active {
+  background: white;
+  border-color: var(--line-strong);
+  color: var(--text-primary);
+}
+
+.step-index {
+  color: var(--accent-info);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.step-item strong,
+.step-item small {
+  display: block;
+}
+
+.step-item small {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ghost-button,
+.accent-button,
+.inline-button {
+  border-radius: 999px;
+  padding: 10px 16px;
+  border: 1px solid var(--line-strong);
+  background: white;
+  color: var(--text-primary);
+  transition: 180ms ease;
+  font-size: var(--text-sm);
+}
+
+.ghost-button:hover,
+.accent-button:hover,
+.inline-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(42, 94, 148, 0.3);
+}
+
+.accent-button {
+  background: linear-gradient(135deg, rgba(42, 94, 148, 0.12), rgba(12, 122, 97, 0.08));
+}
+
+.inline-button {
+  padding: 8px 12px;
+}
+
+.signal-band span,
+.metric-card span,
+.score-row span,
+.metric-row span,
+.timeline-item span,
+.field-card span,
+.intel-list dt {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.signal-band strong,
+.metric-card strong,
+.score-row strong,
+.metric-row strong,
+.intel-list dd,
+.hypothesis-header span {
+  font-family: var(--font-mono);
+}
+
+.metric-card {
+  padding: 18px;
+  min-height: 108px;
+}
+
+.metric-card strong {
+  display: block;
+  margin-top: 14px;
+  font-size: 1.5rem;
+  color: var(--text-primary);
+}
+
+.metric-good {
+  border-color: rgba(12, 122, 97, 0.2);
+}
+
+.metric-info {
+  border-color: rgba(42, 94, 148, 0.2);
+}
+
+.metric-alert {
+  border-color: rgba(141, 103, 0, 0.22);
+}
+
+.timeline-list,
+.card-stream,
+.hypothesis-list,
+.stage-list {
+  display: grid;
+  gap: 12px;
+}
+
+.timeline-item {
+  align-items: flex-start;
+  padding: 14px 0;
+  border-top: 1px solid var(--line-subtle);
+}
+
+.timeline-item:first-child {
+  padding-top: 0;
+  border-top: none;
+}
+
+.stage-item {
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid var(--line-subtle);
+  background: rgba(255, 255, 255, 0.58);
+}
+
+.stage-item p,
+.stage-item small {
+  margin: 0;
+}
+
+.stage-item p {
+  color: var(--text-secondary);
+}
+
+.stage-item small {
+  color: var(--text-muted);
+}
+
+.stage-running {
+  border-color: rgba(42, 94, 148, 0.24);
+  background: rgba(42, 94, 148, 0.05);
+}
+
+.stage-completed {
+  border-color: rgba(12, 122, 97, 0.22);
+  background: rgba(12, 122, 97, 0.04);
+}
+
+.stage-error {
+  border-color: rgba(191, 93, 53, 0.24);
+  background: rgba(191, 93, 53, 0.05);
+}
+
+.run-overview {
+  display: grid;
+  gap: 12px;
+  margin: 14px 0 16px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid var(--line-subtle);
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.run-overview-percent {
+  font-family: var(--font-mono);
+  font-size: 1.4rem;
+  color: var(--text-primary);
+}
+
+.run-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.run-overview-metric {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(24, 33, 43, 0.06);
+}
+
+.run-overview-metric span {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.run-overview-metric strong {
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+}

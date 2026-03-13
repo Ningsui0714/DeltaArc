@@ -1,0 +1,9 @@
+{
+  "mode": "balanced",
+  "evidenceItems": [
+    {
+      "title": "只有证据没有项目",
+      "summary": "这个请求故意缺少 project。"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "mode": "balanced",
+  "project": {
+    "name": "代号：远岸旅团",
+    "mode": "Concept",
+    "genre": "合作生存建造",
+    "platforms": ["PC", "Steam Deck"],
+    "targetPlayers": ["轻中度合作生存玩家", "双人开黑玩家", "内容传播型玩家"],
+    "coreFantasy": "和朋友在连续失控的营地危机里临场补位，把一场快要崩盘的局面救回来。",
+    "ideaSummary": "验证双人协作机关是否能提升中期留存，并形成高传播性的合作瞬间。",
+    "coreLoop": "探索 -> 收集 -> 建造 -> 协作机关 -> 防守",
+    "sessionLength": "15-20 分钟一局，失败后应支持快速重开。",
+    "differentiators": "把合作机关做成高频高压的救场时刻，而不是低频脚本化谜题。",
+    "progressionHook": "局内逐步解锁机关组合，局外解锁营地支援和角色分工强化。",
+    "socialHook": "双人同步操作和临场沟通直接决定营地是否守住，但允许弱配合下继续补位。",
+    "monetization": "当前阶段先不验证付费，只关注玩法成立；后续再看装扮和赛季化内容。",
+    "referenceGames": ["双人成行", "饥荒联机版", "Deep Rock Galactic"],
+    "validationGoal": "确认首局 10 分钟内是否能稳定出现值得复述的协作高光。",
+    "productionConstraints": "2 人团队，2 周内只能做一个高密度短局原型，不能铺完整主线内容。",
+    "currentStatus": "担心学习成本和失败惩罚会掩盖合作乐趣。"
+  },
+  "evidenceItems": [
+    {
+      "type": "design_doc",
+      "title": "玩法草案",
+      "source": "内部策划稿",
+      "trust": "medium",
+      "summary": "玩家在基地建设阶段会遇到必须双人同步完成的机关。"
+    },
+    {
+      "type": "interview",
+      "title": "轻协作玩家反馈",
+      "source": "Discord 访谈",
+      "trust": "high",
+      "summary": "玩家愿意合作解谜，但要求失败后能迅速重试。"
+    }
+  ]
+}

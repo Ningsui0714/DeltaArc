@@ -1,0 +1,64 @@
+{
+  "generatedAt": "2026-03-12 15:06:00",
+  "mode": "balanced",
+  "model": "multi-stage: deepseek-chat + local-fallback",
+  "pipeline": [
+    "dossier@deepseek-chat",
+    "market@local-fallback",
+    "synthesis@deepseek-chat"
+  ],
+  "meta": {
+    "source": "remote",
+    "status": "degraded",
+    "requestId": "analysis_fixture_degraded"
+  },
+  "summary": "这是一份包含降级阶段的远端结果。",
+  "systemVerdict": "方向可以继续，但要先把关键失败路径验证清楚。",
+  "evidenceLevel": "medium",
+  "primaryRisk": "市场定位阶段发生降级，部分外部叙事判断可信度下降。",
+  "nextStep": "优先完成 P0 的协作爽点验证。",
+  "playerAcceptance": 68,
+  "confidence": 64,
+  "supportRatio": 66,
+  "scores": {
+    "coreFun": 72,
+    "learningCost": 58,
+    "novelty": 74,
+    "acceptanceRisk": 56,
+    "prototypeCost": 52
+  },
+  "personas": [],
+  "hypotheses": [],
+  "strategies": [],
+  "perspectives": [],
+  "blindSpots": [],
+  "secondOrderEffects": [],
+  "scenarioVariants": [],
+  "decisionLenses": [],
+  "validationTracks": [],
+  "contrarianMoves": [],
+  "unknowns": [],
+  "redTeam": {
+    "thesis": "如果继续依赖单一叙事，外部用户会高估题材、低估系统负担。",
+    "attackVectors": ["市场叙事不清"],
+    "failureModes": ["获客成本上升"],
+    "mitigation": "先验证高光片段是否一眼可懂。"
+  },
+  "memorySignals": [],
+  "report": {
+    "headline": "远端结果已返回，但包含降级阶段",
+    "summary": "这份样本用于验证 degraded 结果的严格解析。",
+    "conclusion": "允许展示，但必须明确标注不是完整成功链路。",
+    "whyNow": "因为用户和 AI 都需要知道这一轮结果是否掺杂降级阶段。",
+    "risk": "如果不标注 degraded，会把局部 fallback 当成完整新结果。",
+    "actions": [
+      "显示降级标记",
+      "保留 stage pipeline",
+      "不要更新 fresh 时间戳",
+      "补跑失败阶段"
+    ]
+  },
+  "warnings": [
+    "market 阶段失败，已退回本地占位。"
+  ]
+}
