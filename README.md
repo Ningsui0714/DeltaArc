@@ -1,91 +1,163 @@
-# Game Wind Tunnel
+# 观变
 
-一个面向游戏/互动产品早期判断的本地沙盘推演工具。
+[中文](./README.md) | [English](./README.en.md)
 
-它的目标不是直接替你“下结论”，而是把项目摘要、证据输入、多视角推演、风险拆解和验证动作收束到一个可追踪的工作台里。
+观变是一个面向游戏 / 互动产品设计的本地推演工作台。
 
-## 第一版已经实现了什么
+当前仓库已经实现的是“项目分析工作台”骨架：输入项目和证据，发起正式分析，查看结构化判断、风险、时间线和报告。  
+正在设计和逐步落地的是下一阶段能力：把第一次正式推理冻结成 `Baseline`，在其上注入 `Variable`，继续做前向观测和反向推理。
 
-- 项目与证据导入
-  - 支持手动填写项目摘要
-  - 支持导入 `.json` / `.md` / `.markdown` / `.txt`
-  - 支持把结构化文件拆成 `project + evidence` 两部分写入工作区
-- 两种推演模式
-  - `Quick Scan`：更快返回结果，当前采用“dossier 尝试远端 + 本地 specialist 快扫综合”
-  - `Deep Dive`：走更完整的多阶段链路，适合拿更完整的结论结构
-- 可见的执行轨迹
-  - 前端会展示当前阶段、阶段状态、模型/本地降级信息、warning
-  - 用户可以明确看到系统是否正在工作，而不是黑盒等待
-- 多视角结果结构
+## 当前状态
+
+### 已实现
+
+- 项目摘要与证据录入
+  - 手动填写项目概览
+  - 导入 `.json` / `.md` / `.markdown` / `.txt`
+  - 将结构化文件拆成 `project + evidence` 写入工作区
+- 两种正式分析模式
+  - `Quick Scan` 对应代码里的 `balanced`
+  - `Deep Dive` 对应代码里的 `reasoning`
+- 可视化执行轨迹
+  - 展示当前阶段、阶段状态、模型信息、降级信息、warning
+  - 用户可以轮询看到任务推进，而不是黑盒等待
+- 结构化输出
   - `perspectives`
   - `blindSpots`
-  - `secondOrderEffects`
   - `scenarioVariants`
-  - `decisionLenses`
+  - `futureTimeline`
   - `validationTracks`
-  - `contrarianMoves`
-  - `unknowns`
   - `redTeam`
   - `report`
 - 轻量记忆
-  - 会把历史推演中的摘要、主风险、盲点、验证焦点写入 [`server/data/sandbox-memory.json`](./server/data/sandbox-memory.json)
-  - 新一轮推演会回收这些记忆信号，避免每次完全从零开始
-- 失败降级
-  - 当远端阶段超时或失败时，不会直接整单报废
-  - 当前会尽量降级为本地 dossier 或本地 specialist 结果，保留可读输出
+  - 成功分析后会把摘要、主风险、盲点和验证重点写入 `server/data/sandbox-memory.json`
+  - 后续相似项目会回收这些信号
 
-## 当前产品状态
+### 正在设计 / 即将实现
 
-这不是一个“只会吐一段长文”的壳子，第一版已经具备完整闭环：
+- `Baseline` 冻结
+  - 把第一次正式推理结果沉淀成可复用的世界状态
+- `Variable` 注入
+  - 把新玩法 / 系统改动 / 活动设计 / 商业化改动编译成结构化 delta
+- 前向模拟
+  - 基于 `baseline + variable + persona prototypes + rules` 观察后续演化
+- 反向推理
+  - 从结果倒查原因，或从目标倒推成立条件
 
-1. 输入项目摘要和证据
-2. 发起推演任务
-3. 看到执行进度
-4. 拿到结构化结果
-5. 基于结果继续做验证动作
+更详细的设计请看：
 
-目前最适合用它来做：
+- [变量沙盒系统设计](./docs/specs/game-wind-tunnel-variable-sandbox-system-design.md)
+- [变量沙盒实现流程](./docs/specs/guanbian-variable-sandbox-implementation-flow.md)
 
-- 游戏玩法/核心循环的早期判断
-- 合作、生存、策略、系统型项目的风险拆解
-- 证据不足阶段的“先收敛问题，再设计验证”
-- 把团队内部口头判断，整理成能继续推进的结构化输出
+## 技术栈
 
-## Quick Scan 和 Deep Dive 的区别
+- 前端：`React 18` + `Vite` + `TypeScript`
+- 后端：`Express` + `TypeScript` + `tsx`
+- 共享层：`shared/` 下的领域模型、schema、请求/结果类型
+- 运行方式：前端开发服务器 + 独立 API 服务；生产构建后由 Node 服务同时托管 API 和静态资源
 
-### Quick Scan
+## 目录结构
 
-- 目标：先快、先可用、先让用户看到系统在工作
-- 当前策略：
-  - 先跑 `dossier`
-  - 再用本地 specialist 规则快速综合 `systems / psychology / market / red_team`
-- 优点：
-  - 响应更稳定
-  - 不会因为一串远端 specialist 超时导致满屏报错
-  - 仍然能产出真实的视角、盲点和验证动作
+```text
+.
+├─ src/                             # 前端应用
+│  ├─ api/                          # 对后端 API 的请求封装
+│  ├─ components/
+│  │  ├─ analysis/                  # 分析结果、执行态、时间线、预测图等面板
+│  │  ├─ import/                    # 文件导入交互
+│  │  ├─ layout/                    # 工作台头部与整体布局
+│  │  ├─ project/                   # 项目信息编辑卡片
+│  │  └─ ui/                        # 轻量 UI 组件
+│  ├─ data/                         # 前端本地 mock / 静态数据
+│  ├─ hooks/                        # project、evidence、analysis 状态管理
+│  ├─ lib/
+│  │  ├─ import/                    # JSON / Markdown 导入解析与归一化
+│  │  ├─ agentStageMeta.ts          # 阶段元信息
+│  │  ├─ jobProgress.ts             # 任务进度映射
+│  │  └─ workflowSteps.ts           # 工作流步骤定义
+│  ├─ pages/                        # overview / evidence / modeling / strategy / report
+│  ├─ styles/                       # 全局样式、布局和页面样式
+│  ├─ App.tsx                       # 工作台主入口
+│  ├─ main.tsx                      # React 挂载入口
+│  └─ types.ts                      # 前端步骤与页面侧类型
+├─ server/                          # 后端服务
+│  ├─ routes/
+│  │  └─ sandbox.ts                 # /api/sandbox 分析接口
+│  ├─ lib/
+│  │  ├─ analysisJobStore.ts        # 内存态异步 job 存储
+│  │  ├─ deepseekApi.ts             # LLM API 访问
+│  │  ├─ deepseekClient.ts          # 推演入口封装
+│  │  ├─ normalizeSandboxResult.ts  # 结果兜底与归一化
+│  │  ├─ sandboxMemoryStore.ts      # JSON 记忆存储
+│  │  └─ orchestration/             # 执行计划、prompt、fallback、阶段预览
+│  ├─ data/
+│  │  └─ sandbox-memory.json        # 轻量记忆数据
+│  ├─ config.ts                     # 环境变量、超时、并发配置
+│  └─ index.ts                      # Express 服务入口
+├─ shared/                          # 前后端共享模型
+│  ├─ domain.ts                     # Project / Evidence / Persona / Strategy 等领域对象
+│  ├─ sandbox.ts                    # 分析任务、阶段、结果类型
+│  └─ schema/                       # 请求/结果解析、校验、fallback
+├─ docs/                            # 规格、上传说明、roadmap
+│  ├─ specs/
+│  ├─ document-upload-guide.md
+│  └─ next-phase-roadmap.md
+├─ examples/                        # 示例输入、请求、预期结果 fixture
+│  ├─ requests/
+│  ├─ expected/
+│  ├─ coop-camp-upload-sample.md
+│  └─ project-bundle-upload-sample.json
+├─ scripts/                         # 开发辅助脚本
+│  ├─ agent-utf8-bootstrap.ps1      # Windows PowerShell UTF-8 初始化
+│  ├─ verify-fixtures.ts            # fixture 校验脚本
+│  └─ write-server-package.mjs      # 构建后写入 dist-server/package.json
+├─ dist/                            # 前端构建产物
+└─ dist-server/                     # 后端构建产物
+```
 
-### Deep Dive
+## 当前架构
 
-- 目标：拿更完整的多阶段结果
-- 当前链路：
-  - `dossier -> specialists -> synthesis -> refine`
-- 特点：
-  - 结果更完整
-  - 依赖远端模型时延，速度明显慢于 Quick Scan
-  - 某些阶段失败时会做降级，而不是整单中断
+### 前端工作台
 
-## 界面上现在能看到什么
+- `src/App.tsx` 组织当前五个主阶段：`overview -> evidence -> modeling -> strategy -> report`
+- `src/hooks/useProject.ts` 和 `src/hooks/useEvidence.ts` 负责工作区输入状态
+- `src/hooks/useSandboxAnalysis.ts` 负责创建分析任务并轮询 job 结果
+- `src/components/analysis/` 下的组件负责把执行进度和最终结果拆成不同面板展示
 
-- 当前阶段
-- 阶段状态：`pending / running / completed`
-- 当前提示文案
-- 模型摘要 / 本地降级标记
-- warning 列表
-- 最新 pipeline
+### 后端分析链路
 
-这部分是第一版重点补齐的能力，因为“让用户知道系统到底有没有在工作”本身就是产品体验的一部分。
+- `server/routes/sandbox.ts`
+  - 校验请求
+  - 创建分析 job
+  - 异步触发分析
+  - 提供轮询接口
+- `server/lib/orchestration/`
+  - `executionPlan.ts`：根据模式生成执行计划
+  - `runStage.ts`：执行单阶段 LLM 调用
+  - `prompts/`：管理 dossier / specialist / synthesis / refine 的提示词构建
+  - `fallback.ts`：远端阶段失败时的本地降级策略
+  - `progressPreview.ts`：为前端生成阶段摘要预览
 
-## 本地启动
+### 共享类型与 schema
+
+- `shared/domain.ts` 定义项目、证据、persona、strategy 等领域对象
+- `shared/sandbox.ts` 定义分析模式、阶段、job、结果结构
+- `shared/schema/` 负责请求解析、结果归一化和运行时校验
+
+## 当前运行时数据流
+
+1. 前端把 `project + evidenceItems + mode` 提交到 `POST /api/sandbox/analyze`
+2. 后端创建一个内存态 job，并立即返回 `202 Accepted`
+3. 前端轮询 `GET /api/sandbox/analyze/:jobId`
+4. 后端依次执行：
+   - `dossier`
+   - `specialists`
+   - `synthesis`
+   - `refine`
+5. 每个阶段都会回写当前状态、模型、预览摘要和耗时
+6. 成功结果返回给前端；如果分析是 `fresh`，还会写入 `server/data/sandbox-memory.json`
+
+## 本地开发
 
 ### 1. 安装依赖
 
@@ -93,19 +165,26 @@
 npm install
 ```
 
-### 2. 配置 `.env.local`
+### 2. 配置环境变量
+
+复制 `.env.example` 到 `.env.local`，至少补上 `DEEPSEEK_API_KEY`：
 
 ```env
-DEEPSEEK_API_KEY=your_key
+DEEPSEEK_API_KEY=
 DEEPSEEK_BASE_URL=https://api.deepseek.com
 DEEPSEEK_CHAT_MODEL=deepseek-chat
 DEEPSEEK_REASONING_MODEL=deepseek-reasoner
 LLM_BALANCED_TIMEOUT_MS=60000
 LLM_REASONING_TIMEOUT_MS=150000
+LLM_BALANCED_SPECIALIST_CONCURRENCY=3
+LLM_REASONING_SPECIALIST_CONCURRENCY=4
+LLM_ENABLE_REASONING_REFINE_STAGE=false
 PORT=5001
 ```
 
-### 3. 启动前后端
+### 3. 启动开发环境
+
+同时启动前后端：
 
 ```bash
 npm run dev:full
@@ -123,128 +202,69 @@ npm run dev:server
 - 前端：`http://127.0.0.1:3000`
 - 后端：`http://127.0.0.1:5001`
 
-## 使用方式
+### 4. 构建与启动生产包
 
-1. 在“项目概览”页填写项目信息，或者直接导入项目包 / Markdown / TXT
-2. 在“证据输入”页补充访谈、评测、设计摘要等证据
-3. 点击：
-   - `Quick Scan`
-   - `Deep Dive`
-4. 在右侧查看执行轨迹
-5. 在建模 / 策略 / 报告页查看结果结构并继续推进
+```bash
+npm run build
+npm start
+```
 
-## 已实现的结果页结构
+说明：
 
-### 建模页
+- `npm run build:client` 会生成 `dist/`
+- `npm run build:server` 会生成 `dist-server/`
+- `server/index.ts` 在检测到 `dist/` 存在时，会顺带托管前端静态资源
 
-- 分视角判断
-- 盲点
-- 决策镜头
-- personas
-- hypotheses
-- score bars
+## 常用脚本
 
-### 策略页
+- `npm run dev`：启动 Vite 前端开发服务器
+- `npm run dev:server`：启动 Express API 服务
+- `npm run dev:full`：并行启动前后端
+- `npm run build`：构建前端和后端
+- `npm start`：运行 `dist-server/server/index.js`
+- `npm run typecheck`：检查前后端 TypeScript
+- `npm test`：运行导入解析、memory store、schema 相关测试
+- `npm run verify:fixtures`：校验 `examples/` 下的请求样例、导入样例和预期结果 fixture
+- `npm run preview`：预览前端构建结果
 
-- strategies
-- scenario variants
-- second-order effects
-- validation tracks
-- contrarian moves
-- unknowns
+## 当前 API
 
-### 报告页
-
-- final brief
-- red team
-- memory signals
-- two-week actions
-
-## 推演架构
-
-### 1. Dossier
-
-先把项目摘要和证据压成共享 dossier，供后续阶段复用。
-
-### 2. Specialists
-
-当前包含这些视角：
-
-- 玩法系统
-- 玩家心理
-- 留存增长
-- 市场定位
-- 制作落地
-- 反方拆解
-
-### 3. Synthesis
-
-把多视角结果收束成统一结果，而不是简单平均。
-
-### 4. Refine
-
-对最后结果做一轮收紧，减少空泛表达。
-
-## API
-
-当前已实现异步任务式分析接口：
-
+- `GET /api/health`
+  - 健康检查
 - `POST /api/sandbox/analyze`
-  - 创建推演任务
+  - 创建正式分析任务
 - `GET /api/sandbox/analyze/:jobId`
-  - 轮询任务进度与结果
-
-这也是前端“执行轨迹”面板的数据来源。
-
-## 验证过的命令
-
-当前已经跑过：
-
-- `npm run typecheck`
-- `npm run build`
-- `npm test`
-
-并且已经做过真实本地调用验证：
-
-- 调用 `/api/sandbox/analyze`
-- 轮询 job 状态
-- 确认返回结构化结果与执行阶段信息
+  - 查询任务进度与最终结果
 
 ## 文档与示例
 
-- 上传说明：[`docs/document-upload-guide.md`](./docs/document-upload-guide.md)
-- Markdown 示例：[`examples/coop-camp-upload-sample.md`](./examples/coop-camp-upload-sample.md)
-- JSON 示例：[`examples/project-bundle-upload-sample.json`](./examples/project-bundle-upload-sample.json)
-- 产品 PRD：[`docs/specs/product-wind-tunnel-mvp-prd.md`](./docs/specs/product-wind-tunnel-mvp-prd.md)
-- API / 数据结构：[`docs/specs/game-wind-tunnel-api-data-architecture.md`](./docs/specs/game-wind-tunnel-api-data-architecture.md)
-- UI 设计规格：[`docs/specs/game-wind-tunnel-ui-design-spec.md`](./docs/specs/game-wind-tunnel-ui-design-spec.md)
-- 后续路线：[`docs/next-phase-roadmap.md`](./docs/next-phase-roadmap.md)
+- [English README](./README.en.md)
+- [上传说明](./docs/document-upload-guide.md)
+- [产品 PRD](./docs/specs/product-wind-tunnel-mvp-prd.md)
+- [API / 数据结构](./docs/specs/game-wind-tunnel-api-data-architecture.md)
+- [变量沙盒系统设计](./docs/specs/game-wind-tunnel-variable-sandbox-system-design.md)
+- [变量沙盒实现流程](./docs/specs/guanbian-variable-sandbox-implementation-flow.md)
+- [UI 设计规格](./docs/specs/game-wind-tunnel-ui-design-spec.md)
+- [路线图](./docs/next-phase-roadmap.md)
+- [Markdown 导入示例](./examples/coop-camp-upload-sample.md)
+- [JSON 导入示例](./examples/project-bundle-upload-sample.json)
+- [请求样例](./examples/requests/valid-analysis-request.json)
+- [结果样例](./examples/expected/degraded-analysis-result.json)
+
+## Windows / PowerShell 提示
+
+仓库里有中文源码、文档和 fixture。PowerShell 下如果出现乱码，先执行：
+
+```powershell
+& "$PWD\scripts\agent-utf8-bootstrap.ps1"
+```
+
+再用 `Get-Content -Encoding utf8` 读取文件，避免把控制台乱码误判成文件损坏。
 
 ## 当前边界
 
-第一版已经能用，但还不是“最终产品形态”。
-
-当前已知边界：
-
-- `Deep Dive` 仍然受远端模型时延影响，速度明显慢于 Quick Scan
-- `Quick Scan` 为了优先保证响应速度，目前 specialist 采用本地综合而不是全远端并发
-- 轻量记忆当前是 JSON 文件存储，还没有做项目级检索与管理界面
-- 结果结构已经完整，但结论质量仍然强依赖输入证据质量
-
-## 参考与边界说明
-
-本项目只参考了部分“多阶段推演 / 多代理协作”的高层方法，不复用任何第三方项目代码、界面、文案或 prompt。
-
-参考项目：
-
-- [MiroFish](https://github.com/666ghj/MiroFish)
-
-边界说明：
-
-- 只借鉴方法层面的启发
-- 不复用代码
-- 不复用 UI
-- 不复用文案
-- 不复用 prompt
-- 明确避开 AGPL 代码级继承风险
-
+- 远端分析依赖 DeepSeek 配置，未配置 `DEEPSEEK_API_KEY` 时无法拿到正式结果
+- `Quick Scan` 和 `Deep Dive` 共用同一套异步 job 机制，但执行计划与耗时不同
+- 任务状态目前是内存态，不适合作为持久队列
+- 记忆存储目前是单个 JSON 文件，项目级 `Baseline / Variable / Simulation` 仓还在设计和实现中
+- 测试覆盖的是核心解析与归一化链路，不是完整端到端回归

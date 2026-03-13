@@ -22,7 +22,10 @@ pnpm-debug.log*
 .env.*
 !.env.example
 server/data/sandbox-memory.json
+server/data/projects/
 .codex-*.log
+AGENTS.md
+scripts/agent-utf8-bootstrap.ps1
 docs/mixologist-*.md
 
 # Editor and OS noise
