@@ -11,6 +11,7 @@ export async function runJsonStage(
   temperature: number,
   messages: DeepseekMessage[],
   timeoutMs?: number,
+  maxTokens?: number,
 ): Promise<StageResult<Record<string, unknown>>> {
   const preferredModel =
     preferred === 'reasoning' && request.mode === 'reasoning'
@@ -24,19 +25,20 @@ export async function runJsonStage(
   const startedAt = Date.now();
 
   try {
-    const data = await requestDeepseekJson({
+    const response = await requestDeepseekJson({
       label,
       model: preferredModel,
       temperature,
       timeoutMs: preferredTimeout,
+      maxTokens,
       messages,
     });
 
     return {
-      data,
+      data: response.data,
       model: preferredModel,
       durationMs: Date.now() - startedAt,
-      warnings: [],
+      warnings: response.warnings,
     };
   } catch (error) {
     const shouldFallback =
@@ -50,19 +52,23 @@ export async function runJsonStage(
     }
 
     const fallbackTimeout = timeoutMs ?? serverConfig.balancedTimeoutMs;
-    const fallbackData = await requestDeepseekJson({
+    const fallbackResponse = await requestDeepseekJson({
       label,
       model: serverConfig.balancedModel,
       temperature,
       timeoutMs: fallbackTimeout,
+      maxTokens,
       messages,
     });
 
     return {
-      data: fallbackData,
+      data: fallbackResponse.data,
       model: serverConfig.balancedModel,
       durationMs: Date.now() - startedAt,
-      warnings: [`${label} timed out on the reasoning model and fell back to ${serverConfig.balancedModel}.`],
+      warnings: [
+        `${label} timed out on the reasoning model and fell back to ${serverConfig.balancedModel}.`,
+        ...fallbackResponse.warnings,
+      ],
     };
   }
 }

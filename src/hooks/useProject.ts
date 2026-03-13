@@ -5,20 +5,27 @@ import { normalizeProjectSnapshot } from '../../shared/schema';
 
 const storageKey = 'wind-tunnel-project';
 
+function isDemoProject(project: ProjectSnapshot) {
+  return JSON.stringify(project) === JSON.stringify(demoProject);
+}
+
 function readStoredProject() {
+  const blankProject = createBlankProject();
+
   if (typeof window === 'undefined') {
-    return demoProject;
+    return blankProject;
   }
 
   const saved = window.localStorage.getItem(storageKey);
   if (!saved) {
-    return demoProject;
+    return blankProject;
   }
 
   try {
-    return normalizeProjectSnapshot(JSON.parse(saved)) ?? demoProject;
+    const normalizedProject = normalizeProjectSnapshot(JSON.parse(saved)) ?? blankProject;
+    return isDemoProject(normalizedProject) ? blankProject : normalizedProject;
   } catch {
-    return demoProject;
+    return blankProject;
   }
 }
 
@@ -44,15 +51,10 @@ export function useProject() {
     setProject(createBlankProject());
   }
 
-  function loadDemoProject() {
-    setProject(demoProject);
-  }
-
   return {
     project,
     updateProject,
     replaceProject,
     resetToBlankProject,
-    loadDemoProject,
   };
 }

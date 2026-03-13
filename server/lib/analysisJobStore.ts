@@ -4,6 +4,7 @@ import type {
   SandboxAnalysisJobStageStatus,
   SandboxAnalysisMode,
   SandboxAnalysisResult,
+  SandboxAnalysisStagePreview,
 } from '../../shared/sandbox';
 import { buildExecutionStages } from './orchestration/executionPlan';
 
@@ -21,7 +22,15 @@ function now() {
 function cloneJob(job: SandboxAnalysisJob) {
   return {
     ...job,
-    stages: job.stages.map((stage) => ({ ...stage })),
+    stages: job.stages.map((stage) => ({
+      ...stage,
+      preview: stage.preview
+        ? {
+            ...stage.preview,
+            bullets: [...stage.preview.bullets],
+          }
+        : undefined,
+    })),
   };
 }
 
@@ -82,7 +91,15 @@ export function markJobRunning(jobId: string) {
   }
 
   job.status = 'running';
+  job.currentStageKey = 'dossier';
+  job.currentStageLabel = 'Dossier';
+  job.message = 'Starting analysis and preparing the shared dossier.';
   job.updatedAt = now();
+  job.stages = updateStage(job.stages, 'dossier', (stage) => ({
+    ...stage,
+    status: stage.status === 'pending' ? 'running' : stage.status,
+    startedAt: stage.startedAt ?? job.updatedAt,
+  }));
 }
 
 export function updateAnalysisJobStage(params: {
@@ -91,6 +108,7 @@ export function updateAnalysisJobStage(params: {
   label: string;
   detail: string;
   status: SandboxAnalysisJobStageStatus;
+  preview?: SandboxAnalysisStagePreview;
   model?: string;
   durationMs?: number;
 }) {
@@ -111,6 +129,7 @@ export function updateAnalysisJobStage(params: {
     ...stage,
     status: params.status,
     detail: params.detail,
+    preview: params.preview ?? stage.preview,
     model: params.model ?? stage.model,
     durationMs: params.durationMs ?? stage.durationMs,
     startedAt: stage.startedAt ?? (params.status === 'running' ? timestamp : stage.startedAt),

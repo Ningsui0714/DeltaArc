@@ -3,6 +3,7 @@
   --bg-elevated: rgba(255, 252, 247, 0.92);
   --bg-panel: rgba(255, 252, 247, 0.96);
   --bg-panel-soft: #fbf6ef;
+  --bg-panel-deep: rgba(15, 22, 32, 0.92);
   --line-subtle: rgba(35, 43, 53, 0.1);
   --line-strong: rgba(35, 43, 53, 0.18);
   --text-primary: #18212b;
@@ -13,8 +14,11 @@
   --accent-good: #0c7a61;
   --accent-info: #2a5e94;
   --accent-deep: #e7dfd2;
+  --accent-ice: #c6dcff;
+  --accent-glow: #86f1d0;
   --shadow-cut: 0 20px 40px rgba(24, 33, 43, 0.06);
   --font-sans: "IBM Plex Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-display: "Noto Serif SC", "Songti SC", "STSong", serif;
   --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
@@ -41,9 +45,10 @@ body {
   font-size: var(--text-base);
   color: var(--text-primary);
   background:
-    radial-gradient(circle at top left, rgba(42, 94, 148, 0.08), transparent 26%),
-    radial-gradient(circle at bottom right, rgba(191, 93, 53, 0.06), transparent 24%),
-    linear-gradient(180deg, #f7f2ea, #f1ece3 48%, #ebe5db);
+    radial-gradient(circle at top left, rgba(42, 94, 148, 0.11), transparent 28%),
+    radial-gradient(circle at 85% 15%, rgba(134, 241, 208, 0.11), transparent 24%),
+    radial-gradient(circle at bottom right, rgba(191, 93, 53, 0.07), transparent 26%),
+    linear-gradient(180deg, #f7f1e8, #f0ebe1 48%, #e8e1d5);
   line-height: 1.65;
 }
 

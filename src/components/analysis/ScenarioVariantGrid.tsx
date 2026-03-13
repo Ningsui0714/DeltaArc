@@ -1,5 +1,6 @@
 import type { SandboxScenarioVariant, SandboxSecondOrderEffect } from '../../../shared/sandbox';
-import { directionLabels, horizonLabels } from '../../lib/sandboxLabels';
+import { isEnglishUi, useUiLanguage } from '../../hooks/useUiLanguage';
+import { getSandboxLabels } from '../../lib/sandboxLabels';
 
 type ScenarioVariantGridProps = {
   scenarioVariants: SandboxScenarioVariant[];
@@ -7,13 +8,17 @@ type ScenarioVariantGridProps = {
 };
 
 export function ScenarioVariantGrid({ scenarioVariants, secondOrderEffects }: ScenarioVariantGridProps) {
+  const { language } = useUiLanguage();
+  const isEnglish = isEnglishUi(language);
+  const { directionLabels, horizonLabels } = getSandboxLabels(language);
+
   return (
     <div className="dual-analysis-grid">
       <section className="panel inner-panel">
         <div className="panel-heading">
           <div>
-            <p className="eyebrow">Scenario Branches</p>
-            <h3>场景分支</h3>
+            <p className="eyebrow">{isEnglish ? 'Scenario Branches' : '场景分支'}</p>
+            <h3>{isEnglish ? 'Scenario branches' : '场景分支'}</h3>
           </div>
         </div>
         <div className="stack-list">
@@ -43,8 +48,8 @@ export function ScenarioVariantGrid({ scenarioVariants, secondOrderEffects }: Sc
       <section className="panel inner-panel">
         <div className="panel-heading">
           <div>
-            <p className="eyebrow">Second-Order Effects</p>
-            <h3>二阶影响</h3>
+            <p className="eyebrow">{isEnglish ? 'Second-Order Effects' : '二阶影响'}</p>
+            <h3>{isEnglish ? 'Second-order effects' : '二阶影响'}</h3>
           </div>
         </div>
         <div className="stack-list">

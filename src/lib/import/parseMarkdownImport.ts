@@ -1,5 +1,5 @@
 import type { EvidenceItem, ProjectSnapshot } from '../../types';
-import type { ImportedPayload } from './types';
+import type { ImportLanguage, ImportedPayload } from './types';
 
 const sectionLabels = [
   '标题',
@@ -78,7 +78,7 @@ function toBullets(value: string) {
     .filter(Boolean);
 }
 
-function buildProject(sections: Map<string, string[]>) {
+function buildProject(sections: Map<string, string[]>, language: ImportLanguage) {
   const name = getFirstSection(sections, ['项目名称', '标题']);
   const rawMode = getSection(sections, '阶段模式');
   const mode = rawMode === 'Validation' || rawMode === 'Live' ? rawMode : 'Concept';
@@ -113,7 +113,7 @@ function buildProject(sections: Map<string, string[]>) {
     getSection(sections, '当前状态');
 
   const project: ProjectSnapshot = {
-    name: name || '未命名项目',
+    name: name || (language === 'en' ? 'Untitled Project' : '未命名项目'),
     mode,
     genre: getSection(sections, '游戏类型'),
     platforms,
@@ -135,7 +135,7 @@ function buildProject(sections: Map<string, string[]>) {
   return project;
 }
 
-function buildEvidence(text: string, fileName: string, sections: Map<string, string[]>) {
+function buildEvidence(text: string, fileName: string, sections: Map<string, string[]>, language: ImportLanguage) {
   const title = getSection(sections, '标题') || fileName.replace(/\.[^.]+$/, '');
   const type = getSection(sections, '类型');
   const source = getSection(sections, '来源') || fileName;
@@ -164,7 +164,7 @@ function buildEvidence(text: string, fileName: string, sections: Map<string, str
     source,
     trust: 'medium',
     summary: summaryParts.join('；') || text.slice(0, 300),
-    createdAt: new Date().toLocaleTimeString('zh-CN', {
+    createdAt: new Date().toLocaleTimeString(language === 'en' ? 'en-US' : 'zh-CN', {
       hour: '2-digit',
       minute: '2-digit',
       hour12: false,
@@ -174,14 +174,18 @@ function buildEvidence(text: string, fileName: string, sections: Map<string, str
   return evidence;
 }
 
-export function parseMarkdownImport(text: string, fileName: string): ImportedPayload {
+export function parseMarkdownImport(text: string, fileName: string, language: ImportLanguage): ImportedPayload {
   const sections = extractSections(text);
-  const project = buildProject(sections);
-  const evidence = buildEvidence(text, fileName, sections);
+  const project = buildProject(sections, language);
+  const evidence = buildEvidence(text, fileName, sections, language);
   const warnings: string[] = [];
 
   if (!project) {
-    warnings.push('Markdown 未命中完整项目模板，已按证据材料导入。');
+    warnings.push(
+      language === 'en'
+        ? 'The Markdown file did not match the full project template, so it was imported as evidence only.'
+        : 'Markdown 未命中完整项目模板，已按证据材料导入。',
+    );
   }
 
   return {

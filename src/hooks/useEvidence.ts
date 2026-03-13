@@ -1,28 +1,40 @@
 import { useEffect, useState } from 'react';
 import { initialEvidence } from '../data/mockData';
+import { isEnglishUi, useUiLanguage } from './useUiLanguage';
 import type { EvidenceItem } from '../types';
 
 const storageKey = 'wind-tunnel-evidence';
 
+function isDemoEvidence(items: EvidenceItem[]) {
+  return JSON.stringify(items) === JSON.stringify(initialEvidence);
+}
+
 function readStoredEvidence() {
   if (typeof window === 'undefined') {
-    return initialEvidence;
+    return [];
   }
 
   const saved = window.localStorage.getItem(storageKey);
   if (!saved) {
-    return initialEvidence;
+    return [];
   }
 
   try {
     const parsed = JSON.parse(saved) as EvidenceItem[];
-    return Array.isArray(parsed) ? parsed : initialEvidence;
+
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return isDemoEvidence(parsed) ? [] : parsed;
   } catch {
-    return initialEvidence;
+    return [];
   }
 }
 
 export function useEvidence() {
+  const { language } = useUiLanguage();
+  const isEnglish = isEnglishUi(language);
   const [evidenceItems, setEvidenceItems] = useState<EvidenceItem[]>(readStoredEvidence);
 
   useEffect(() => {
@@ -36,11 +48,11 @@ export function useEvidence() {
       .map((summary, index) => ({
         id: `evi_${Date.now()}_${index}`,
         type: 'note' as const,
-        title: `快速记录 ${evidenceItems.length + index + 1}`,
-        source: '快速粘贴',
+        title: isEnglish ? `Quick Note ${evidenceItems.length + index + 1}` : `快速记录 ${evidenceItems.length + index + 1}`,
+        source: isEnglish ? 'Quick Paste' : '快速粘贴',
         trust: 'medium' as const,
         summary,
-        createdAt: new Date().toLocaleTimeString('zh-CN', {
+        createdAt: new Date().toLocaleTimeString(isEnglish ? 'en-US' : 'zh-CN', {
           hour: '2-digit',
           minute: '2-digit',
           hour12: false,
@@ -59,10 +71,6 @@ export function useEvidence() {
     setEvidenceItems([]);
   }
 
-  function loadDemoEvidence() {
-    setEvidenceItems(initialEvidence);
-  }
-
   function appendEvidenceItems(nextItems: EvidenceItem[]) {
     if (nextItems.length === 0) {
       return;
@@ -79,7 +87,6 @@ export function useEvidence() {
     evidenceItems,
     addEvidenceEntries,
     clearEvidence,
-    loadDemoEvidence,
     appendEvidenceItems,
     replaceEvidenceItems,
   };

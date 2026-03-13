@@ -1,11 +1,15 @@
 import type { SandboxPerspective } from '../../../shared/sandbox';
-import { stanceLabels } from '../../lib/sandboxLabels';
+import { getSandboxLabels } from '../../lib/sandboxLabels';
+import { useUiLanguage } from '../../hooks/useUiLanguage';
 
 type PerspectiveGridProps = {
   perspectives: SandboxPerspective[];
 };
 
 export function PerspectiveGrid({ perspectives }: PerspectiveGridProps) {
+  const { language } = useUiLanguage();
+  const { stanceLabels } = getSandboxLabels(language);
+
   return (
     <div className="perspective-grid">
       {perspectives.map((perspective) => (

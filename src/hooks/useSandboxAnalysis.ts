@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { getSandboxAnalysisJob, startSandboxAnalysis } from '../api/sandbox';
-import { createLocalSandboxAnalysis } from '../lib/createLocalSandboxAnalysis';
 import type { EvidenceItem, ProjectSnapshot } from '../types';
 import type { SandboxAnalysisJob, SandboxAnalysisMode, SandboxAnalysisResult } from '../../shared/sandbox';
 import { createAnalysisMeta, createAnalysisRequestId } from '../../shared/schema';
@@ -10,22 +9,63 @@ type UseSandboxAnalysisParams = {
   evidenceItems: EvidenceItem[];
 };
 
-function createLocalPreview(
-  project: ProjectSnapshot,
-  evidenceItems: EvidenceItem[],
-  mode: SandboxAnalysisMode,
-  status: SandboxAnalysisResult['meta']['status'] = 'degraded',
-) {
-  return createLocalSandboxAnalysis(
-    project,
-    evidenceItems,
+function createEmptyAnalysis(mode: SandboxAnalysisMode): SandboxAnalysisResult {
+  return {
+    generatedAt: '',
     mode,
-    createAnalysisMeta('local_fallback', status, createAnalysisRequestId('local')),
-  );
+    model: 'Awaiting LLM forecast',
+    pipeline: [],
+    meta: createAnalysisMeta('local_fallback', 'stale', createAnalysisRequestId('pending')),
+    summary: '',
+    systemVerdict: '',
+    evidenceLevel: 'low',
+    primaryRisk: '',
+    nextStep: '',
+    playerAcceptance: 0,
+    confidence: 0,
+    supportRatio: 0,
+    scores: {
+      coreFun: 0,
+      learningCost: 0,
+      novelty: 0,
+      acceptanceRisk: 0,
+      prototypeCost: 0,
+    },
+    personas: [],
+    hypotheses: [],
+    strategies: [],
+    perspectives: [],
+    blindSpots: [],
+    secondOrderEffects: [],
+    scenarioVariants: [],
+    futureTimeline: [],
+    communityRhythms: [],
+    trajectorySignals: [],
+    decisionLenses: [],
+    validationTracks: [],
+    contrarianMoves: [],
+    unknowns: [],
+    redTeam: {
+      thesis: '',
+      attackVectors: [],
+      failureModes: [],
+      mitigation: '',
+    },
+    memorySignals: [],
+    report: {
+      headline: '',
+      summary: '',
+      conclusion: '',
+      whyNow: '',
+      risk: '',
+      actions: [],
+    },
+    warnings: [],
+  };
 }
 
 export function useSandboxAnalysis({ project, evidenceItems }: UseSandboxAnalysisParams) {
-  const [analysis, setAnalysis] = useState(() => createLocalPreview(project, evidenceItems, 'balanced'));
+const [analysis, setAnalysis] = useState<SandboxAnalysisResult>(() => createEmptyAnalysis('balanced'));
   const [progress, setProgress] = useState<SandboxAnalysisJob | null>(null);
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
@@ -51,7 +91,7 @@ export function useSandboxAnalysis({ project, evidenceItems }: UseSandboxAnalysi
     setProgress(null);
     setError(null);
     setStatus('idle');
-    setAnalysis((current) => createLocalPreview(project, evidenceItems, current.mode, 'degraded'));
+    setAnalysis((current) => createEmptyAnalysis(current.mode));
   }, [project, evidenceItems]);
 
   async function pollJob(jobId: string, mode: SandboxAnalysisMode) {
@@ -74,7 +114,7 @@ export function useSandboxAnalysis({ project, evidenceItems }: UseSandboxAnalysi
     if (job.status === 'error') {
       activeJobIdRef.current = null;
       clearPolling();
-      setAnalysis(createLocalPreview(project, evidenceItems, mode, 'error'));
+      setAnalysis(createEmptyAnalysis(mode));
       setStatus('error');
       setError(job.error ?? job.message);
       return null;
@@ -82,7 +122,7 @@ export function useSandboxAnalysis({ project, evidenceItems }: UseSandboxAnalysi
 
     pollTimeoutRef.current = window.setTimeout(() => {
       void pollJob(jobId, mode);
-    }, 900);
+    }, 300);
 
     return null;
   }
@@ -92,7 +132,13 @@ export function useSandboxAnalysis({ project, evidenceItems }: UseSandboxAnalysi
     activeJobIdRef.current = null;
     setStatus('loading');
     setError(null);
-    setAnalysis(createLocalPreview(project, evidenceItems, mode, 'stale'));
+    setAnalysis((current) => {
+      if (current.meta.source === 'remote') {
+        return { ...current, mode };
+      }
+
+      return createEmptyAnalysis(mode);
+    });
 
     try {
       const job = await startSandboxAnalysis({
@@ -107,7 +153,7 @@ export function useSandboxAnalysis({ project, evidenceItems }: UseSandboxAnalysi
       return await pollJob(job.id, mode);
     } catch (caughtError) {
       const message = caughtError instanceof Error ? caughtError.message : 'Sandbox analysis request failed.';
-      setAnalysis(createLocalPreview(project, evidenceItems, mode, 'error'));
+      setAnalysis(createEmptyAnalysis(mode));
       setStatus('error');
       setError(message);
       return null;

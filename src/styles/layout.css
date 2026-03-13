@@ -1,6 +1,9 @@
 .app-shell {
   position: relative;
   min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 12px 0 14px;
 }
 
 .app-backdrop {
@@ -9,34 +12,42 @@
   background:
     linear-gradient(rgba(24, 33, 43, 0.04) 1px, transparent 1px),
     linear-gradient(90deg, rgba(24, 33, 43, 0.04) 1px, transparent 1px);
-  background-size: 32px 32px;
-  mask-image: linear-gradient(180deg, black 0%, rgba(0, 0, 0, 0.45) 40%, transparent 100%);
-  opacity: 0.25;
+  background-size: 36px 36px;
+  mask-image: radial-gradient(circle at center, black 0%, rgba(0, 0, 0, 0.55) 52%, transparent 100%);
+  opacity: 0.38;
   pointer-events: none;
 }
 
-.left-rail,
-.workspace {
+.mission-control {
   position: relative;
   z-index: 1;
-  max-width: 1180px;
-  margin: 0 auto;
-  padding-inline: 24px;
-}
-
-.left-rail {
   display: grid;
-  gap: 18px;
-  padding-top: 32px;
-  padding-bottom: 18px;
-}
-
-.workspace {
-  padding-top: 4px;
-  padding-bottom: 48px;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: calc(100vh - 26px);
+  max-width: 1540px;
+  margin: 0 auto;
+  padding-inline: 20px;
 }
 
 .workspace-header,
+.focus-stage-panel,
+.timeline-panel {
+  border: 1px solid var(--line-subtle);
+  border-radius: 22px;
+  box-shadow: var(--shadow-cut);
+}
+
+.workspace-header {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 14px;
+  padding: 18px 20px;
+  background: linear-gradient(160deg, rgba(255, 252, 247, 0.96), rgba(249, 244, 236, 0.9));
+  backdrop-filter: blur(18px);
+}
+
+.workspace-command-deck,
+.workspace-objective-row,
 .panel-heading,
 .card-topline,
 .metric-row,
@@ -46,38 +57,366 @@
 .header-actions,
 .intel-list div,
 .project-chip-header,
-.stage-heading {
+.stage-heading,
+.workspace-brand,
+.workspace-command-actions,
+.workspace-progress-meta,
+.timeline-feed-topline,
+.timeline-feed-footer,
+.graph-panel-heading,
+.graph-inspector,
+.timeline-panel-header,
+.timeline-lane-heading,
+.timeline-live-run-copy {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 14px;
 }
 
-.workspace-header {
-  margin-bottom: 18px;
-  padding: 0;
-}
-
-.workspace-title-block {
+.workspace-command-deck {
+  align-items: start;
   display: grid;
-  gap: 6px;
+  grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.8fr) auto;
+  gap: 12px;
 }
 
-.workspace-subtitle,
-.progress-copy {
+.process-command-deck {
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.95fr) auto;
+}
+
+.workspace-brand {
+  align-items: flex-start;
+}
+
+.workspace-brand-mark {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  border: 1px solid rgba(42, 94, 148, 0.18);
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.88), rgba(42, 94, 148, 0.12)),
+    rgba(255, 255, 255, 0.8);
+  color: var(--accent-info);
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+}
+
+.workspace-brand-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.workspace-brand-copy h1,
+.workspace-objective h2,
+.graph-panel h2,
+.focus-stage-header h2,
+.timeline-panel h2 {
   margin: 0;
-  max-width: 72ch;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.workspace-brand-copy p,
+.workspace-subtitle,
+.workspace-progress-detail,
+.graph-panel-copy,
+.focus-stage-copy,
+.timeline-panel-copy {
+  margin: 0;
   color: var(--text-secondary);
 }
 
-.workspace-progress-detail {
-  margin: 0;
+.workspace-command-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.workspace-summary-pill {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(24, 33, 43, 0.08);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.workspace-summary-pill span {
   color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.workspace-summary-pill strong {
+  font-family: var(--font-mono);
   font-size: 0.92rem;
 }
 
-.header-actions {
+.workspace-command-actions {
+  justify-content: flex-end;
   flex-wrap: wrap;
+}
+
+.ui-language-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid rgba(24, 33, 43, 0.08);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.ui-language-button {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  transition: 180ms ease;
+}
+
+.ui-language-button:hover,
+.ui-language-button.is-active {
+  background: rgba(42, 94, 148, 0.1);
+  color: var(--text-primary);
+}
+
+.workspace-objective-row {
+  align-items: end;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+}
+
+.workspace-objective {
+  display: grid;
+  gap: 4px;
+}
+
+.workspace-progress-card {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(42, 94, 148, 0.12);
+  background: rgba(255, 255, 255, 0.66);
+}
+
+.workspace-progress-meta span {
+  color: var(--text-muted);
+  font-size: 0.84rem;
+}
+
+.workspace-stage-dock {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.workspace-process-rail {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.workspace-process-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(24, 33, 43, 0.08);
+  background: rgba(255, 255, 255, 0.64);
+  text-align: left;
+  transition: 180ms ease;
+}
+
+.workspace-process-card:hover,
+.workspace-process-card.is-active {
+  transform: translateY(-1px);
+  border-color: rgba(42, 94, 148, 0.22);
+  background: linear-gradient(160deg, rgba(42, 94, 148, 0.08), rgba(255, 255, 255, 0.92));
+}
+
+.workspace-process-card.is-locked {
+  opacity: 0.56;
+}
+
+.workspace-process-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: rgba(24, 33, 43, 0.06);
+  color: var(--accent-info);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
+.workspace-process-copy,
+.workspace-process-meta,
+.workspace-phase-banner {
+  display: grid;
+  gap: 4px;
+}
+
+.workspace-process-copy strong,
+.workspace-process-meta b {
+  color: var(--text-primary);
+}
+
+.workspace-process-copy small,
+.workspace-process-meta em,
+.workspace-phase-banner p {
+  color: var(--text-muted);
+  margin: 0;
+  font-style: normal;
+}
+
+.workspace-process-meta {
+  justify-items: end;
+  text-align: right;
+}
+
+.workspace-phase-subnav {
+  display: grid;
+  gap: 10px;
+}
+
+.workspace-phase-banner {
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(42, 94, 148, 0.12);
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.workspace-stage-tab {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  border-radius: 16px;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.5);
+  text-align: left;
+  transition: 180ms ease;
+}
+
+.workspace-stage-tab:hover,
+.workspace-stage-tab.is-active {
+  transform: translateY(-1px);
+  border-color: rgba(42, 94, 148, 0.22);
+  background: linear-gradient(160deg, rgba(42, 94, 148, 0.08), rgba(255, 255, 255, 0.92));
+}
+
+.workspace-stage-tab.is-locked {
+  opacity: 0.68;
+}
+
+.workspace-stage-index {
+  color: var(--accent-info);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+}
+
+.workspace-stage-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.workspace-stage-copy strong,
+.workspace-stage-copy small {
+  display: block;
+}
+
+.workspace-stage-copy small {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.mission-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(420px, 0.88fr);
+  gap: 14px;
+  min-height: 0;
+  align-items: start;
+}
+
+.workflow-shell {
+  min-height: 0;
+}
+
+.workflow-focus-panel {
+  min-height: calc(100vh - 292px);
+}
+
+.workflow-stage-header {
+  align-items: flex-start;
+}
+
+.workflow-stage-actions {
+  justify-content: flex-end;
+}
+
+.workflow-stage-body {
+  padding-right: 2px;
+}
+
+.graph-focus-column {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 14px;
+  min-height: 0;
+}
+
+.focus-stage-panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 12px;
+  min-height: 0;
+  overflow: hidden;
+  padding: 16px;
+  background: linear-gradient(180deg, rgba(255, 252, 247, 0.98), rgba(252, 247, 239, 0.94));
+}
+
+.focus-stage-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.focus-stage-body {
+  min-height: 0;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.focus-stage-body .page-grid {
+  padding-bottom: 0;
+}
+
+.focus-stage-body .hero-panel,
+.focus-stage-body .panel,
+.focus-stage-body .project-chip {
+  background: rgba(255, 253, 249, 0.96);
+}
+
+.page-grid {
+  display: grid;
+  gap: 14px;
 }
 
 .run-progress {
@@ -99,10 +438,10 @@
   height: 100%;
   border-radius: inherit;
   background:
-    linear-gradient(90deg, rgba(42, 94, 148, 0.92), rgba(12, 122, 97, 0.86)),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0));
-  box-shadow: 0 0 18px rgba(42, 94, 148, 0.18);
-  transition: width 360ms ease;
+    linear-gradient(90deg, rgba(42, 94, 148, 0.94), rgba(12, 122, 97, 0.88)),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0));
+  box-shadow: 0 0 20px rgba(42, 94, 148, 0.18);
+  transition: width 320ms ease;
 }
 
 .run-progress-meta,
@@ -119,73 +458,124 @@
   font-size: 0.84rem;
 }
 
-.stage-pill-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+@media (max-width: 1280px) {
+  .app-shell {
+    overflow: visible;
+  }
+
+  .mission-control {
+    min-height: auto;
+  }
+
+  .workspace-command-deck,
+  .workspace-objective-row,
+  .mission-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .process-command-deck,
+  .workspace-process-rail {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-command-actions {
+    justify-content: flex-start;
+  }
+
+  .mission-grid {
+    min-height: auto;
+  }
+
+  .timeline-panel {
+    position: static;
+    top: auto;
+    height: auto;
+    max-height: none;
+  }
 }
 
-.stage-pill {
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(42, 94, 148, 0.18);
-  background: rgba(255, 255, 255, 0.84);
-  color: var(--accent-info);
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-}
-
-.stage-pill-running {
-  background: rgba(42, 94, 148, 0.1);
-  border-color: rgba(42, 94, 148, 0.26);
-}
-
-.page-grid {
-  display: grid;
-  gap: 18px;
-  padding-bottom: 28px;
-}
-
-.right-rail {
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-  gap: 18px;
-  margin-bottom: 18px;
-}
-
-@media (max-width: 980px) {
-  .right-rail,
+@media (max-width: 1080px) {
+  .mission-grid,
+  .graph-focus-column,
+  .timeline-summary-grid,
+  .timeline-stage-layout,
+  .timeline-side-stack,
+  .workspace-command-summary,
+  .workspace-stage-dock,
+  .workspace-process-rail,
   .run-overview-grid,
   .split-panel,
   .signal-band,
+  .launchpad-grid,
+  .evidence-guide-grid,
   .metrics-row,
   .composer-grid,
   .project-form-grid,
   .dual-analysis-grid,
   .strategy-grid,
-  .report-grid {
+  .report-grid,
+  .report-timeline-grid,
+  .forecast-beat-card {
     grid-template-columns: 1fr;
+  }
+
+  .graph-focus-column {
+    grid-template-rows: auto auto;
+  }
+
+  .timeline-panel,
+  .focus-stage-panel {
+    min-height: unset;
   }
 }
 
 @media (max-width: 720px) {
-  .left-rail,
-  .workspace {
+  .mission-control {
     padding-inline: 16px;
   }
 
+  .app-shell {
+    padding-top: 16px;
+    overflow: visible;
+  }
+
   .workspace-header,
+  .focus-stage-panel,
+  .timeline-panel {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .workspace-brand,
+  .focus-stage-header,
   .panel-heading,
   .project-chip-header,
   .run-progress-meta,
-  .run-overview-header {
+  .run-overview-header,
+  .graph-panel-heading,
+  .graph-inspector,
+  .timeline-panel-header,
+  .timeline-live-run-copy {
     align-items: flex-start;
     flex-direction: column;
   }
 
-  .step-list {
-    grid-template-columns: 1fr;
+  .workspace-brand-mark {
+    width: 48px;
+    height: 48px;
+  }
+
+  .graph-focus-column {
+    grid-template-rows: auto auto;
+  }
+
+  .workspace-process-card {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .workspace-process-meta {
+    justify-items: start;
+    text-align: left;
+    grid-column: 2;
   }
 }

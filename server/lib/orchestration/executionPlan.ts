@@ -1,23 +1,25 @@
+import { serverConfig } from '../../config';
 import type { SandboxAnalysisMode } from '../../../shared/sandbox';
 import { specialistBlueprints } from './specialists';
 
 const fastScanSpecialistKeys = new Set(['systems', 'psychology', 'market', 'red_team']);
-const deepDiveReasoningSpecialistKeys = new Set(['red_team']);
+const deepDiveReasoningSpecialistKeys = new Set(['systems', 'psychology', 'red_team']);
 
 export function createExecutionPlan(mode: SandboxAnalysisMode) {
   if (mode === 'balanced') {
     return {
       specialists: specialistBlueprints.filter((blueprint) => fastScanSpecialistKeys.has(blueprint.key)),
-      specialistStrategy: 'local' as const,
+      specialistStrategy: 'remote' as const,
       dossierPreference: 'balanced' as const,
       specialistReasoningKeys: new Set<string>(),
+      specialistConcurrency: serverConfig.balancedSpecialistConcurrency,
       synthesisPreference: 'balanced' as const,
       refinePreference: 'balanced' as const,
-      dossierTimeoutMs: 60000,
-      specialistTimeoutMs: 12000,
-      synthesisTimeoutMs: 0,
-      refineTimeoutMs: 0,
-      shouldRunSynthesis: false,
+      dossierTimeoutMs: 90000,
+      specialistTimeoutMs: 120000,
+      synthesisTimeoutMs: 300000,
+      refineTimeoutMs: undefined,
+      shouldRunSynthesis: true,
       shouldRunRefine: false,
     };
   }
@@ -25,16 +27,17 @@ export function createExecutionPlan(mode: SandboxAnalysisMode) {
   return {
     specialists: specialistBlueprints,
     specialistStrategy: 'remote' as const,
-    dossierPreference: 'balanced' as const,
+    dossierPreference: 'reasoning' as const,
     specialistReasoningKeys: deepDiveReasoningSpecialistKeys,
-    synthesisPreference: 'balanced' as const,
-    refinePreference: 'balanced' as const,
-    dossierTimeoutMs: 70000,
-    specialistTimeoutMs: 85000,
-    synthesisTimeoutMs: 70000,
-    refineTimeoutMs: 50000,
+    specialistConcurrency: serverConfig.reasoningSpecialistConcurrency,
+    synthesisPreference: 'reasoning' as const,
+    refinePreference: 'reasoning' as const,
+    dossierTimeoutMs: 180000,
+    specialistTimeoutMs: 180000,
+    synthesisTimeoutMs: 360000,
+    refineTimeoutMs: 180000,
     shouldRunSynthesis: true,
-    shouldRunRefine: true,
+    shouldRunRefine: serverConfig.enableReasoningRefineStage,
   };
 }
 
@@ -77,3 +80,5 @@ export function buildExecutionStages(mode: SandboxAnalysisMode) {
     },
   ];
 }
+
+export type ExecutionPlan = ReturnType<typeof createExecutionPlan>;

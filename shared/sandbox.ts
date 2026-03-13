@@ -68,6 +68,32 @@ export type SandboxScenarioVariant = {
   recommendedMove: string;
 };
 
+export type SandboxFutureTimelineItem = {
+  phase: string;
+  timing: string;
+  expectedReaction: string;
+  likelyShift: string;
+  risk: string;
+  watchSignals: string[];
+  recommendedResponse: string;
+};
+
+export type SandboxCommunityRhythm = {
+  name: string;
+  timing: string;
+  pattern: string;
+  trigger: string;
+  implication: string;
+};
+
+export type SandboxTrajectorySignal = {
+  signal: string;
+  direction: SandboxEffectDirection;
+  timing: string;
+  impact: string;
+  recommendedMove: string;
+};
+
 export type SandboxDecisionLens = {
   name: string;
   keyQuestion: string;
@@ -125,6 +151,12 @@ export type SandboxAnalysisMeta = {
   requestId: string;
 };
 
+export type SandboxAnalysisStagePreview = {
+  headline: string;
+  summary: string;
+  bullets: string[];
+};
+
 export type SandboxAnalysisRequest = {
   mode: SandboxAnalysisMode;
   project: ProjectSnapshot;
@@ -136,6 +168,7 @@ export type SandboxAnalysisJobStage = {
   label: string;
   detail: string;
   status: SandboxAnalysisJobStageStatus;
+  preview?: SandboxAnalysisStagePreview;
   model?: string;
   durationMs?: number;
   startedAt?: string;
@@ -164,6 +197,9 @@ export type SandboxAnalysisResult = {
   blindSpots: SandboxBlindSpot[];
   secondOrderEffects: SandboxSecondOrderEffect[];
   scenarioVariants: SandboxScenarioVariant[];
+  futureTimeline: SandboxFutureTimelineItem[];
+  communityRhythms: SandboxCommunityRhythm[];
+  trajectorySignals: SandboxTrajectorySignal[];
   decisionLenses: SandboxDecisionLens[];
   validationTracks: SandboxValidationTrack[];
   contrarianMoves: SandboxContrarianMove[];

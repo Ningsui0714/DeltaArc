@@ -11,7 +11,7 @@
     "build:server": "tsc -p tsconfig.server.build.json && node scripts/write-server-package.mjs",
     "build": "npm run build:client && npm run build:server",
     "start": "node --env-file-if-exists=.env.local dist-server/server/index.js",
-    "test": "node --import tsx --test src/lib/import/parseJsonImport.test.ts server/lib/sandboxMemoryStore.test.ts",
+    "test": "node --import tsx --test src/lib/import/parseJsonImport.test.ts server/lib/sandboxMemoryStore.test.ts shared/schema/sandboxResult.test.ts",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.server.json",
     "verify:fixtures": "tsx scripts/verify-fixtures.ts",
     "preview": "vite preview"

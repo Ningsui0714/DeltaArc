@@ -1,4 +1,5 @@
 import { useState, type ChangeEvent } from 'react';
+import { isEnglishUi, useUiLanguage } from '../../hooks/useUiLanguage';
 
 type ImportTone = 'success' | 'warning' | 'error' | 'neutral';
 
@@ -26,6 +27,8 @@ export function FileImportCard({
   feedback,
   onImport,
 }: FileImportCardProps) {
+  const { language } = useUiLanguage();
+  const isEnglish = isEnglishUi(language);
   const [isImporting, setIsImporting] = useState(false);
 
   async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
@@ -48,17 +51,17 @@ export function FileImportCard({
     <section className="panel upload-panel">
       <div className="panel-heading">
         <div>
-          <p className="eyebrow">File Import</p>
+          <p className="eyebrow">{isEnglish ? 'File Import' : '文件导入'}</p>
           <h3>{title}</h3>
         </div>
-        <span className="panel-badge">支持 .json / .md</span>
+        <span className="panel-badge">{isEnglish ? 'Supports .json / .md / .txt' : '支持 .json / .md / .txt'}</span>
       </div>
 
       <p className="upload-description">{description}</p>
 
       <label className="upload-dropzone">
         <input type="file" accept={accept} onChange={handleFileChange} />
-        <strong>{isImporting ? '解析中...' : buttonLabel}</strong>
+        <strong>{isImporting ? (isEnglish ? 'Parsing...' : '解析中...') : buttonLabel}</strong>
         <span>{hint}</span>
       </label>
 

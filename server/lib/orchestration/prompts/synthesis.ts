@@ -12,23 +12,174 @@ export function buildSynthesisMessages(
     {
       role: 'system',
       content:
-        '你是一个游戏产品预测风洞中的“仲裁综合器”。不要简单平均各视角，也不要只重复已有结论；你要主动指出冲突、做取舍、保留分歧，并输出最终结构化结果。只输出 JSON。',
+        '你是一个预测型综合器。你的任务不是复述当前分析，而是基于项目、证据和多视角输出，模拟未来会如何发展：刚发布会有什么反响，几天后会如何分化，社区节奏会如何形成，什么信号会让走势翻转。只输出一个合法 JSON 对象，不要输出 markdown 代码块，不要输出解释文本。如果某个字段不确定，也要保留字段并用空数组、空字符串或保守值填充，绝不能输出半截 JSON。',
     },
     {
       role: 'user',
-      content: `请整合以下 dossier 与多个 specialist 的输出，生成一份多维而可执行的游戏产品推演结论。\n\n项目：${JSON.stringify(
-        request.project,
-        null,
-        2,
-      )}\n\nDossier：${JSON.stringify(
-        dossier,
-        null,
-        2,
-      )}\n\nSpecialists：${JSON.stringify(
-        specialistOutputs,
-        null,
-        2,
-      )}\n\n要求：\n1. 结果必须比各单视角更深，不能只是拼接。\n2. 必须优先站在游戏产品语境里综合：目标玩家、核心体验、局时节奏、成长驱动、市场锚点、制作约束。\n3. 必须主动输出用户没有明确要求但重要的内容，例如二阶影响、逆向动作、未知项、决策镜头。\n4. strategies 至少 3 条，且要有明显区分。\n5. report.actions 至少 4 条，且都可在两周内推进。\n6. pipeline 保留当前阶段列表。\n7. model 写成多模型组合摘要，例如 multi-stage: deepseek-reasoner + deepseek-chat。\n\nJSON schema:\n{\n  "generatedAt": "",\n  "model": "",\n  "pipeline": ${JSON.stringify(pipeline)},\n  "summary": "",\n  "systemVerdict": "",\n  "evidenceLevel": "low|medium|high",\n  "primaryRisk": "",\n  "nextStep": "",\n  "playerAcceptance": 0,\n  "confidence": 0,\n  "supportRatio": 0,\n  "scores": {\n    "coreFun": 0,\n    "learningCost": 0,\n    "novelty": 0,\n    "acceptanceRisk": 0,\n    "prototypeCost": 0\n  },\n  "personas": [{\n    "name": "",\n    "motive": "",\n    "accepts": "",\n    "rejects": "",\n    "verdict": ""\n  }],\n  "hypotheses": [{\n    "title": "",\n    "evidence": "",\n    "confidence": 0,\n    "gap": ""\n  }],\n  "strategies": [{\n    "name": "",\n    "type": "",\n    "cost": "",\n    "timeToValue": "",\n    "acceptance": 0,\n    "risk": "",\n    "recommendation": ""\n  }],\n  "perspectives": [{\n    "key": "systems|psychology|economy|market|production|red_team",\n    "label": "",\n    "stance": "bullish|mixed|bearish",\n    "confidence": 0,\n    "verdict": "",\n    "opportunity": "",\n    "concern": "",\n    "leverage": "",\n    "evidenceRefs": [""]\n  }],\n  "blindSpots": [{\n    "area": "",\n    "whyItMatters": "",\n    "missingEvidence": ""\n  }],\n  "secondOrderEffects": [{\n    "trigger": "",\n    "outcome": "",\n    "horizon": "near|mid|long",\n    "direction": "positive|mixed|negative"\n  }],\n  "scenarioVariants": [{\n    "name": "",\n    "premise": "",\n    "upside": "",\n    "downside": "",\n    "watchSignals": [""],\n    "recommendedMove": ""\n  }],\n  "decisionLenses": [{\n    "name": "",\n    "keyQuestion": "",\n    "answer": ""\n  }],\n  "validationTracks": [{\n    "name": "",\n    "priority": "P0|P1|P2",\n    "goal": "",\n    "method": "",\n    "successSignal": "",\n    "failureSignal": "",\n    "cost": "",\n    "timeframe": ""\n  }],\n  "contrarianMoves": [{\n    "title": "",\n    "thesis": "",\n    "whenToUse": ""\n  }],\n  "unknowns": [{\n    "topic": "",\n    "whyUnknown": "",\n    "resolveBy": ""\n  }],\n  "redTeam": {\n    "thesis": "",\n    "attackVectors": [""],\n    "failureModes": [""],\n    "mitigation": ""\n  },\n  "memorySignals": [{\n    "title": "",\n    "summary": "",\n    "signalStrength": "fresh|recurring|warning"\n  }],\n  "report": {\n    "headline": "",\n    "summary": "",\n    "conclusion": "",\n    "whyNow": "",\n    "risk": "",\n    "actions": ["", "", "", ""]\n  },\n  "warnings": []\n}`,
+      content: `请整合以下 dossier 与 specialists，输出一份“未来演化预测”结果。
+项目：
+${JSON.stringify(request.project, null, 2)}
+
+Dossier：
+${JSON.stringify(dossier, null, 2)}
+
+Specialists：
+${JSON.stringify(specialistOutputs, null, 2)}
+
+要求：
+1. 用中文输出。
+2. 不要只分析当前内容，要明确写出未来时间线。
+3. futureTimeline 至少 3 条，覆盖首波反应、几天后的分化、2-3 周后的节奏定型。
+4. communityRhythms 至少 3 条，体现社区会如何讨论、复盘、沉淀或冷却。
+5. trajectorySignals 至少 3 条，写清楚什么信号会让走势向上、向下或转入拉扯。
+6. strategies 至少 3 条，而且要明显不同。
+7. report.actions 至少 4 条，而且都应在两周内推进。
+8. pipeline 保留当前阶段列表。
+9. model 写成多模型组合摘要，例如 multi-stage: deepseek-reasoner + deepseek-chat。
+10. 必须返回严格合法 JSON。每个数组元素之间必须有逗号；不要缺字段；不要附加注释。
+11. 如果输出内容过长，优先缩短字符串，不要省略 JSON 结构。
+
+JSON schema:
+{
+  "generatedAt": "",
+  "model": "",
+  "pipeline": ${JSON.stringify(pipeline)},
+  "summary": "",
+  "systemVerdict": "",
+  "evidenceLevel": "low|medium|high",
+  "primaryRisk": "",
+  "nextStep": "",
+  "playerAcceptance": 0,
+  "confidence": 0,
+  "supportRatio": 0,
+  "scores": {
+    "coreFun": 0,
+    "learningCost": 0,
+    "novelty": 0,
+    "acceptanceRisk": 0,
+    "prototypeCost": 0
+  },
+  "personas": [{
+    "name": "",
+    "motive": "",
+    "accepts": "",
+    "rejects": "",
+    "verdict": ""
+  }],
+  "hypotheses": [{
+    "title": "",
+    "evidence": "",
+    "confidence": 0,
+    "gap": ""
+  }],
+  "strategies": [{
+    "name": "",
+    "type": "",
+    "cost": "",
+    "timeToValue": "",
+    "acceptance": 0,
+    "risk": "",
+    "recommendation": ""
+  }],
+  "perspectives": [{
+    "key": "systems|psychology|economy|market|production|red_team",
+    "label": "",
+    "stance": "bullish|mixed|bearish",
+    "confidence": 0,
+    "verdict": "",
+    "opportunity": "",
+    "concern": "",
+    "leverage": "",
+    "evidenceRefs": [""]
+  }],
+  "blindSpots": [{
+    "area": "",
+    "whyItMatters": "",
+    "missingEvidence": ""
+  }],
+  "secondOrderEffects": [{
+    "trigger": "",
+    "outcome": "",
+    "horizon": "near|mid|long",
+    "direction": "positive|mixed|negative"
+  }],
+  "scenarioVariants": [{
+    "name": "",
+    "premise": "",
+    "upside": "",
+    "downside": "",
+    "watchSignals": [""],
+    "recommendedMove": ""
+  }],
+  "futureTimeline": [{
+    "phase": "",
+    "timing": "",
+    "expectedReaction": "",
+    "likelyShift": "",
+    "risk": "",
+    "watchSignals": [""],
+    "recommendedResponse": ""
+  }],
+  "communityRhythms": [{
+    "name": "",
+    "timing": "",
+    "pattern": "",
+    "trigger": "",
+    "implication": ""
+  }],
+  "trajectorySignals": [{
+    "signal": "",
+    "direction": "positive|mixed|negative",
+    "timing": "",
+    "impact": "",
+    "recommendedMove": ""
+  }],
+  "decisionLenses": [{
+    "name": "",
+    "keyQuestion": "",
+    "answer": ""
+  }],
+  "validationTracks": [{
+    "name": "",
+    "priority": "P0|P1|P2",
+    "goal": "",
+    "method": "",
+    "successSignal": "",
+    "failureSignal": "",
+    "cost": "",
+    "timeframe": ""
+  }],
+  "contrarianMoves": [{
+    "title": "",
+    "thesis": "",
+    "whenToUse": ""
+  }],
+  "unknowns": [{
+    "topic": "",
+    "whyUnknown": "",
+    "resolveBy": ""
+  }],
+  "redTeam": {
+    "thesis": "",
+    "attackVectors": [""],
+    "failureModes": [""],
+    "mitigation": ""
+  },
+  "memorySignals": [{
+    "title": "",
+    "summary": "",
+    "signalStrength": "fresh|recurring|warning"
+  }],
+  "report": {
+    "headline": "",
+    "summary": "",
+    "conclusion": "",
+    "whyNow": "",
+    "risk": "",
+    "actions": ["", "", "", ""]
+  },
+  "warnings": []
+}`,
     },
   ];
 }

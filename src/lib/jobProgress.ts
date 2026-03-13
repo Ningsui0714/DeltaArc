@@ -1,4 +1,5 @@
 import type { SandboxAnalysisJob, SandboxAnalysisJobStage } from '../../shared/sandbox';
+import type { UiLanguage } from '../hooks/useUiLanguage';
 
 type JobProgressStats = {
   percent: number;
@@ -20,21 +21,25 @@ function isFallbackStage(stage: SandboxAnalysisJobStage) {
   return stage.model === 'local-fallback' || stage.detail.toLowerCase().includes('local');
 }
 
-export function formatJobDuration(durationMs?: number) {
+export function formatJobDuration(durationMs?: number, language: UiLanguage = 'zh') {
   if (!durationMs || durationMs <= 0) {
-    return '0s';
+    return language === 'en' ? '0s' : '0秒';
   }
 
   const seconds = Math.round(durationMs / 1000);
 
   if (seconds < 60) {
-    return `${seconds}s`;
+    return language === 'en' ? `${seconds}s` : `${seconds}秒`;
   }
 
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = seconds % 60;
 
-  return remainingSeconds > 0 ? `${minutes}m ${remainingSeconds}s` : `${minutes}m`;
+  if (language === 'en') {
+    return remainingSeconds > 0 ? `${minutes}m ${remainingSeconds}s` : `${minutes}m`;
+  }
+
+  return remainingSeconds > 0 ? `${minutes}分 ${remainingSeconds}秒` : `${minutes}分`;
 }
 
 export function getJobProgressStats(job: SandboxAnalysisJob, nowMs = Date.now()): JobProgressStats {

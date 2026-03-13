@@ -3,7 +3,8 @@ import type {
   SandboxUnknown,
   SandboxValidationTrack,
 } from '../../../shared/sandbox';
-import { priorityLabels } from '../../lib/sandboxLabels';
+import { isEnglishUi, useUiLanguage } from '../../hooks/useUiLanguage';
+import { getSandboxLabels } from '../../lib/sandboxLabels';
 
 type ValidationTrackListProps = {
   validationTracks: SandboxValidationTrack[];
@@ -16,13 +17,17 @@ export function ValidationTrackList({
   contrarianMoves,
   unknowns,
 }: ValidationTrackListProps) {
+  const { language } = useUiLanguage();
+  const isEnglish = isEnglishUi(language);
+  const { priorityLabels } = getSandboxLabels(language);
+
   return (
     <section className="page-grid">
       <section className="panel">
         <div className="panel-heading">
           <div>
-            <p className="eyebrow">Validation Tracks</p>
-            <h3>验证轨道</h3>
+            <p className="eyebrow">{isEnglish ? 'Validation Tracks' : '验证轨道'}</p>
+            <h3>{isEnglish ? 'Validation tracks' : '验证轨道'}</h3>
           </div>
         </div>
         <div className="validation-track-list">
@@ -36,19 +41,19 @@ export function ValidationTrackList({
               <p>{track.goal}</p>
               <dl className="detail-list">
                 <div>
-                  <dt>方法</dt>
+                  <dt>{isEnglish ? 'Method' : '方法'}</dt>
                   <dd>{track.method}</dd>
                 </div>
                 <div>
-                  <dt>成功信号</dt>
+                  <dt>{isEnglish ? 'Success Signal' : '成功信号'}</dt>
                   <dd>{track.successSignal}</dd>
                 </div>
                 <div>
-                  <dt>失败信号</dt>
+                  <dt>{isEnglish ? 'Failure Signal' : '失败信号'}</dt>
                   <dd>{track.failureSignal}</dd>
                 </div>
                 <div>
-                  <dt>成本 / 时间</dt>
+                  <dt>{isEnglish ? 'Cost / Time' : '成本 / 时间'}</dt>
                   <dd>
                     {track.cost} / {track.timeframe}
                   </dd>
@@ -63,8 +68,8 @@ export function ValidationTrackList({
         <section className="panel inner-panel">
           <div className="panel-heading">
             <div>
-              <p className="eyebrow">Contrarian Moves</p>
-              <h3>逆向动作</h3>
+              <p className="eyebrow">{isEnglish ? 'Contrarian Moves' : '逆向动作'}</p>
+              <h3>{isEnglish ? 'Contrarian moves' : '逆向动作'}</h3>
             </div>
           </div>
           <div className="stack-list">
@@ -81,8 +86,8 @@ export function ValidationTrackList({
         <section className="panel inner-panel">
           <div className="panel-heading">
             <div>
-              <p className="eyebrow">Unknowns</p>
-              <h3>待确认未知项</h3>
+              <p className="eyebrow">{isEnglish ? 'Unknowns' : '待确认未知项'}</p>
+              <h3>{isEnglish ? 'Open unknowns' : '待确认未知项'}</h3>
             </div>
           </div>
           <div className="stack-list">
