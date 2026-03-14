@@ -24,9 +24,13 @@ pnpm-debug.log*
 server/data/sandbox-memory.json
 server/data/projects/
 .codex-*.log
+.codex-*.err
+.codex-*.out
 AGENTS.md
 scripts/agent-utf8-bootstrap.ps1
-docs/mixologist-*.md
+
+# Local-only design specs
+docs/specs/
 
 # Editor and OS noise
 .DS_Store

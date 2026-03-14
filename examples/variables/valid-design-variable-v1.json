@@ -1,0 +1,15 @@
+{
+  "id": "var_dual_gate_001",
+  "baselineId": "baseline_yuanaan_001",
+  "name": "双人协作机关",
+  "category": "gameplay",
+  "intent": "提升中期合作乐趣和内容传播性",
+  "changeStatement": "在基地推进过程中加入需要双人配合才能通过的限时机关",
+  "injectionTargets": ["core_loop", "mid_game_pacing", "social"],
+  "expectedBenefits": ["合作记忆点更强", "朋友组队动机增强"],
+  "knownCosts": ["学习成本提高", "单人推进受阻"],
+  "activationStage": "mid",
+  "dependencies": ["需要单人补位机制", "需要清晰的协作反馈"],
+  "successSignals": ["玩家主动讨论合作解法", "中期回流意愿上升"],
+  "failureSignals": ["玩家抱怨必须等人", "新手在首轮理解失败"]
+}

@@ -1,0 +1,119 @@
+{
+  "workspaceId": "workspace_yuanaan_001",
+  "updatedAt": "2026-03-14T09:00:00.000Z",
+  "inputSignature": "{\"project\":{\"name\":\"代号：远岸旅团\",\"mode\":\"Concept\",\"genre\":\"合作生存建造\",\"platforms\":[\"PC\",\"Steam Deck\"],\"targetPlayers\":[\"轻中度合作生存玩家\",\"双人开黑玩家\",\"内容传播型玩家\"],\"coreFantasy\":\"和朋友在连续失控的营地危机里临场补位，把一场快要崩盘的局面救回来。\",\"ideaSummary\":\"验证双人协作机关是否能提升中期留存，并形成高传播性的合作瞬间。\",\"coreLoop\":\"探索 -> 收集 -> 建造 -> 协作机关 -> 防守\",\"sessionLength\":\"15-20 分钟一局，失败后应支持快速重开。\",\"differentiators\":\"把合作机关做成高频高压的救场时刻，而不是低频脚本化谜题。\",\"progressionHook\":\"局内逐步解锁机关组合，局外解锁营地支援和角色分工强化。\",\"socialHook\":\"双人同步操作和临场沟通直接决定营地是否守住，但允许弱配合下继续补位。\",\"monetization\":\"当前阶段先不验证付费，只关注玩法成立；后续再看装扮和赛季化内容。\",\"referenceGames\":[\"双人成行\",\"饥荒联机版\",\"Deep Rock Galactic\"],\"validationGoal\":\"确认首局 10 分钟内是否能稳定出现值得复述的协作高光。\",\"productionConstraints\":\"2 人团队，2 周内只能做一个高密度短局原型，不能铺完整主线内容。\",\"currentStatus\":\"担心学习成本和失败惩罚会掩盖合作乐趣。\"},\"evidenceItems\":[{\"id\":\"evi_001\",\"type\":\"design_doc\",\"title\":\"玩法草案\",\"source\":\"内部策划稿\",\"trust\":\"medium\",\"summary\":\"玩家在基地建设阶段会遇到必须双人同步完成的机关。\",\"createdAt\":\"09:00\"},{\"id\":\"evi_002\",\"type\":\"interview\",\"title\":\"轻协作玩家反馈\",\"source\":\"Discord 访谈\",\"trust\":\"high\",\"summary\":\"玩家愿意合作解谜，但要求失败后能迅速重试。\",\"createdAt\":\"09:02\"}]}",
+  "projectSnapshot": {
+    "name": "代号：远岸旅团",
+    "mode": "Concept",
+    "genre": "合作生存建造",
+    "platforms": ["PC", "Steam Deck"],
+    "targetPlayers": ["轻中度合作生存玩家", "双人开黑玩家", "内容传播型玩家"],
+    "coreFantasy": "和朋友在连续失控的营地危机里临场补位，把一场快要崩盘的局面救回来。",
+    "ideaSummary": "验证双人协作机关是否能提升中期留存，并形成高传播性的合作瞬间。",
+    "coreLoop": "探索 -> 收集 -> 建造 -> 协作机关 -> 防守",
+    "sessionLength": "15-20 分钟一局，失败后应支持快速重开。",
+    "differentiators": "把合作机关做成高频高压的救场时刻，而不是低频脚本化谜题。",
+    "progressionHook": "局内逐步解锁机关组合，局外解锁营地支援和角色分工强化。",
+    "socialHook": "双人同步操作和临场沟通直接决定营地是否守住，但允许弱配合下继续补位。",
+    "monetization": "当前阶段先不验证付费，只关注玩法成立；后续再看装扮和赛季化内容。",
+    "referenceGames": ["双人成行", "饥荒联机版", "Deep Rock Galactic"],
+    "validationGoal": "确认首局 10 分钟内是否能稳定出现值得复述的协作高光。",
+    "productionConstraints": "2 人团队，2 周内只能做一个高密度短局原型，不能铺完整主线内容。",
+    "currentStatus": "担心学习成本和失败惩罚会掩盖合作乐趣。"
+  },
+  "evidenceSnapshot": [
+    {
+      "id": "evi_001",
+      "type": "design_doc",
+      "title": "玩法草案",
+      "source": "内部策划稿",
+      "trust": "medium",
+      "summary": "玩家在基地建设阶段会遇到必须双人同步完成的机关。",
+      "createdAt": "09:00"
+    },
+    {
+      "id": "evi_002",
+      "type": "interview",
+      "title": "轻协作玩家反馈",
+      "source": "Discord 访谈",
+      "trust": "high",
+      "summary": "玩家愿意合作解谜，但要求失败后能迅速重试。",
+      "createdAt": "09:02"
+    }
+  ],
+  "analysis": {
+    "generatedAt": "2026-03-14T08:58:00.000Z",
+    "mode": "balanced",
+    "model": "deepseek-chat",
+    "pipeline": ["dossier@deepseek-chat", "systems@deepseek-chat", "synthesis@deepseek-chat"],
+    "meta": {
+      "source": "remote",
+      "status": "fresh",
+      "requestId": "analysis_yuanaan_001"
+    },
+    "summary": "双人协作机关有机会制造中期记忆点，但失败惩罚和等待感必须被压住。",
+    "systemVerdict": "值得做单局原型，但必须优先补单人补位和快速重开。",
+    "evidenceLevel": "medium",
+    "primaryRisk": "玩家会把等待队友的挫败感误记成玩法本身不好玩。",
+    "nextStep": "先做 15 分钟短局原型，重点观察失败反馈是否掩盖合作乐趣。",
+    "playerAcceptance": 68,
+    "confidence": 64,
+    "supportRatio": 62,
+    "scores": {
+      "coreFun": 72,
+      "learningCost": 58,
+      "novelty": 70,
+      "acceptanceRisk": 61,
+      "prototypeCost": 54
+    },
+    "personas": [
+      {
+        "name": "轻协作玩家",
+        "motive": "想和朋友轻松配合，又不愿背复杂规则。",
+        "accepts": "合作奖励直观，失败能迅速重开。",
+        "rejects": "单人无法推进，或机制学习像上课。",
+        "verdict": "中度看好，但对教学和节奏极其敏感。"
+      }
+    ],
+    "hypotheses": [],
+    "strategies": [],
+    "perspectives": [],
+    "blindSpots": [],
+    "secondOrderEffects": [],
+    "scenarioVariants": [],
+    "futureTimeline": [],
+    "communityRhythms": [],
+    "trajectorySignals": [],
+    "decisionLenses": [],
+    "validationTracks": [
+      {
+        "name": "短局原型测试",
+        "priority": "P0",
+        "goal": "验证首局 10 分钟内是否会出现可复述高光。",
+        "method": "双人试玩 + 录像回看",
+        "successSignal": "玩家主动复述协作瞬间。",
+        "failureSignal": "玩家主要抱怨等待和失败惩罚。",
+        "cost": "M",
+        "timeframe": "2 周"
+      }
+    ],
+    "contrarianMoves": [],
+    "unknowns": [],
+    "redTeam": {
+      "thesis": "失败惩罚可能会压过合作乐趣。",
+      "attackVectors": [],
+      "failureModes": [],
+      "mitigation": "先缩小原型边界。"
+    },
+    "memorySignals": [],
+    "report": {
+      "headline": "值得做短局原型。",
+      "summary": "合作高光有潜力，但等待感要先压住。",
+      "conclusion": "继续做，但要优先补失败恢复。",
+      "whyNow": "当前最缺的是可玩样本。",
+      "risk": "等待队友的成本会被快速放大。",
+      "actions": ["做 15 分钟短局原型"]
+    },
+    "warnings": []
+  }
+}

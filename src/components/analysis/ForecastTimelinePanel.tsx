@@ -7,15 +7,24 @@ import type {
 import { type UiLanguage, isEnglishUi, useUiLanguage } from '../../hooks/useUiLanguage';
 import type { EvidenceItem, ProjectSnapshot } from '../../types';
 import { getAgentStageMeta } from '../../lib/agentStageMeta';
-import { formatJobDuration, getJobProgressStats } from '../../lib/jobProgress';
+import {
+  formatJobDuration,
+  getJobProgressStats,
+  isAnalysisJobActive,
+  isAnalysisJobFailed,
+} from '../../lib/jobProgress';
+import { trimCopy } from '../../lib/trimCopy';
 
 type ForecastTimelinePanelProps = {
   project: ProjectSnapshot;
   evidenceItems: EvidenceItem[];
   analysis: SandboxAnalysisResult;
   progress: SandboxAnalysisJob | null;
-  hasOfficialAnalysis: boolean;
-  lastAnalysisAt: string;
+  hasViewableAnalysis: boolean;
+  isAnalysisFresh: boolean;
+  isAnalysisStale: boolean;
+  isAnalysisDegraded: boolean;
+  lastCompletedAt: string;
   error: string | null;
   warnings: string[];
 };
@@ -61,11 +70,6 @@ const stageOrder = [
   'synthesis',
   'refine',
 ] as const;
-
-function trimCopy(value: string, fallback: string) {
-  const normalized = value.trim();
-  return normalized.length > 0 ? normalized : fallback;
-}
 
 function shorten(value: string, maxLength = 96) {
   return value.length > maxLength ? `${value.slice(0, maxLength - 1)}...` : value;
@@ -126,45 +130,99 @@ function getStageBadge(status: SandboxAnalysisJobStageStatus, language: UiLangua
 
 function buildRuntimeItems(
   progress: SandboxAnalysisJob | null,
-  hasOfficialAnalysis: boolean,
+  hasViewableAnalysis: boolean,
+  isAnalysisFresh: boolean,
+  isAnalysisStale: boolean,
+  isAnalysisDegraded: boolean,
   analysis: SandboxAnalysisResult,
-  lastAnalysisAt: string,
+  lastCompletedAt: string,
   language: UiLanguage,
 ): FeedItem[] {
   const isEnglish = isEnglishUi(language);
   const agentStageMeta = getAgentStageMeta(language);
+
   if (!progress) {
-    if (!hasOfficialAnalysis) {
+    if (!hasViewableAnalysis) {
       return [
         {
           id: 'runtime-awaiting',
           lane: 'runtime',
           state: 'pending',
           eyebrow: isEnglish ? 'Run State' : '运行状态',
-          title: isEnglish ? 'Waiting for the formal forecast run' : '等待正式预测运行',
+          title: isEnglish ? 'Waiting for the formal forecast run' : '等待正式推理启动',
           summary: isEnglish
             ? 'Summaries only appear here after real LLM stages finish. The timeline will not be fabricated in advance.'
-            : '这里只有真实 LLM 阶段完成后才会插入摘要，不会预先伪造时间线内容。',
+            : '这里只有真实模型阶段完成后才会插入摘要，不会预先伪造时间线内容。',
           caption: isEnglish ? 'Not started' : '尚未启动',
           badge: isEnglish ? 'Guardrail' : '护栏',
           bullets: isEnglish
-            ? ['Quick Scan will reveal the first structured read.', 'Deep Dive continues into timeline beats, community rhythms, and inflection signals.']
-            : ['快速预测会先出现首轮结构化输出。', '深度预测会继续生成时间线、社区节奏和转折信号。'],
+            ? ['Quick Scan reveals the first structured read.', 'Deep Dive expands into future beats, community rhythms, and inflection signals.']
+            : ['快速扫描会先给出第一轮结构化判断。', '深度推演会继续生成未来节点、社区节奏和转折信号。'],
         },
       ];
     }
+
+    const runtimeBadge = isAnalysisFresh
+      ? isEnglish
+        ? 'Fresh'
+        : '最新'
+      : isAnalysisDegraded
+        ? isEnglish
+          ? 'Degraded'
+          : '降级'
+        : isAnalysisStale
+          ? isEnglish
+            ? 'Stale'
+            : '过期'
+          : isEnglish
+            ? 'Viewable'
+            : '可查看';
 
     return [
       {
         id: 'runtime-complete',
         lane: 'runtime',
         state: 'completed',
-        eyebrow: isEnglish ? 'Formal Run' : '正式运行',
-        title: trimCopy(analysis.report.headline || analysis.systemVerdict, isEnglish ? 'Formal forecast has been locked.' : '正式预测已经锁定'),
-        summary: trimCopy(analysis.summary || analysis.report.summary, isEnglish ? 'This result comes from the full backend forecast pipeline.' : '这份结果来自后端完整预测链路。'),
-        caption: lastAnalysisAt ? (isEnglish ? `Finished at ${lastAnalysisAt}` : `完成于 ${lastAnalysisAt}`) : isEnglish ? 'Latest formal output' : '最新正式结果',
-        badge: isEnglish ? 'Formal' : '正式',
-        bullets: [analysis.model, isEnglish ? `${analysis.pipeline.length} stages executed` : `共执行 ${analysis.pipeline.length} 个阶段`],
+        eyebrow: isEnglish ? 'Formal Run' : '正式推理',
+        title: trimCopy(
+          analysis.report.headline || analysis.systemVerdict,
+          isEnglish ? 'Formal forecast has been locked.' : '正式结果已经锁定',
+        ),
+        summary: isAnalysisFresh
+          ? trimCopy(
+              analysis.summary || analysis.report.summary,
+              isEnglish ? 'This result comes from the full backend forecast pipeline.' : '这份结果来自后端完整推理链路。',
+            )
+          : isAnalysisDegraded
+            ? isEnglish
+              ? 'A later stage failed, but the cached earlier outputs remain viewable here.'
+              : '后续阶段曾失败，但前面已缓存的输出仍然在这里可见。'
+            : isAnalysisStale
+              ? isEnglish
+                ? 'Current inputs changed after this run completed, so this preserved result is no longer fresh.'
+                : '这份结果完成后，当前输入又发生了变化，所以它现在已经不是最新版本。'
+              : isEnglish
+                ? 'A preserved formal result remains viewable here.'
+                : '这里保留着一份仍可查看的正式结果。',
+        caption: lastCompletedAt
+          ? isEnglish
+            ? `Completed at ${formatClock(lastCompletedAt, language)}`
+            : `完成于 ${formatClock(lastCompletedAt, language)}`
+          : isEnglish
+            ? 'Latest formal output'
+            : '最新正式结果',
+        badge: runtimeBadge,
+        bullets: [
+          analysis.model,
+          isEnglish ? `${analysis.pipeline.length} stages executed` : `共执行 ${analysis.pipeline.length} 个阶段`,
+          isAnalysisFresh
+            ? isEnglish
+              ? 'This output matches the current inputs.'
+              : '这份输出仍与当前输入一致。'
+            : isEnglish
+              ? 'Rerun recommended before treating this as the latest truth source.'
+              : '把它当成最新真相源之前，建议先重跑。',
+        ],
       },
     ];
   }
@@ -176,7 +234,11 @@ function buildRuntimeItems(
       const headline = stage.preview?.headline || meta?.agent || stage.label;
       const summary = stage.preview?.summary || meta?.handoff || stage.detail;
       const bullets = stage.preview?.bullets?.slice(0, 4) ?? [];
-      const caption = [formatClock(stage.completedAt ?? stage.startedAt, language), stage.durationMs ? formatJobDuration(stage.durationMs, language) : '', stage.model ?? '']
+      const caption = [
+        formatClock(stage.completedAt ?? stage.startedAt, language),
+        stage.durationMs ? formatJobDuration(stage.durationMs, language) : '',
+        stage.model ?? '',
+      ]
         .filter(Boolean)
         .join(' / ');
 
@@ -199,8 +261,11 @@ export function ForecastTimelinePanel({
   evidenceItems,
   analysis,
   progress,
-  hasOfficialAnalysis,
-  lastAnalysisAt,
+  hasViewableAnalysis,
+  isAnalysisFresh,
+  isAnalysisStale,
+  isAnalysisDegraded,
+  lastCompletedAt,
   error,
   warnings,
 }: ForecastTimelinePanelProps) {
@@ -210,16 +275,38 @@ export function ForecastTimelinePanel({
   const trajectoryDirectionLabel = getTrajectoryDirectionLabel(language);
   const agentStageMeta = getAgentStageMeta(language);
   const progressStats = progress ? getJobProgressStats(progress) : null;
+  const isProgressActive = isAnalysisJobActive(progress);
+  const hasProgressError = isAnalysisJobFailed(progress);
   const laneStages = stageOrder.map((key) => {
     const liveStage = progress?.stages.find((stage) => stage.key === key);
 
     return {
       key,
-      status: liveStage?.status ?? (hasOfficialAnalysis ? 'completed' : 'pending'),
+      status: liveStage?.status ?? (hasViewableAnalysis ? 'completed' : 'pending'),
       label: agentStageMeta[key]?.agent ?? key,
       role: agentStageMeta[key]?.role ?? key,
     };
   });
+
+  const resultStateLabel = hasViewableAnalysis
+    ? isAnalysisFresh
+      ? isEnglish
+        ? 'Fresh'
+        : '最新'
+      : isAnalysisDegraded
+        ? isEnglish
+          ? 'Degraded'
+          : '降级'
+        : isAnalysisStale
+          ? isEnglish
+            ? 'Stale'
+            : '过期'
+          : isEnglish
+            ? 'Viewable'
+            : '可查看'
+    : isEnglish
+      ? 'Waiting'
+      : '等待中';
 
   const feedItems: FeedItem[] = [
     {
@@ -247,7 +334,16 @@ export function ForecastTimelinePanel({
       badge: isEnglish ? 'Evidence' : '证据',
       bullets: evidenceItems.slice(0, 3).map((item) => `${item.type}：${item.title}`),
     },
-    ...buildRuntimeItems(progress, hasOfficialAnalysis, analysis, lastAnalysisAt, language),
+    ...buildRuntimeItems(
+      progress,
+      hasViewableAnalysis,
+      isAnalysisFresh,
+      isAnalysisStale,
+      isAnalysisDegraded,
+      analysis,
+      lastCompletedAt,
+      language,
+    ),
     ...analysis.futureTimeline.slice(0, 4).map<FeedItem>((beat, index) => ({
       id: `forecast-${index}`,
       lane: 'forecast',
@@ -299,34 +395,84 @@ export function ForecastTimelinePanel({
           <p className="timeline-panel-copy">{isEnglish ? 'This side prioritizes run traces, stage summaries, and future beats instead of stacking long explanations.' : '这里优先展示运行轨迹、阶段摘要和未来节点，不再堆叠过多说明文字。'}</p>
         </div>
         <div className="chip-row">
-          <span className="meta-chip">{hasOfficialAnalysis ? (isEnglish ? 'Formal outputs only' : '仅显示正式结果') : isEnglish ? 'No fabricated forecast' : '不伪造预测'}</span>
           <span className="meta-chip">
-            {progressStats ? (isEnglish ? `Live ${progressStats.percent}%` : `实时 ${progressStats.percent}%`) : isEnglish ? `${analysis.futureTimeline.length} beats` : `${analysis.futureTimeline.length} 个节点`}
+            {hasViewableAnalysis
+              ? isAnalysisFresh
+                ? isEnglish
+                  ? 'Fresh formal output'
+                  : '最新正式结果'
+                : isAnalysisDegraded
+                  ? isEnglish
+                    ? 'Degraded output'
+                    : '降级结果'
+                  : isAnalysisStale
+                    ? isEnglish
+                      ? 'Stale output'
+                      : '过期结果'
+                    : isEnglish
+                      ? 'Viewable output'
+                      : '可查看结果'
+              : isEnglish
+                ? 'No fabricated forecast'
+                : '不伪造预测'}
+          </span>
+          <span className="meta-chip">
+            {progressStats
+              ? isProgressActive
+                ? isEnglish
+                  ? `Live ${progressStats.percent}%`
+                  : `实时 ${progressStats.percent}%`
+                : hasProgressError
+                  ? isEnglish
+                    ? `Failed ${progressStats.percent}%`
+                    : `失败于 ${progressStats.percent}%`
+                  : isEnglish
+                    ? `Live ${progressStats.percent}%`
+                    : `实时 ${progressStats.percent}%`
+              : isEnglish
+                ? `${analysis.futureTimeline.length} beats`
+                : `${analysis.futureTimeline.length} 个节点`}
           </span>
         </div>
       </div>
 
       <section className="timeline-meta-strip">
         <article className="timeline-meta-pill">
-          <span>{isEnglish ? 'Confidence' : '可信度'}</span>
-          <strong>{hasOfficialAnalysis ? (isEnglish ? 'Locked' : '已锁定') : isEnglish ? 'Waiting' : '等待中'}</strong>
-          <small>{hasOfficialAnalysis ? (isEnglish ? 'Remote formal output connected' : '已接入远端正式结果') : isEnglish ? 'No conclusion is written before a run starts' : '未运行前不会写结论'}</small>
+          <span>{isEnglish ? 'Result State' : '结果状态'}</span>
+          <strong>{resultStateLabel}</strong>
+          <small>
+            {hasViewableAnalysis
+              ? isAnalysisFresh
+                ? isEnglish
+                  ? 'Visible outputs match the current inputs'
+                  : '可见输出与当前输入一致'
+                : isAnalysisDegraded
+                  ? isEnglish
+                    ? 'Partial formal result is still preserved'
+                    : '降级正式结果仍被保留'
+                  : isEnglish
+                    ? 'Visible outputs are no longer the latest'
+                    : '当前可见输出已不是最新版本'
+              : isEnglish
+                ? 'No conclusion is written before a run starts'
+                : '未运行前不会写结论'}
+          </small>
         </article>
         <article className="timeline-meta-pill">
           <span>{isEnglish ? 'Evidence Coverage' : '证据覆盖'}</span>
-          <strong>{hasOfficialAnalysis ? evidenceLevelLabel[analysis.evidenceLevel] : evidenceItems.length}</strong>
-          <small>{hasOfficialAnalysis ? (isEnglish ? 'Coverage level' : '覆盖等级') : isEnglish ? 'Current signal count' : '当前信号数'}</small>
+          <strong>{hasViewableAnalysis ? evidenceLevelLabel[analysis.evidenceLevel] : evidenceItems.length}</strong>
+          <small>{hasViewableAnalysis ? (isEnglish ? 'Coverage level' : '覆盖等级') : isEnglish ? 'Current signal count' : '当前信号数'}</small>
         </article>
         <article className="timeline-meta-pill">
-          <span>{isEnglish ? 'Run Progress' : '运行阶段'}</span>
-          <strong>{progressStats ? `${progressStats.completedStageCount}/${progressStats.actionableStageCount}` : isEnglish ? 'Idle' : '空闲'}</strong>
-          <small>{progressStats ? formatJobDuration(progressStats.elapsedMs, language) : isEnglish ? 'Waiting to start' : '等待启动'}</small>
+          <span>{isEnglish ? 'This Run Duration' : '本次已运行'}</span>
+          <strong>{progressStats ? formatJobDuration(progressStats.elapsedMs, language) : isEnglish ? 'Idle' : '空闲'}</strong>
+          <small>{progressStats ? `${progressStats.completedStageCount}/${progressStats.actionableStageCount}` : lastCompletedAt ? (isEnglish ? `Last completed at ${formatClock(lastCompletedAt, language)}` : `上次完成于 ${formatClock(lastCompletedAt, language)}`) : isEnglish ? 'Waiting to start' : '等待启动'}</small>
         </article>
       </section>
 
       <section className="timeline-lane">
         <div className="timeline-lane-heading">
-          <p className="eyebrow">{isEnglish ? 'Agent Stages' : '代理阶段'}</p>
+          <p className="eyebrow">{isEnglish ? 'Agent Stages' : '多代理阶段'}</p>
           <span className="meta-chip">{progress ? progress.currentStageLabel : isEnglish ? 'Stage Overview' : '阶段总览'}</span>
         </div>
         <div className="timeline-lane-strip">

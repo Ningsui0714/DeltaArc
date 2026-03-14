@@ -17,8 +17,16 @@ function isActionableStage(stage: SandboxAnalysisJobStage) {
   return stage.key !== 'complete';
 }
 
+export function isAnalysisJobActive(job: SandboxAnalysisJob | null | undefined) {
+  return job?.status === 'queued' || job?.status === 'running';
+}
+
+export function isAnalysisJobFailed(job: SandboxAnalysisJob | null | undefined) {
+  return job?.status === 'error';
+}
+
 function isFallbackStage(stage: SandboxAnalysisJobStage) {
-  return stage.model === 'local-fallback' || stage.detail.toLowerCase().includes('local');
+  return stage.model === 'local-fallback';
 }
 
 export function formatJobDuration(durationMs?: number, language: UiLanguage = 'zh') {

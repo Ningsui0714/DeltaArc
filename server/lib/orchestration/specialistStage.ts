@@ -1,4 +1,3 @@
-import { createSpecialistFallback } from './fallback';
 import type { ExecutionPlan } from './executionPlan';
 import { normalizeSpecialistOutput } from './normalize';
 import {
@@ -10,12 +9,16 @@ import {
   type ProgressUpdate,
   type TimedStageError,
 } from './orchestrationCore';
+import type { SpecialistCheckpoint } from './checkpoints';
 import { buildSpecialistMessages } from './prompts';
 import { createSpecialistPreview } from './progressPreview';
 import { runJsonStage } from './runStage';
 import type { Dossier, SpecialistOutput } from './types';
 import { dedupeBy } from './utils';
-import type { SandboxAnalysisRequest } from '../../../shared/sandbox';
+import type {
+  SandboxAnalysisRequest,
+  SandboxPerspectiveKey,
+} from '../../../shared/sandbox';
 
 const specialistMaxTokens = 4500;
 
@@ -24,6 +27,14 @@ type SpecialistStageResult = {
   pipelineEntries: string[];
   warnings: string[];
   degradedStageKeys: Set<string>;
+  checkpoints: SpecialistCheckpoint[];
+  failedStage?:
+    | {
+        key: SandboxPerspectiveKey;
+        label: string;
+        message: string;
+      }
+    | undefined;
 };
 
 export async function runSpecialistStages(
@@ -36,6 +47,12 @@ export async function runSpecialistStages(
   const pipelineEntries: string[] = [];
   const stageWarnings: string[] = [];
   const degradedStageKeys = new Set<string>();
+  const specialistCheckpoints: SpecialistCheckpoint[] = [];
+  const failedStages: Array<{
+    key: SandboxPerspectiveKey;
+    label: string;
+    message: string;
+  }> = [];
 
   const specialistSettled = await mapSettledWithConcurrency(
     executionPlan.specialists,
@@ -79,6 +96,7 @@ export async function runSpecialistStages(
           model: stage.model,
           durationMs: stage.durationMs,
           warnings: stage.warnings,
+          degraded: stage.degraded,
         };
       } catch (error) {
         throw {
@@ -93,55 +111,71 @@ export async function runSpecialistStages(
     const blueprint = executionPlan.specialists[index];
 
     if (result.status === 'fulfilled') {
+      if (result.value.degraded) {
+        degradedStageKeys.add(blueprint.key);
+      }
       pipelineEntries.push(`${result.value.blueprint.key}@${result.value.model}`);
       stageWarnings.push(...result.value.warnings, ...result.value.output.warnings);
       specialistOutputs.push(result.value.output);
+      specialistCheckpoints.push({
+        key: blueprint.key,
+        output: result.value.output,
+        pipelineEntry: `${result.value.blueprint.key}@${result.value.model}`,
+        warnings: dedupeBy(
+          [...result.value.warnings, ...result.value.output.warnings],
+          (item) => item,
+          8,
+        ),
+        degraded: result.value.degraded,
+      });
       return;
     }
 
     const failure = unwrapTimedStageError(result.reason);
     const message =
       failure.error instanceof Error ? failure.error.message : `${blueprint.label} failed.`;
-    const fallbackOutput = createSpecialistFallback(blueprint, dossier);
-    const fallbackWarnings = dedupeBy(
-      [
-        ...fallbackOutput.warnings,
-        `${blueprint.key} remote stage failed and continued with local fallback.`,
-        message,
-      ],
-      (item) => item,
-      6,
-    );
 
     console.warn(
       `[orchestration] ${blueprint.key} failed${
         typeof failure.durationMs === 'number' ? ` ${formatDuration(failure.durationMs)}` : ''
-      } because ${message}; continuing with local fallback`,
+      } because ${message}; preserving completed specialists for retry`,
     );
 
-    degradedStageKeys.add(blueprint.key);
-    specialistOutputs.push({
-      ...fallbackOutput,
-      warnings: fallbackWarnings,
+    failedStages.push({
+      key: blueprint.key,
+      label: blueprint.label,
+      message,
     });
-    pipelineEntries.push(`${blueprint.key}@local-fallback`);
-    stageWarnings.push(...fallbackWarnings);
-
     emitProgress(onProgress, {
       key: blueprint.key,
       label: blueprint.label,
-      detail: `${blueprint.label} remote stage failed; local fallback filled the lane.`,
-      status: 'completed',
-      preview: createSpecialistPreview(fallbackOutput),
-      model: 'local-fallback',
+      detail: `${blueprint.label} remote stage failed; completed perspectives were cached for retry.`,
+      status: 'error',
       durationMs: failure.durationMs,
     });
   });
+
+  const primaryFailure = failedStages[0];
+  const failedStage =
+    primaryFailure
+      ? {
+          ...primaryFailure,
+          message:
+            failedStages.length > 1
+              ? `${primaryFailure.message}. Additional failed perspectives: ${failedStages
+                  .slice(1)
+                  .map((stage) => stage.label)
+                  .join(', ')}.`
+              : `${primaryFailure.message}.`,
+        }
+      : undefined;
 
   return {
     specialistOutputs,
     pipelineEntries,
     warnings: stageWarnings,
     degradedStageKeys,
+    checkpoints: specialistCheckpoints,
+    failedStage,
   };
 }

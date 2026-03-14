@@ -1,0 +1,78 @@
+{
+  "summary": "变量会先放大合作高光，也会先放大等待队友的挫败感。",
+  "baselineRead": {
+    "summary": "当前基线的合作乐趣成立，但单人补位偏弱。",
+    "evidenceLevel": "medium",
+    "primaryRisk": "等待队友会把轻度玩家挤出局。",
+    "scores": {
+      "coreFun": 72,
+      "learningCost": 58,
+      "novelty": 70,
+      "acceptanceRisk": 61,
+      "prototypeCost": 54
+    }
+  },
+  "impactScan": [
+    {
+      "target": "core_loop",
+      "directEffect": "双人同步节点会把高光集中到中期推进。",
+      "upside": "可复述的合作记忆点更强。",
+      "downside": "单人补位失败时会迅速放大等待感。",
+      "confidence": 78
+    },
+    {
+      "target": "social",
+      "directEffect": "朋友组队动机会变强，但弱配合容错必须同步提高。",
+      "upside": "更容易形成传播内容和二创素材。",
+      "downside": "如果队友缺席，挫败感会直接反噬评价。",
+      "confidence": 74
+    }
+  ],
+  "affectedPersonas": [
+    {
+      "personaName": "轻协作玩家",
+      "likelyReaction": "会喜欢成功配合，但对被迫等待非常敏感。",
+      "primaryTrigger": "失败后能否迅速重试。",
+      "riskLevel": "medium"
+    },
+    {
+      "personaName": "内容传播者",
+      "likelyReaction": "如果高光足够集中，会更愿意录制和复述。",
+      "primaryTrigger": "是否能稳定出现可观看的翻盘瞬间。",
+      "riskLevel": "low"
+    }
+  ],
+  "guardrails": [
+    {
+      "title": "补单人补位机制",
+      "reason": "先把等待队友的挫败压下来，再放大合作收益。",
+      "priority": "P0"
+    },
+    {
+      "title": "缩短失败回场时间",
+      "reason": "降低重复劳动，避免负面情绪覆盖合作高光。",
+      "priority": "P1"
+    }
+  ],
+  "validationPlan": [
+    {
+      "step": "做 15 分钟短局原型",
+      "goal": "验证首局 10 分钟内是否会出现可复述高光。",
+      "successSignal": "玩家愿意主动复述协作瞬间。",
+      "failureSignal": "玩家把讨论焦点放在等待与失误惩罚上。"
+    },
+    {
+      "step": "观察弱配合双人局",
+      "goal": "验证单人补位是否足以避免等待感失控。",
+      "successSignal": "弱配合下仍能完成中期机关。",
+      "failureSignal": "一名玩家卡住会拖垮整局推进。"
+    }
+  ],
+  "assumptions": [
+    "玩家能在首局内快速理解双人机关的目标。",
+    "失败后的快速重试不会过度抬高制作成本。"
+  ],
+  "warnings": ["当前还没有真实可玩录像样本。"],
+  "confidence": 71,
+  "evidenceLevel": "medium"
+}

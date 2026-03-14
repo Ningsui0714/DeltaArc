@@ -1,5 +1,28 @@
+import { useEffect, useState } from 'react';
 import type { ProjectSnapshot } from '../../types';
+import {
+  getCompletedIntakeFieldCount,
+  getProjectFieldValue,
+  getProjectIntakeInsights,
+  guidedRefinementFieldIds,
+  hasProjectFieldValue,
+  starterFieldIds,
+  type GuidedRefinementFieldId,
+  type ProjectIntakeFieldId,
+} from '../../lib/projectIntake';
+import { MINIMUM_SETUP_FIELD_COUNT } from '../../lib/projectReadiness';
 import { isEnglishUi, useUiLanguage } from '../../hooks/useUiLanguage';
+import { ProjectFormField } from './ProjectFormField';
+import { ProjectGuidedRefinementPanel } from './ProjectGuidedRefinementPanel';
+import { ProjectUnderstandingPanel } from './ProjectUnderstandingPanel';
+import { ProjectDisclosurePanel } from './ProjectDisclosurePanel';
+import {
+  pickCopy,
+  projectEditorFieldLabels,
+  projectEditorFields,
+  projectEditorGuidedPrompts,
+  projectEditorHeaderCopy,
+} from './projectEditorConfig';
 
 type ProjectEditorCardProps = {
   project: ProjectSnapshot;
@@ -16,222 +39,280 @@ export function ProjectEditorCard({
 }: ProjectEditorCardProps) {
   const { language } = useUiLanguage();
   const isEnglish = isEnglishUi(language);
+  const insights = getProjectIntakeInsights(project);
+  const starterCount = getCompletedIntakeFieldCount(project, starterFieldIds);
+  const refinementCount = getCompletedIntakeFieldCount(project, guidedRefinementFieldIds);
+  const starterReady = starterCount >= MINIMUM_SETUP_FIELD_COUNT;
+  const starterMissingFields = projectEditorFields.starter.filter(
+    (config) => !hasProjectFieldValue(project, config.field),
+  );
+  const nextRecommendedPrompt =
+    projectEditorGuidedPrompts.find(
+      (prompt) => prompt.id === insights.recommendedRefinementFieldIds[0],
+    ) ?? projectEditorGuidedPrompts[0];
+  const [activePromptId, setActivePromptId] = useState<GuidedRefinementFieldId>(
+    nextRecommendedPrompt.id,
+  );
+  const [draftAnswer, setDraftAnswer] = useState('');
+  const [lastAppliedPromptId, setLastAppliedPromptId] = useState<GuidedRefinementFieldId | null>(
+    null,
+  );
+
+  const activePrompt =
+    projectEditorGuidedPrompts.find((prompt) => prompt.id === activePromptId) ?? nextRecommendedPrompt;
+  const nextFocusCopy = starterReady
+    ? pickCopy(nextRecommendedPrompt.title, isEnglish)
+    : starterMissingFields[0]
+      ? pickCopy(starterMissingFields[0].label, isEnglish)
+      : isEnglish
+        ? 'Keep editing the starter brief'
+        : '继续补充起跑信息';
+  const positioningSummary =
+    insights.positioning ||
+    (isEnglish
+      ? 'Finish the starter brief and the system will begin to form a sharper product read.'
+      : '先补齐起跑信息，系统才会逐渐形成更清楚的产品判断。');
+
+  useEffect(() => {
+    setDraftAnswer(getProjectFieldValue(project, activePromptId));
+  }, [activePromptId, project]);
+
+  function patchProject(field: ProjectIntakeFieldId, value: string | string[] | ProjectSnapshot['mode']) {
+    onProjectChange({ [field]: value } as Partial<ProjectSnapshot>);
+  }
+
+  function getFieldLabel(field: ProjectIntakeFieldId) {
+    return pickCopy(projectEditorFieldLabels[field], isEnglish);
+  }
+
+  function handleApplyGuidedAnswer() {
+    const trimmedAnswer = draftAnswer.trim();
+    if (!trimmedAnswer) {
+      return;
+    }
+
+    patchProject(activePrompt.id, trimmedAnswer);
+    setLastAppliedPromptId(activePrompt.id);
+
+    const nextPrompt =
+      projectEditorGuidedPrompts.find(
+        (prompt) => prompt.id !== activePrompt.id && !hasProjectFieldValue(project, prompt.id),
+      ) ??
+      projectEditorGuidedPrompts.find((prompt) => prompt.id !== activePrompt.id) ??
+      activePrompt;
+
+    setActivePromptId(nextPrompt.id);
+  }
+
+  const disclosureConfigs = [
+    {
+      eyebrow: isEnglish ? 'Manual Section' : '手动补充区',
+      title: isEnglish ? 'Advantage and memory points' : '优势与记忆点补充',
+      description: isEnglish
+        ? 'These fields mirror the guided prompts and stay fully editable.'
+        : '这些字段和引导补全是一一对应的，随时可改。',
+      badge: `${projectEditorFields.advantage.filter((config) => hasProjectFieldValue(project, config.field)).length}/${projectEditorFields.advantage.length}`,
+      configs: projectEditorFields.advantage,
+      open: true,
+      badgeClassName: 'panel-badge',
+    },
+    {
+      eyebrow: isEnglish ? 'Manual Section' : '手动补充区',
+      title: isEnglish ? 'Risk and constraint notes' : '风险与约束补充',
+      description: isEnglish
+        ? 'Write down what could break the idea and what real-world limits shape your choices.'
+        : '把可能让产品失效的风险，以及真正会影响选择的现实约束写下来。',
+      badge: `${projectEditorFields.risk.filter((config) => hasProjectFieldValue(project, config.field)).length}/${projectEditorFields.risk.length}`,
+      configs: projectEditorFields.risk,
+      open: true,
+      badgeClassName: 'panel-badge',
+    },
+    {
+      eyebrow: isEnglish ? 'Optional Context' : '背景补充',
+      title: isEnglish ? 'Secondary details' : '次级细节信息',
+      description: isEnglish
+        ? 'Only add what truly improves the first analysis pass.'
+        : '这些信息放轻一点，只有真的能帮助第一轮判断时再补。',
+      badge: `${projectEditorFields.background.filter((config) => hasProjectFieldValue(project, config.field)).length}/${projectEditorFields.background.length}`,
+      configs: projectEditorFields.background,
+      open: false,
+      badgeClassName: 'meta-chip',
+    },
+  ];
 
   return (
     <section className="panel project-editor-panel">
       <div className="panel-heading">
         <div>
-          <p className="eyebrow">{isEnglish ? 'Project Setup' : '项目设定'}</p>
-          <h3>{isEnglish ? 'Describe the game project' : '填写你的游戏项目'}</h3>
+          <p className="eyebrow">{pickCopy(projectEditorHeaderCopy.eyebrow, isEnglish)}</p>
+          <h3>{pickCopy(projectEditorHeaderCopy.title, isEnglish)}</h3>
         </div>
-        <span className="panel-badge">{isEnglish ? 'Saved locally' : '自动保存在本地'}</span>
+        <span className="panel-badge">{pickCopy(projectEditorHeaderCopy.badge, isEnglish)}</span>
       </div>
 
       <div className="editor-note">
-        <strong>{isEnglish ? 'Recommended order' : '推荐填写顺序'}</strong>
-        <p>
-          {isEnglish
-            ? 'Start with the one-line concept, core loop, target audience, and validation goal. Fill in the rest after the first Quick Scan.'
-            : '先补一句话想法、核心循环、目标玩家、验证目标，剩余字段可以在拿到第一轮快速扫描后继续细化。'}
-        </p>
+        <strong>{pickCopy(projectEditorHeaderCopy.noteTitle, isEnglish)}</strong>
+        <p>{pickCopy(projectEditorHeaderCopy.noteBody, isEnglish)}</p>
       </div>
 
-      <div className="project-form-grid">
-        <label className="field-group">
-          <span>{isEnglish ? 'Project Name' : '项目名称'}</span>
-          <input
-            type="text"
-            value={project.name}
-            onChange={(event) => onProjectChange({ name: event.target.value })}
-            placeholder={isEnglish ? 'For example: Project Farshore' : '例如：代号：远岸旅团'}
-          />
-        </label>
+      <div className="project-intake-status-grid">
+        <article className={`intake-status-card ${starterReady ? 'is-good' : 'is-current'}`}>
+          <span>{isEnglish ? 'Starter Brief' : '起跑信息'}</span>
+          <strong>{starterCount}/4</strong>
+          <p>
+            {starterReady
+              ? isEnglish
+                ? 'Ready for guided refinement.'
+                : '已满足引导补全的起跑条件。'
+              : isEnglish
+                ? 'Finish the 4 core fields first.'
+                : '先补齐 4 个关键字段。'}
+          </p>
+        </article>
 
-        <label className="field-group">
-          <span>{isEnglish ? 'Stage Mode' : '阶段模式'}</span>
-          <select
-            value={project.mode}
-            onChange={(event) =>
-              onProjectChange({ mode: event.target.value as ProjectSnapshot['mode'] })
-            }
-          >
-            <option value="Concept">{isEnglish ? 'Concept' : '概念阶段'}</option>
-            <option value="Validation">{isEnglish ? 'Validation' : '验证阶段'}</option>
-            <option value="Live">{isEnglish ? 'Live' : '上线阶段'}</option>
-          </select>
-        </label>
+        <article className={`intake-status-card ${refinementCount > 0 ? 'is-good' : ''}`}>
+          <span>{isEnglish ? 'Guided Refinement' : '引导补全'}</span>
+          <strong>{refinementCount}/{guidedRefinementFieldIds.length}</strong>
+          <p>
+            {isEnglish
+              ? 'These prompts sharpen the product read instead of adding paperwork.'
+              : '这些追问不是加表单，而是把产品判断补得更清楚。'}
+          </p>
+        </article>
 
-        <label className="field-group">
-          <span>{isEnglish ? 'Genre' : '游戏类型'}</span>
-          <input
-            type="text"
-            value={project.genre}
-            onChange={(event) => onProjectChange({ genre: event.target.value })}
-            placeholder={isEnglish ? 'For example: co-op survival / roguelike / management sim' : '例如：合作生存 / Roguelike / 模拟经营'}
-          />
-        </label>
-
-        <label className="field-group">
-          <span>{isEnglish ? 'Platforms' : '目标平台'}</span>
-          <input
-            type="text"
-            value={project.platforms.join(', ')}
-            onChange={(event) =>
-              onProjectChange({
-                platforms: event.target.value
-                  .split(',')
-                  .map((item) => item.trim())
-                  .filter(Boolean),
-              })
-            }
-            placeholder={isEnglish ? 'For example: PC, Steam Deck, iOS' : '例如：PC, Steam Deck, iOS'}
-          />
-        </label>
-
-        <label className="field-group field-group-wide">
-          <span>{isEnglish ? 'Target Audience' : '目标玩家'}</span>
-          <input
-            type="text"
-            value={project.targetPlayers.join(', ')}
-            onChange={(event) =>
-              onProjectChange({
-                targetPlayers: event.target.value
-                  .split(',')
-                  .map((item) => item.trim())
-                  .filter(Boolean),
-              })
-            }
-            placeholder={isEnglish ? 'For example: casual co-op players, shareable-content players, survival builders' : '例如：轻度合作玩家, 内容传播型玩家, 生存建造爱好者'}
-          />
-        </label>
-
-        <label className="field-group field-group-wide">
-          <span>{isEnglish ? 'Core Fantasy' : '核心体验承诺'}</span>
-          <textarea
-            rows={3}
-            value={project.coreFantasy}
-            onChange={(event) => onProjectChange({ coreFantasy: event.target.value })}
-            placeholder={isEnglish ? 'Why will players stay? What should they feel?' : '玩家为什么愿意留下来？你想让他们感受到什么？'}
-          />
-        </label>
-
-        <label className="field-group field-group-wide">
-          <span>{isEnglish ? 'One-Line Concept' : '一句话想法'}</span>
-          <textarea
-            rows={3}
-            value={project.ideaSummary}
-            onChange={(event) => onProjectChange({ ideaSummary: event.target.value })}
-            placeholder={isEnglish ? 'What mechanic, system, or feature are you validating, and why is it worth building?' : '你想验证什么玩法、系统或活动？为什么值得做？'}
-          />
-        </label>
-
-        <label className="field-group field-group-wide">
-          <span>{isEnglish ? 'Core Loop' : '核心循环'}</span>
-          <textarea
-            rows={3}
-            value={project.coreLoop}
-            onChange={(event) => onProjectChange({ coreLoop: event.target.value })}
-            placeholder={isEnglish ? 'For example: explore -> fight -> collect -> build -> challenge again' : '例如：探索 -> 战斗 -> 收集 -> 建造 -> 再挑战'}
-          />
-        </label>
-
-        <label className="field-group">
-          <span>{isEnglish ? 'Session Length / Pace' : '单局时长 / 节奏'}</span>
-          <input
-            type="text"
-            value={project.sessionLength}
-            onChange={(event) => onProjectChange({ sessionLength: event.target.value })}
-            placeholder={isEnglish ? 'For example: 10-15 minute short runs / 30 minute mid-length runs' : '例如：10-15 分钟短局 / 30 分钟中局'}
-          />
-        </label>
-
-        <label className="field-group">
-          <span>{isEnglish ? 'Reference Games' : '参考游戏'}</span>
-          <input
-            type="text"
-            value={project.referenceGames.join(', ')}
-            onChange={(event) =>
-              onProjectChange({
-                referenceGames: event.target.value
-                  .split(',')
-                  .map((item) => item.trim())
-                  .filter(Boolean),
-              })
-            }
-            placeholder={isEnglish ? 'For example: Hades, Balatro, Vampire Survivors' : '例如：Hades, Balatro, Vampire Survivors'}
-          />
-        </label>
-
-        <label className="field-group field-group-wide">
-          <span>{isEnglish ? 'Differentiation' : '差异化卖点'}</span>
-          <textarea
-            rows={3}
-            value={project.differentiators}
-            onChange={(event) => onProjectChange({ differentiators: event.target.value })}
-            placeholder={isEnglish ? 'Compared with competitors, what should players remember immediately?' : '相对竞品，你最想让玩家一眼记住什么？'}
-          />
-        </label>
-
-        <label className="field-group field-group-wide">
-          <span>{isEnglish ? 'Progression Hook' : '成长驱动'}</span>
-          <textarea
-            rows={3}
-            value={project.progressionHook}
-            onChange={(event) => onProjectChange({ progressionHook: event.target.value })}
-            placeholder={isEnglish ? 'What supports mid-term retention: growth, collection, build variation, chapter progress, or something else?' : '中期留存靠什么支撑，例如成长、收集、build 变化或章节推进？'}
-          />
-        </label>
-
-        <label className="field-group field-group-wide">
-          <span>{isEnglish ? 'Social / Sharing Hook' : '社交 / 传播驱动'}</span>
-          <textarea
-            rows={3}
-            value={project.socialHook}
-            onChange={(event) => onProjectChange({ socialHook: event.target.value })}
-            placeholder={isEnglish ? 'If this is multiplayer, streamable, or highly shareable, describe the exact trigger points here.' : '如果它是多人、直播友好或强传播型项目，这里写清机制触发点。'}
-          />
-        </label>
-
-        <label className="field-group field-group-wide">
-          <span>{isEnglish ? 'Monetization Plan' : '商业化设想'}</span>
-          <textarea
-            rows={3}
-            value={project.monetization}
-            onChange={(event) => onProjectChange({ monetization: event.target.value })}
-            placeholder={isEnglish ? 'For example: no monetization yet / season pass / cosmetics / DLC / premium purchase' : '例如：先不测付费 / 赛季票 / 装扮 / DLC / 买断制'}
-          />
-        </label>
-
-        <label className="field-group field-group-wide">
-          <span>{isEnglish ? 'Validation Goal This Round' : '本轮验证目标'}</span>
-          <textarea
-            rows={3}
-            value={project.validationGoal}
-            onChange={(event) => onProjectChange({ validationGoal: event.target.value })}
-            placeholder={isEnglish ? 'What do you most want to validate this round? What result would make you continue or pause?' : '这轮最想验证什么？什么结果会让你继续推进或暂停？'}
-          />
-        </label>
-
-        <label className="field-group field-group-wide">
-          <span>{isEnglish ? 'Production Constraints' : '制作约束'}</span>
-          <textarea
-            rows={3}
-            value={project.productionConstraints}
-            onChange={(event) => onProjectChange({ productionConstraints: event.target.value })}
-            placeholder={isEnglish ? 'Put team size, budget, schedule, tech stack, and content throughput limits here.' : '团队人数、预算、工期、技术栈或内容产能限制都写在这里。'}
-          />
-        </label>
-
-        <label className="field-group field-group-wide">
-          <span>{isEnglish ? 'Current Main Concern' : '当前最担心的问题'}</span>
-          <textarea
-            rows={3}
-            value={project.currentStatus}
-            onChange={(event) => onProjectChange({ currentStatus: event.target.value })}
-            placeholder={isEnglish ? 'For example: onboarding cost may be so high that it hides the core fun.' : '例如：担心学习成本太高，掩盖了玩法乐趣。'}
-          />
-        </label>
+        <article className="intake-status-card">
+          <span>{isEnglish ? 'Best Next Move' : '当前建议动作'}</span>
+          <strong>{nextFocusCopy}</strong>
+          <p>
+            {isEnglish
+              ? 'The system keeps nudging you toward the most useful missing signal.'
+              : '系统会优先把你引向当前最值得补的那条信息。'}
+          </p>
+        </article>
       </div>
+
+      <section className="project-identity-section">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">{isEnglish ? 'Basic Frame' : '基础框架'}</p>
+            <h4>{isEnglish ? 'Lightweight project context' : '先补轻量的项目背景'}</h4>
+            <p>
+              {isEnglish
+                ? 'These fields help position the project, but they should not block the actual judgment work.'
+                : '这些信息有助于定位项目，但不应该反过来阻塞真正的产品判断。'}
+            </p>
+          </div>
+          <span className="meta-chip">{isEnglish ? 'Editable anytime' : '随时可补'}</span>
+        </div>
+        <div className="project-identity-grid">
+          {projectEditorFields.identity.map((config) => (
+            <ProjectFormField
+              key={config.field}
+              config={config}
+              project={project}
+              isEnglish={isEnglish}
+              onChange={patchProject}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className="project-starter-section">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">{isEnglish ? 'Starter Brief' : '起跑信息'}</p>
+            <h4>
+              {isEnglish
+                ? 'Write only the four signals needed to start thinking clearly'
+                : '只先写清 4 个能让判断成立的信号'}
+            </h4>
+            <p>
+              {isEnglish
+                ? 'This is the minimum frame for the system to understand what you are testing and why it matters.'
+                : '这 4 项先决定系统到底在判断什么，以及为什么这轮验证有意义。'}
+            </p>
+          </div>
+          <span className="panel-badge">
+            {isEnglish ? 'Required before guided follow-up' : '先补齐后再进入追问'}
+          </span>
+        </div>
+
+        <div className="starter-card-grid">
+          {projectEditorFields.starter.map((config) => {
+            const isFilled = hasProjectFieldValue(project, config.field);
+
+            return (
+              <article
+                key={config.field}
+                className={`starter-card ${isFilled ? 'is-done' : 'is-pending'}`}
+              >
+                <div className="starter-card-topline">
+                  <span className="starter-card-index">{pickCopy(config.label, isEnglish)}</span>
+                  <span className={`starter-card-status ${isFilled ? 'is-done' : 'is-pending'}`}>
+                    {isFilled
+                      ? isEnglish
+                        ? 'Ready'
+                        : '已就绪'
+                      : isEnglish
+                        ? 'Write this first'
+                        : '建议先写'}
+                  </span>
+                </div>
+                <ProjectFormField
+                  config={config}
+                  project={project}
+                  isEnglish={isEnglish}
+                  onChange={patchProject}
+                />
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="project-refinement-layout">
+        <ProjectGuidedRefinementPanel
+          project={project}
+          isEnglish={isEnglish}
+          starterReady={starterReady}
+          starterCount={starterCount}
+          starterMissingFields={starterMissingFields}
+          prompts={projectEditorGuidedPrompts}
+          activePromptId={activePromptId}
+          draftAnswer={draftAnswer}
+          lastAppliedPromptId={lastAppliedPromptId}
+          onSelectPrompt={setActivePromptId}
+          onDraftChange={setDraftAnswer}
+          onApply={handleApplyGuidedAnswer}
+          onRestore={() => setDraftAnswer(getProjectFieldValue(project, activePrompt.id))}
+          getFieldLabel={(field) => getFieldLabel(field)}
+        />
+
+        <ProjectUnderstandingPanel
+          isEnglish={isEnglish}
+          positioningSummary={positioningSummary}
+          insights={insights}
+          getFieldLabel={getFieldLabel}
+        />
+      </section>
+
+      <section className="editor-details-stack">
+        {disclosureConfigs.map((section) => (
+          <ProjectDisclosurePanel
+            key={section.title}
+            eyebrow={section.eyebrow}
+            title={section.title}
+            description={section.description}
+            badge={section.badge}
+            badgeClassName={section.badgeClassName}
+            open={section.open}
+            configs={section.configs}
+            project={project}
+            isEnglish={isEnglish}
+            onChange={patchProject}
+          />
+        ))}
+      </section>
 
       <div className="project-editor-actions">
         <button type="button" className="ghost-button" onClick={onResetProject}>

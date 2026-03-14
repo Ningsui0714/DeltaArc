@@ -14,7 +14,10 @@ type PredictionGraphPanelProps = {
   evidenceItems: EvidenceItem[];
   analysis: SandboxAnalysisResult;
   progress: SandboxAnalysisJob | null;
-  hasOfficialAnalysis: boolean;
+  hasViewableAnalysis: boolean;
+  isAnalysisFresh: boolean;
+  isAnalysisStale: boolean;
+  isAnalysisDegraded: boolean;
 };
 
 function resolveAggregateStatus(statuses: GraphCardStatus[]): GraphCardStatus {
@@ -39,7 +42,10 @@ export function PredictionGraphPanel({
   evidenceItems,
   analysis,
   progress,
-  hasOfficialAnalysis,
+  hasViewableAnalysis,
+  isAnalysisFresh,
+  isAnalysisStale,
+  isAnalysisDegraded,
 }: PredictionGraphPanelProps) {
   const { language } = useUiLanguage();
   const isEnglish = isEnglishUi(language);
@@ -49,7 +55,10 @@ export function PredictionGraphPanel({
     evidenceItems,
     analysis,
     progress,
-    hasOfficialAnalysis,
+    hasViewableAnalysis,
+    isAnalysisFresh,
+    isAnalysisStale,
+    isAnalysisDegraded,
     language,
   });
   const stageCards = [
@@ -66,14 +75,14 @@ export function PredictionGraphPanel({
       index: '02',
       title: isEnglish ? 'Shared Brief' : '共享简报',
       summary: view.dossierCard.title,
-      detail: view.liveRun.isActive ? view.liveRun.label : isEnglish ? 'Waiting for formal run' : '等待正式运行',
+      detail: view.liveRun.isActive ? view.liveRun.label : isEnglish ? 'Waiting for formal run' : '等待正式推理',
       status: view.dossierCard.status,
     },
     {
       zone: 'agents',
       index: '03',
       title: isEnglish ? 'Agent Run' : '多代理推演',
-      summary: isEnglish ? `${view.agentCards.length} specialists working in parallel` : `${view.agentCards.length} 个 specialist 并行工作`,
+      summary: isEnglish ? `${view.agentCards.length} specialists working in parallel` : `${view.agentCards.length} 个专项代理并行工作`,
       detail: view.agentsStat,
       status: resolveAggregateStatus(view.agentCards.map((card) => card.status)),
     },
@@ -82,7 +91,7 @@ export function PredictionGraphPanel({
       index: '04',
       title: isEnglish ? 'Output Closure' : '结果收束',
       summary: view.reportCard.title,
-      detail: hasOfficialAnalysis ? (isEnglish ? 'Formal output connected' : '正式结果已接入') : view.timelineStat,
+      detail: hasViewableAnalysis ? (isEnglish ? 'Formal output connected' : '正式结果已接入') : view.timelineStat,
       status: resolveAggregateStatus([view.synthesisCard.status, view.refineCard.status, view.reportCard.status]),
     },
   ] as const;
@@ -96,7 +105,7 @@ export function PredictionGraphPanel({
           <p className="graph-panel-copy">
             {isEnglish
               ? 'This is no longer a loose diagram. It compresses input loading, the shared brief, agent collaboration, and output closure into one dense work console.'
-              : '这里不再做松散示意图，而是把输入装载、共享简报、代理协作和结果收束压成一个高密度工作台。'}
+              : '这里不再做松散示意图，而是把输入装载、共享简报、多代理协作和结果收束压成一个高密度工作台。'}
           </p>
         </div>
         <div className="chip-row">
@@ -194,7 +203,7 @@ export function PredictionGraphPanel({
             <div className="graph-flow-heading">
               <div>
                 <p className="eyebrow">{isEnglish ? '02 Shared Brief' : '02 共享简报'}</p>
-                <h3>{isEnglish ? 'Dossier Hub' : 'Dossier 中枢'}</h3>
+                <h3>{isEnglish ? 'Dossier Hub' : '共享简报中枢'}</h3>
               </div>
               <span className="tiny-chip">{getStatusLabel(view.dossierCard.status, language)}</span>
             </div>
@@ -220,7 +229,7 @@ export function PredictionGraphPanel({
               </div>
             ) : (
               <div className="graph-mini-progress is-idle">
-                <strong>{isEnglish ? 'Formal Run Gate' : '正式预测闸门'}</strong>
+                <strong>{isEnglish ? 'Formal Run Gate' : '正式推理闸门'}</strong>
                 <span>{isEnglish ? 'Future evolution content will not appear here before the backend run starts.' : '没有启动后端前，这里不会自己长出未来演化内容。'}</span>
               </div>
             )}
@@ -267,7 +276,7 @@ export function PredictionGraphPanel({
                 <p className="eyebrow">{isEnglish ? '04 Outputs' : '04 输出层'}</p>
                 <h3>{isEnglish ? 'Forecast Output Closure' : '预测结果收束'}</h3>
               </div>
-              <span className="tiny-chip">{hasOfficialAnalysis ? (isEnglish ? 'Connected' : '已接入') : isEnglish ? 'Incomplete' : '未完成'}</span>
+              <span className="tiny-chip">{hasViewableAnalysis ? (isEnglish ? 'Connected' : '已接入') : isEnglish ? 'Incomplete' : '未完成'}</span>
             </div>
 
             <div className="graph-module-grid graph-output-grid">

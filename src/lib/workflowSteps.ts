@@ -40,6 +40,12 @@ const localizedWorkflowSteps: Record<UiLanguage, WorkflowStepDescriptor[]> = {
       kicker: '决策',
       brief: '把整个过程收束成可执行结论、关键风险和下一步动作。',
     },
+    {
+      id: 'sandbox',
+      label: '变量推演',
+      kicker: '实验',
+      brief: '基于正式结果冻结基线，再注入一个新变量继续试。',
+    },
   ],
   en: [
     {
@@ -71,6 +77,12 @@ const localizedWorkflowSteps: Record<UiLanguage, WorkflowStepDescriptor[]> = {
       label: 'Forecast Report',
       kicker: 'Decide',
       brief: 'Collapse the whole run into usable conclusions, key risks, and next actions.',
+    },
+    {
+      id: 'sandbox',
+      label: 'Variable Sandbox',
+      kicker: 'Test',
+      brief: 'Freeze the formal result into a baseline, then test one new variable on top of it.',
     },
   ],
 };

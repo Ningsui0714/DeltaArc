@@ -135,7 +135,7 @@ export function EvidencePage({
         title={isEnglish ? 'Import Evidence File' : '导入证据文件'}
         description={isEnglish ? 'Upload a single Markdown, TXT, or JSON file and it will be parsed into evidence cards. Importing only adds evidence and never generates a forecast automatically.' : '上传单个 Markdown、TXT 或 JSON 材料，系统会解析成证据卡。导入只会补充证据，不会自动生成预测。'}
         accept=".json,.md,.markdown,.txt"
-        hint={isEnglish ? 'Check the evidence cards after import, then run Quick Scan or Deep Dive from the Inference Desk.' : '导入后建议先检查证据卡，再进入推理台运行快速扫描或深度推演'}
+        hint={isEnglish ? 'Check the evidence cards after import, then run Quick Scan or Deep Dive from the Inference Desk.' : '导入后建议先检查证据卡，再进入推理台开始快速扫描或深度推演'}
         buttonLabel={isEnglish ? 'Choose Evidence File' : '选择证据文件'}
         feedback={evidenceImportFeedback}
         onImport={onImportEvidenceFile}

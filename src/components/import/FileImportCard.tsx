@@ -54,7 +54,11 @@ export function FileImportCard({
           <p className="eyebrow">{isEnglish ? 'File Import' : '文件导入'}</p>
           <h3>{title}</h3>
         </div>
-        <span className="panel-badge">{isEnglish ? 'Supports .json / .md / .txt' : '支持 .json / .md / .txt'}</span>
+        <span className="panel-badge">
+          {isEnglish
+            ? 'Supports .json / .md / .markdown / .txt'
+            : '支持 .json / .md / .markdown / .txt'}
+        </span>
       </div>
 
       <p className="upload-description">{description}</p>

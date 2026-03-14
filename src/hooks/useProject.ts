@@ -3,20 +3,36 @@ import { createBlankProject, demoProject } from '../data/mockData';
 import type { ProjectSnapshot } from '../types';
 import { normalizeProjectSnapshot } from '../../shared/schema';
 
-const storageKey = 'wind-tunnel-project';
+const legacyProjectStorageKey = 'wind-tunnel-project';
+const workspaceStorageKey = 'wind-tunnel-workspace';
+
+function buildProjectStorageKey(workspaceId: string) {
+  return `wind-tunnel-project:${workspaceId}`;
+}
+
+type WorkspaceProjectState = {
+  workspaceId: string;
+  project: ProjectSnapshot;
+};
+
+function createWorkspaceId() {
+  return `workspace_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
 
 function isDemoProject(project: ProjectSnapshot) {
   return JSON.stringify(project) === JSON.stringify(demoProject);
 }
 
-function readStoredProject() {
+function readStoredProject(workspaceId: string) {
   const blankProject = createBlankProject();
 
   if (typeof window === 'undefined') {
     return blankProject;
   }
 
-  const saved = window.localStorage.getItem(storageKey);
+  const saved =
+    window.localStorage.getItem(buildProjectStorageKey(workspaceId)) ??
+    window.localStorage.getItem(legacyProjectStorageKey);
   if (!saved) {
     return blankProject;
   }
@@ -29,29 +45,76 @@ function readStoredProject() {
   }
 }
 
+function readStoredWorkspaceId() {
+  if (typeof window === 'undefined') {
+    return createWorkspaceId();
+  }
+
+  const saved = window.localStorage.getItem(workspaceStorageKey);
+  return saved && /^[A-Za-z0-9_-]+$/.test(saved) ? saved : createWorkspaceId();
+}
+
+function readStoredWorkspaceProjectState(): WorkspaceProjectState {
+  const workspaceId = readStoredWorkspaceId();
+  return {
+    workspaceId,
+    project: readStoredProject(workspaceId),
+  };
+}
+
 export function useProject() {
-  const [project, setProject] = useState<ProjectSnapshot>(readStoredProject);
+  const [state, setState] = useState<WorkspaceProjectState>(readStoredWorkspaceProjectState);
+  const { workspaceId, project } = state;
 
   useEffect(() => {
-    window.localStorage.setItem(storageKey, JSON.stringify(project));
-  }, [project]);
+    window.localStorage.setItem(buildProjectStorageKey(workspaceId), JSON.stringify(project));
+  }, [project, workspaceId]);
+
+  useEffect(() => {
+    window.localStorage.setItem(workspaceStorageKey, workspaceId);
+  }, [workspaceId]);
 
   function updateProject(patch: Partial<ProjectSnapshot>) {
-    setProject((current) => ({
+    setState((current) => ({
       ...current,
-      ...patch,
+      project: {
+        ...current.project,
+        ...patch,
+      },
     }));
   }
 
   function replaceProject(nextProject: ProjectSnapshot) {
-    setProject(nextProject);
+    setState((current) => ({
+      ...current,
+      project: nextProject,
+    }));
   }
 
   function resetToBlankProject() {
-    setProject(createBlankProject());
+    setState((current) => {
+      const nextWorkspaceId = createWorkspaceId();
+      const blankProject = createBlankProject();
+
+      if (typeof window !== 'undefined') {
+        window.localStorage.removeItem(buildProjectStorageKey(current.workspaceId));
+        window.localStorage.removeItem(legacyProjectStorageKey);
+        window.localStorage.setItem(workspaceStorageKey, nextWorkspaceId);
+        window.localStorage.setItem(
+          buildProjectStorageKey(nextWorkspaceId),
+          JSON.stringify(blankProject),
+        );
+      }
+
+      return {
+        workspaceId: nextWorkspaceId,
+        project: blankProject,
+      };
+    });
   }
 
   return {
+    workspaceId,
     project,
     updateProject,
     replaceProject,

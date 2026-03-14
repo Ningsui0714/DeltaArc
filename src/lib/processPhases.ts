@@ -3,10 +3,10 @@ import type { UiLanguage } from '../hooks/useUiLanguage';
 
 export type ProcessPhase = 'intake' | 'analysis' | 'output';
 export type InputStep = Extract<StepId, 'overview' | 'evidence'>;
-export type OutputStep = Extract<StepId, 'modeling' | 'strategy' | 'report'>;
+export type OutputStep = Extract<StepId, 'modeling' | 'strategy' | 'report' | 'sandbox'>;
 
 export const inputSteps: InputStep[] = ['overview', 'evidence'];
-export const outputSteps: OutputStep[] = ['modeling', 'strategy', 'report'];
+export const outputSteps: OutputStep[] = ['modeling', 'strategy', 'report', 'sandbox'];
 
 type ProcessPhaseDescriptor = {
   id: ProcessPhase;
@@ -33,7 +33,7 @@ const localizedProcessPhases: Record<UiLanguage, ProcessPhaseDescriptor[]> = {
       id: 'output',
       label: '结果输出',
       kicker: '03',
-      brief: '在这里看建模、未来演化和最终报告，不再和输入混在一起。',
+      brief: '在这里查看正式结果集，并继续进入变量推演，不再和输入混在一起。',
     },
   ],
   en: [
@@ -53,7 +53,7 @@ const localizedProcessPhases: Record<UiLanguage, ProcessPhaseDescriptor[]> = {
       id: 'output',
       label: 'Outputs',
       kicker: '03',
-      brief: 'Review modeling, future evolution, and the final report without mixing them with inputs.',
+      brief: 'Review the formal result set and continue into the Variable Sandbox without mixing them with inputs.',
     },
   ],
 };

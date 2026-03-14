@@ -6,7 +6,13 @@ import type {
 } from '../../../shared/sandbox';
 import { type UiLanguage, isEnglishUi } from '../../hooks/useUiLanguage';
 import { getAgentStageMeta } from '../../lib/agentStageMeta';
-import { formatJobDuration, getJobProgressStats } from '../../lib/jobProgress';
+import {
+  formatJobDuration,
+  getJobProgressStats,
+  isAnalysisJobActive,
+  isAnalysisJobFailed,
+} from '../../lib/jobProgress';
+import { trimCopy } from '../../lib/trimCopy';
 import type { EvidenceItem, ProjectSnapshot, StepId } from '../../types';
 
 export type GraphCardStatus = 'pending' | 'running' | 'completed' | 'error';
@@ -61,11 +67,6 @@ const agentStageKeys = [
   'red_team',
 ] as const;
 
-function trimCopy(value: string | undefined, fallback: string) {
-  const normalized = value?.trim() ?? '';
-  return normalized.length > 0 ? normalized : fallback;
-}
-
 function shorten(value: string, maxLength = 116) {
   return value.length > maxLength ? `${value.slice(0, maxLength - 1)}...` : value;
 }
@@ -76,13 +77,13 @@ function resolveStage(progress: SandboxAnalysisJob | null, key: SandboxAnalysisS
 
 function resolveStageStatus(
   stage: SandboxAnalysisJobStage | undefined,
-  hasOfficialAnalysis: boolean,
+  hasViewableAnalysis: boolean,
 ): GraphCardStatus {
   if (stage) {
     return stage.status;
   }
 
-  return hasOfficialAnalysis ? 'completed' : 'pending';
+  return hasViewableAnalysis ? 'completed' : 'pending';
 }
 
 export function getStatusLabel(status: GraphCardStatus, language: UiLanguage = 'zh') {
@@ -165,13 +166,29 @@ export function buildPredictionGraphViewModel(params: {
   evidenceItems: EvidenceItem[];
   analysis: SandboxAnalysisResult;
   progress: SandboxAnalysisJob | null;
-  hasOfficialAnalysis: boolean;
+  hasViewableAnalysis: boolean;
+  isAnalysisFresh: boolean;
+  isAnalysisStale: boolean;
+  isAnalysisDegraded: boolean;
   language?: UiLanguage;
 }): PredictionGraphViewModel {
-  const { activeStep, project, evidenceItems, analysis, progress, hasOfficialAnalysis, language = 'zh' } = params;
+  const {
+    activeStep,
+    project,
+    evidenceItems,
+    analysis,
+    progress,
+    hasViewableAnalysis,
+    isAnalysisFresh,
+    isAnalysisStale,
+    isAnalysisDegraded,
+    language = 'zh',
+  } = params;
   const isEnglish = isEnglishUi(language);
   const agentStageMeta = getAgentStageMeta(language);
   const progressStats = progress ? getJobProgressStats(progress) : null;
+  const isProgressActive = isAnalysisJobActive(progress);
+  const hasProgressError = isAnalysisJobFailed(progress);
   const focusZone = getFocusZone(activeStep);
   const liveZone = getLiveZone(progress?.currentStageKey);
   const dossierStage = resolveStage(progress, 'dossier');
@@ -196,65 +213,114 @@ export function buildPredictionGraphViewModel(params: {
           stage?.detail ||
           (isEnglish ? 'Waiting for the shared brief to dispatch work.' : '等待共享简报分发。'),
       ),
-      status: resolveStageStatus(stage, hasOfficialAnalysis),
+      status: resolveStageStatus(stage, hasViewableAnalysis),
       metrics: [stage?.model, stage?.durationMs ? formatJobDuration(stage.durationMs, language) : '']
         .filter((value): value is string => Boolean(value))
         .slice(0, 2),
     };
   });
 
-  const forecastReportStatus: GraphCardStatus = hasOfficialAnalysis
+  const forecastReportStatus: GraphCardStatus = hasViewableAnalysis
     ? 'completed'
-    : progress?.status === 'error'
+    : hasProgressError
       ? 'error'
-      : progress?.currentStageKey === 'complete'
+      : isProgressActive && progress?.currentStageKey === 'complete'
         ? 'running'
         : 'pending';
   const runningAgentCount = progressStats?.runningStageCount ?? 0;
-  const completedAgentCount = progressStats?.completedStageCount ?? (hasOfficialAnalysis ? agentCards.length + 3 : 0);
+  const completedAgentCount = progressStats?.completedStageCount ?? (hasViewableAnalysis ? agentCards.length + 3 : 0);
+
+  const connectedLabel = isAnalysisFresh
+    ? isEnglish
+      ? 'Fresh formal output'
+      : '最新正式结果'
+    : isAnalysisDegraded
+      ? isEnglish
+        ? 'Degraded formal output'
+        : '降级正式结果'
+      : isAnalysisStale
+        ? isEnglish
+          ? 'Stale formal output'
+          : '过期正式结果'
+        : isEnglish
+          ? 'Viewable formal output'
+          : '可查看正式结果';
+  const connectedSummary = isAnalysisFresh
+    ? trimCopy(
+        analysis.report.summary || analysis.summary,
+        isEnglish ? 'The formal output is already attached to this workspace.' : '正式结果已经挂到当前工作区。',
+      )
+    : isAnalysisDegraded
+      ? isEnglish
+        ? 'A later stage failed, but cached earlier outputs were preserved and remain connected here.'
+        : '后续阶段曾失败，但前面已缓存的输出被保留了下来，并继续挂在这里。'
+      : isAnalysisStale
+        ? isEnglish
+          ? 'The connected output was generated before the current inputs changed, so it is still viewable but no longer fresh.'
+          : '当前挂接结果生成于本轮输入变化之前，因此它仍可查看，但已经不是最新状态。'
+        : isEnglish
+          ? 'A formal output remains connected to this workspace.'
+          : '当前工作区仍挂着一份正式结果。';
 
   return {
     focusZone,
     liveZone,
     progressChip: progressStats
-      ? isEnglish
-        ? `Live ${progressStats.percent}%`
-        : `实时进度 ${progressStats.percent}%`
-      : hasOfficialAnalysis
+      ? isProgressActive
         ? isEnglish
-          ? 'Formal output locked'
-          : '正式结果已锁定'
+          ? `Live ${progressStats.percent}%`
+          : `实时进度 ${progressStats.percent}%`
+        : hasProgressError
+          ? isEnglish
+            ? `Failed ${progressStats.percent}%`
+            : `失败于 ${progressStats.percent}%`
+          : isEnglish
+            ? `Live ${progressStats.percent}%`
+            : `实时进度 ${progressStats.percent}%`
+      : hasProgressError
+        ? isEnglish
+          ? 'Run failed'
+          : '运行失败'
+      : hasViewableAnalysis
+        ? connectedLabel
         : isEnglish
           ? 'Not started'
           : '尚未运行',
-    trustTone: hasOfficialAnalysis ? 'trust-high' : progress ? 'trust-medium' : 'trust-low',
-    trustLabel: hasOfficialAnalysis
-      ? isEnglish
-        ? 'Remote formal output'
-        : '远端正式结果'
-      : progress
+    trustTone: hasViewableAnalysis
+      ? isAnalysisFresh
+        ? 'trust-high'
+        : 'trust-medium'
+      : isProgressActive
+        ? 'trust-medium'
+        : 'trust-low',
+    trustLabel: hasViewableAnalysis
+      ? connectedLabel
+      : isProgressActive
         ? isEnglish
           ? 'Live run in progress'
           : '实时运行中'
-        : isEnglish
+        : hasProgressError
+          ? progress?.retryable
+            ? isEnglish
+              ? 'Run failed, resume available'
+              : '运行失败，可继续重试'
+            : isEnglish
+              ? 'Run failed'
+              : '运行失败'
+      : isEnglish
           ? 'Waiting for formal run'
-          : '等待正式预测',
-    graphHeadline: progress
-      ? progress.currentStageLabel
-      : hasOfficialAnalysis
-        ? isEnglish
-          ? 'Formal forecast connected'
-          : '正式预测结果已接入'
+          : '等待正式推理',
+    graphHeadline: isProgressActive || hasProgressError
+      ? progress?.currentStageLabel ?? (isEnglish ? 'Formal run state' : '正式推理状态')
+      : hasViewableAnalysis
+        ? connectedLabel
         : isEnglish
           ? 'Prediction graph waiting to start'
           : '预测图谱待启动',
-    graphSummary: progress
-      ? progress.message
-      : hasOfficialAnalysis
-        ? trimCopy(
-            analysis.report.summary || analysis.summary,
-            isEnglish ? 'The formal output is already attached to this workspace.' : '正式结果已经挂到当前工作区。',
-          )
+    graphSummary: isProgressActive || hasProgressError
+      ? progress?.message ?? (isEnglish ? 'Formal run state is currently unavailable.' : '当前正式推理状态暂不可用。')
+      : hasViewableAnalysis
+        ? connectedSummary
         : isEnglish
           ? 'Before the backend run starts, this area only shows inputs and structure. It will not fake a conclusion.'
           : '没有启动后端运行前，这里只显示输入和结构，不会提前伪造结论。',
@@ -263,14 +329,14 @@ export function buildPredictionGraphViewModel(params: {
       ? isEnglish
         ? `Running ${runningAgentCount} / Done ${completedAgentCount}`
         : `进行中 ${runningAgentCount} / 已完成 ${completedAgentCount}`
-      : hasOfficialAnalysis
+      : hasViewableAnalysis
         ? isEnglish
           ? 'All merged'
           : '已全部汇总'
         : isEnglish
           ? 'Not dispatched'
           : '尚未派发',
-    timelineStat: hasOfficialAnalysis
+    timelineStat: hasViewableAnalysis
       ? isEnglish
         ? `${analysis.futureTimeline.length} beats`
         : `${analysis.futureTimeline.length} 个节点`
@@ -316,38 +382,38 @@ export function buildPredictionGraphViewModel(params: {
       metrics: evidenceItems.slice(0, 3).map((item) => item.type),
     },
     dossierCard: {
-      status: resolveStageStatus(dossierStage, hasOfficialAnalysis),
+      status: resolveStageStatus(dossierStage, hasViewableAnalysis),
       title: dossierStage?.preview?.headline || (isEnglish ? 'Unified Forecast Brief' : '统一预测简报'),
       summary: shorten(
         dossierStage?.preview?.summary ||
           dossierStage?.detail ||
           (isEnglish
             ? 'This stage packages the project summary and evidence signals into one shared handoff for the specialist agents.'
-            : '这里会把项目简述和证据信号打包成一份统一 handoff，再交给各个 specialist 代理。'),
+            : '这里会把项目简述和证据信号打包成一份统一交接简报，再交给各个专项代理。'),
       ),
       metrics: [],
     },
     dossierRole: isEnglish ? 'Shared Brief' : '共享简报',
     liveRun: {
-      isActive: Boolean(progressStats),
+      isActive: isProgressActive || hasProgressError,
       percent: progressStats?.percent ?? 0,
-      label: progress?.currentStageLabel ?? (isEnglish ? 'Waiting for formal run' : '等待正式运行'),
+      label: progress?.currentStageLabel ?? (isEnglish ? 'Waiting for formal run' : '等待正式推理'),
       message: progress?.message ?? (isEnglish ? 'The shared brief and agent stages only light up after the backend run actually starts.' : '只有后端真正启动后，共享简报和多代理阶段才会逐步点亮。'),
     },
     agentCards,
     synthesisCard: {
-      status: resolveStageStatus(synthesisStage, hasOfficialAnalysis),
+      status: resolveStageStatus(synthesisStage, hasViewableAnalysis),
       title: synthesisStage?.preview?.headline || (isEnglish ? 'Future Timeline Simulation' : '未来时间线模拟'),
       summary: shorten(
         synthesisStage?.preview?.summary ||
           (isEnglish
             ? 'Specialist judgments are merged here into future beats, community rhythms, and key inflection points.'
-            : '各个 specialist 的判断会在这里汇总成未来节点、社区节奏和关键转折。'),
+            : '各个专项代理的判断会在这里汇总成未来节点、社区节奏和关键转折。'),
       ),
       metrics: [],
     },
     refineCard: {
-      status: resolveStageStatus(refineStage, hasOfficialAnalysis),
+      status: resolveStageStatus(refineStage, hasViewableAnalysis),
       title: refineStage?.preview?.headline || (isEnglish ? 'Report Structure Cleanup' : '报告结构整理'),
       summary: shorten(
         refineStage?.preview?.summary ||
@@ -359,26 +425,21 @@ export function buildPredictionGraphViewModel(params: {
     },
     reportCard: {
       status: forecastReportStatus,
-      title: hasOfficialAnalysis
+      title: hasViewableAnalysis
         ? trimCopy(
             analysis.report.headline || analysis.systemVerdict,
-            isEnglish ? 'Formal forecast output has been generated.' : '正式预测结果已经生成。',
+            isEnglish ? 'Formal forecast output has been generated.' : '正式结果已经生成。',
           )
         : latestPreviewStage?.preview?.headline ||
           (isEnglish ? 'The future timeline only unlocks after the backend run finishes.' : '只有后端完成后，未来时间线才会真正解锁。'),
-      summary: hasOfficialAnalysis
-        ? shorten(
-            trimCopy(
-              analysis.report.summary || analysis.summary,
-              isEnglish ? 'The formal forecast content is now synced into the right-side timeline and report area.' : '正式预测内容已经同步到右侧时间线和报告区域。',
-            ),
-          )
+      summary: hasViewableAnalysis
+        ? shorten(connectedSummary)
         : isEnglish
           ? 'The timeline and report stay locked until the backend run truly finishes. This graph will not pretend it already knows the answer.'
           : '只有后端真正完成后，时间线和报告才会解锁，图谱不会假装自己已经知道答案。',
       metrics: [
-        hasOfficialAnalysis ? (isEnglish ? `${analysis.futureTimeline.length} timeline beats` : `${analysis.futureTimeline.length} 个时间节点`) : '',
-        hasOfficialAnalysis ? (isEnglish ? `${analysis.communityRhythms.length} community rhythms` : `${analysis.communityRhythms.length} 个社区节奏`) : '',
+        hasViewableAnalysis ? (isEnglish ? `${analysis.futureTimeline.length} timeline beats` : `${analysis.futureTimeline.length} 个时间节点`) : '',
+        hasViewableAnalysis ? (isEnglish ? `${analysis.communityRhythms.length} community rhythms` : `${analysis.communityRhythms.length} 个社区节奏`) : '',
         latestPreviewStage?.model ?? '',
       ].filter((value): value is string => Boolean(value)),
     },

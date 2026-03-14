@@ -155,6 +155,7 @@
 .workspace-summary-pill strong {
   font-family: var(--font-mono);
   font-size: 0.92rem;
+  line-height: 1.35;
 }
 
 .workspace-command-actions {
@@ -222,7 +223,7 @@
 
 .workspace-process-rail {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -291,6 +292,20 @@
 .workspace-phase-subnav {
   display: grid;
   gap: 10px;
+}
+
+.workspace-subnav-intro {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(42, 94, 148, 0.12);
+  background: rgba(255, 255, 255, 0.66);
+}
+
+.workspace-subnav-intro p {
+  margin: 0;
+  color: var(--text-secondary);
 }
 
 .workspace-phase-banner {

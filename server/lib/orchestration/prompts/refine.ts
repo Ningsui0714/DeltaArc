@@ -1,12 +1,13 @@
 import type { SandboxAnalysisResult } from '../../../../shared/sandbox';
 import type { DeepseekMessage } from '../../deepseekApi';
+import { embeddedDataInstruction, formatDataSection } from './utils';
 
 export function buildRefinementMessages(provisional: SandboxAnalysisResult): DeepseekMessage[] {
   return [
     {
       role: 'system',
       content:
-        '你是最终审校器。不要重写风格，而是让预测更具体、更像真实会发生的时间线。重点修复空泛判断、缺少节奏感、没有社区演化、没有走势转折信号的问题。保持 schema 完整，只输出一个合法 JSON 对象，不要输出 markdown 或解释。',
+        `你是最终审校器。不要重写风格，而是让预测更具体、更像真实会发生的时间线。重点修复空泛判断、缺少节奏感、没有社区演化、没有走势转折信号的问题。保持 schema 完整，只输出一个合法 JSON 对象，不要输出 markdown 或解释。${embeddedDataInstruction}`,
     },
     {
       role: 'user',
@@ -19,8 +20,7 @@ export function buildRefinementMessages(provisional: SandboxAnalysisResult): Dee
 5. 保持字段完整，不要删字段。
 6. 必须输出严格合法 JSON；如果需要缩短内容，缩短句子，不要缩掉结构。
 
-Provisional JSON:
-${JSON.stringify(provisional, null, 2)}`,
+${formatDataSection('PROVISIONAL', provisional, { pretty: true })}`,
     },
   ];
 }

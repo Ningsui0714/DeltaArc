@@ -12,13 +12,13 @@ const zhAgentStageMeta: Partial<Record<SandboxAnalysisStageKey, AgentStageDescri
   dossier: {
     agent: '协调中枢',
     role: '共享简报',
-    handoff: '整理项目设定、证据和待回答问题，然后把统一简报分发给各个 specialist。',
+    handoff: '整理项目设定、证据和待回答问题，然后把统一简报分发给各个专项代理。',
     lane: 'brief',
   },
   systems: {
     agent: '玩法系统代理',
     role: '玩法系统',
-    handoff: '从核心循环、反馈密度和上手结构判断第一波反应，再把结论交给 synthesis。',
+    handoff: '从核心循环、反馈密度和上手结构判断第一波反应，再把结论交给综合收束阶段。',
     lane: 'analysis',
   },
   psychology: {
@@ -48,13 +48,13 @@ const zhAgentStageMeta: Partial<Record<SandboxAnalysisStageKey, AgentStageDescri
   red_team: {
     agent: '反方拆解代理',
     role: '反方拆解',
-    handoff: '优先寻找失速路径、虚假正反馈和误判假设，再把反证回传给 synthesis。',
+    handoff: '优先寻找失速路径、虚假正反馈和误判假设，再把反证回传给综合收束阶段。',
     lane: 'analysis',
   },
   synthesis: {
     agent: '综合推演代理',
     role: '时间线编排',
-    handoff: '汇总各 specialist 的判断，生成未来时间线、社区节奏和转折信号。',
+    handoff: '汇总各个专项代理的判断，生成未来时间线、社区节奏和转折信号。',
     lane: 'forecast',
   },
   refine: {

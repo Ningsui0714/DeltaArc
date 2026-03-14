@@ -6,8 +6,14 @@ import {
   createAnalysisMeta,
   createFallbackAnalysis,
   normalizeFinalAnalysis,
+  parseCreateFrozenBaselineRequest,
+  parseDesignVariableV1,
+  parseFrozenBaseline,
+  parsePersistedLatestAnalysis,
   parseSandboxAnalysisRequest,
   parseSandboxAnalysisResult,
+  parseVariableImpactScanRequest,
+  parseVariableImpactScanResult,
   SchemaError,
 } from '../shared/schema';
 import { parseJsonImport } from '../src/lib/import/parseJsonImport';
@@ -67,6 +73,40 @@ async function main() {
   assert.equal(degradedResult.meta.source, 'remote');
   assert.equal(degradedResult.meta.status, 'degraded');
   assert.ok(degradedResult.pipeline.some((step) => step.includes('@local-fallback')));
+
+  const createBaselineRequest = parseCreateFrozenBaselineRequest(
+    await readJson('examples/baselines/create-frozen-baseline-request.json'),
+  );
+  assert.equal(createBaselineRequest.analysis.meta.status, 'fresh');
+  assert.equal(createBaselineRequest.evidenceItems.length, 2);
+
+  const frozenBaseline = parseFrozenBaseline(await readJson('examples/baselines/valid-frozen-baseline.json'));
+  assert.equal(frozenBaseline.projectId, 'project_yuanaan_001');
+  assert.equal(frozenBaseline.analysisSnapshot.validationTracks.length, 1);
+
+  const persistedLatestAnalysis = parsePersistedLatestAnalysis(
+    await readJson('examples/baselines/valid-persisted-latest-analysis.json'),
+  );
+  assert.equal(persistedLatestAnalysis.workspaceId, 'workspace_yuanaan_001');
+  assert.equal(persistedLatestAnalysis.analysis.meta.requestId, 'analysis_yuanaan_001');
+
+  const designVariable = parseDesignVariableV1(
+    await readJson('examples/variables/valid-design-variable-v1.json'),
+  );
+  assert.equal(designVariable.category, 'gameplay');
+  assert.equal(designVariable.activationStage, 'mid');
+
+  const impactScanRequest = parseVariableImpactScanRequest(
+    await readJson('examples/impact-scans/valid-impact-scan-request.json'),
+  );
+  assert.equal(impactScanRequest.baselineId, 'baseline_yuanaan_001');
+  assert.equal(impactScanRequest.variable.name, '双人协作机关');
+
+  const impactScanResult = parseVariableImpactScanResult(
+    await readJson('examples/impact-scans/valid-impact-scan-result.json'),
+  );
+  assert.equal(impactScanResult.impactScan.length, 2);
+  assert.equal(impactScanResult.guardrails[0]?.priority, 'P0');
 
   console.log('Fixture verification passed.');
 }

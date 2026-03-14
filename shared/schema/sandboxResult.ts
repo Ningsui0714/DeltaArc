@@ -71,6 +71,10 @@ export {
   parseSandboxAnalysisMeta,
 };
 
+function mergeWarnings(primary: unknown, fallback: string[]) {
+  return Array.from(new Set([...fallback, ...ensureStringArray(primary)]));
+}
+
 export function normalizeFinalAnalysis(parsed: JsonRecord, fallback: SandboxAnalysisResult): SandboxAnalysisResult {
   return {
     generatedAt: ensureString(parsed.generatedAt, fallback.generatedAt),
@@ -104,7 +108,7 @@ export function normalizeFinalAnalysis(parsed: JsonRecord, fallback: SandboxAnal
     redTeam: normalizeRedTeam(parsed.redTeam, fallback.redTeam),
     memorySignals: normalizeMemorySignals(parsed.memorySignals, fallback.memorySignals),
     report: normalizeReport(parsed.report, fallback.report),
-    warnings: ensureStringArray(parsed.warnings, fallback.warnings),
+    warnings: mergeWarnings(parsed.warnings, fallback.warnings),
   };
 }
 

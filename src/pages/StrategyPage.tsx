@@ -27,6 +27,7 @@ type StrategyPageProps = {
   validationTracks: SandboxValidationTrack[];
   contrarianMoves: SandboxContrarianMove[];
   unknowns: SandboxUnknown[];
+  canGenerateReport: boolean;
   onGenerateReport: () => void;
 };
 
@@ -49,6 +50,7 @@ export function StrategyPage({
   validationTracks,
   contrarianMoves,
   unknowns,
+  canGenerateReport,
   onGenerateReport,
 }: StrategyPageProps) {
   const { language } = useUiLanguage();
@@ -61,13 +63,25 @@ export function StrategyPage({
       <section className="panel staged-panel">
         <div className="panel-heading">
           <div>
-            <p className="eyebrow">{isEnglish ? 'Future Forecast' : '未来推演'}</p>
+            <p className="eyebrow">{isEnglish ? 'Future Forecast' : '未来演化'}</p>
             <h3>{isEnglish ? 'Review future evolution stage by stage' : '逐阶段查看未来演化'}</h3>
           </div>
-          <button type="button" className="accent-button" onClick={onGenerateReport}>
+          <button
+            type="button"
+            className="accent-button"
+            disabled={!canGenerateReport}
+            onClick={onGenerateReport}
+          >
             {isEnglish ? 'Generate Report' : '生成预测报告'}
           </button>
         </div>
+        {!canGenerateReport ? (
+          <p className="analysis-trust-note">
+            {isEnglish
+              ? 'Generating a fresh report is locked until the setup and evidence gate are ready again.'
+              : '想生成一份新的预测报告，需要先把设定和证据门槛重新补齐。'}
+          </p>
+        ) : null}
 
         <PhaseTabs tabs={[...tabs]} activeTab={activeTab} onChange={(next) => setActiveTab(next as typeof activeTab)} />
 

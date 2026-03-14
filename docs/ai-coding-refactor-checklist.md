@@ -4,13 +4,13 @@
 
 ## 1. 把共享类型升级成运行时协议
 
-当前 `shared/domain.ts` 和 `shared/sandbox.ts` 只约束了 TypeScript 编译期，前后端在运行时还是靠各自猜。
+当前 `shared/schema/` 已经覆盖了请求、结果、项目、证据和变量沙盒协议，但新增字段和导入 normalize 仍应优先收口到共享层，避免前后端重新各猜一套。
 
 建议：
 
-- 为 `SandboxAnalysisRequest`、`ProjectSnapshot`、`EvidenceItem`、`SandboxAnalysisResult` 增加统一 schema。
-- 前端导入文件后先走 schema。
-- 后端路由入参和模型出参都走 schema。
+- 新增或变更 `SandboxAnalysisRequest`、`ProjectSnapshot`、`EvidenceItem`、`SandboxAnalysisResult`、变量沙盒相关结构时，先改共享 schema，再接前后端。
+- 前端导入文件继续优先走共享 schema / normalize。
+- 后端路由入参与模型出参继续统一走共享 schema。
 
 收益：
 
@@ -19,7 +19,7 @@
 
 ## 2. 把推演编排拆成职责文件
 
-当前 [`server/lib/orchestration/index.ts`](../server/lib/orchestration/index.ts) 仍然是主编排入口，不应继续膨胀到重新变成“超级文件”。
+当前编排已经拆成 `executionPlan`、`dossierStage`、`specialistStage`、`postStages`、`prompts/`、`checkpoints/` 等文件，[`server/lib/orchestration/index.ts`](../server/lib/orchestration/index.ts) 仍然是主编排入口，不应继续膨胀回“超级文件”。
 
 - stage prompt 构造
 - stage 调度
@@ -27,12 +27,14 @@
 - 输出拼装
 - memory 串联
 
-建议至少拆成：
+建议继续沿着现有边界演进：
 
-- `server/lib/orchestration/stages.ts`
-- `server/lib/orchestration/prompts.ts`
-- `server/lib/orchestration/fallbacks.ts`
-- `server/lib/orchestration/assemble.ts`
+- `server/lib/orchestration/executionPlan.ts`
+- `server/lib/orchestration/dossierStage.ts`
+- `server/lib/orchestration/specialistStage.ts`
+- `server/lib/orchestration/postStages.ts`
+- `server/lib/orchestration/prompts/`
+- `server/lib/orchestration/checkpoints.ts`
 
 收益：
 
@@ -41,12 +43,12 @@
 
 ## 3. 显式区分结果来源与可信状态
 
-当前 UI 把正式结果、本地 fallback 和失败占位放在一套展示里，容易让用户和 AI 都误读。
+当前结果结构已经有 `meta.source` / `meta.status`，UI 也会区分 `fresh / stale / degraded`，但后续新增缓存、重试和历史对比时仍应继续围绕这套语义扩展，而不是再造第二套状态词。
 
-建议在结果结构里补两个字段：
+当前核心字段：
 
-- `source`: `remote | local_fallback`
-- `status`: `fresh | stale | degraded | error`
+- `meta.source`: `remote | local_fallback`
+- `meta.status`: `fresh | stale | degraded | error`
 
 同时约束：
 
@@ -60,7 +62,7 @@
 
 ## 4. 把持久化收口成一个本地项目仓
 
-当前项目信息和证据在浏览器 `localStorage`，推演记忆在服务端 JSON，实际上是两套状态系统。
+当前项目和证据草稿仍在浏览器 `localStorage`，正式分析、基线、变量和 impact scan 已经落到 `server/data/projects/`，实际上是“草稿态 + 运行态”两层状态系统。
 
 建议下一步只做最小统一：
 
@@ -75,13 +77,15 @@
 
 ## 5. 给 AI 留一套固定验收样本
 
-当前只有 `npm run typecheck` 和 `npm run build`，能防语法坏，不防语义漂移。
+当前已经有 `npm run typecheck`、`npm run build`、`npm test` 和 `npm run verify:fixtures`，能防住不少回归，但 fixture 规模和目录约定仍可以继续补强。
 
-建议加最小 fixture：
+建议继续补齐并统一这些 fixture 入口：
 
 - `examples/requests/*.json`
-- `examples/responses/*.json`
-- `server/lib/__fixtures__/`
+- `examples/expected/*.json`
+- `examples/baselines/*.json`
+- `examples/impact-scans/*.json`
+- `examples/variables/*.json`
 
 至少覆盖：
 
@@ -101,6 +105,6 @@
 
 - 不保留构建产物、日志、`tsbuildinfo`。
 - 不保留重复配置的生成文件，比如 `vite.config.js`、`vite.config.d.ts`。
-- 规划文档统一收在 `docs/specs/`。
+- 详细方案草图统一收在 `docs/specs/`，对外说明放 `docs/` 根目录。
 - 示例输入统一放 `examples/`。
 - 运行时数据和示例数据分开。

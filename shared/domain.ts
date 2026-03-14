@@ -1,4 +1,4 @@
-export type StepId = 'overview' | 'evidence' | 'modeling' | 'strategy' | 'report';
+export type StepId = 'overview' | 'evidence' | 'modeling' | 'strategy' | 'report' | 'sandbox';
 
 export type EvidenceType = 'note' | 'interview' | 'review' | 'design_doc' | 'metric_snapshot';
 export type TrustLevel = 'low' | 'medium' | 'high';

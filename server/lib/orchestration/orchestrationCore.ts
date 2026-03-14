@@ -1,12 +1,14 @@
 import type {
   SandboxAnalysisRequest,
   SandboxAnalysisResult,
+  SandboxAnalysisResumeStageKey,
   SandboxAnalysisStageKey,
 } from '../../../shared/sandbox';
 import {
   createAnalysisMeta,
   createFallbackAnalysis,
 } from '../normalizeSandboxResult';
+import type { AnalysisCheckpointState } from './checkpoints';
 import type { MemoryStore } from './memoryStore';
 
 export type ProgressUpdate = {
@@ -26,12 +28,58 @@ export type ProgressUpdate = {
 export type OrchestrationDependencies = {
   memoryStore?: MemoryStore;
   onProgress?: (update: ProgressUpdate) => void;
+  resume?: {
+    startStageKey: SandboxAnalysisResumeStageKey;
+    checkpoints: AnalysisCheckpointState;
+  };
 };
 
 export type TimedStageError = {
   durationMs: number;
   error: unknown;
 };
+
+export class OrchestrationStageError extends Error {
+  stageKey: SandboxAnalysisResumeStageKey;
+  stageLabel: string;
+
+  constructor(stageKey: SandboxAnalysisResumeStageKey, stageLabel: string, message: string) {
+    super(message);
+    this.name = 'OrchestrationStageError';
+    this.stageKey = stageKey;
+    this.stageLabel = stageLabel;
+  }
+}
+
+export class OrchestrationRetryableError extends Error {
+  stageKey: SandboxAnalysisResumeStageKey;
+  stageLabel: string;
+  checkpoints: AnalysisCheckpointState;
+  partialResult: SandboxAnalysisResult | null;
+
+  constructor(
+    stageKey: SandboxAnalysisResumeStageKey,
+    stageLabel: string,
+    message: string,
+    checkpoints: AnalysisCheckpointState,
+    partialResult: SandboxAnalysisResult | null,
+  ) {
+    super(message);
+    this.name = 'OrchestrationRetryableError';
+    this.stageKey = stageKey;
+    this.stageLabel = stageLabel;
+    this.checkpoints = checkpoints;
+    this.partialResult = partialResult;
+  }
+}
+
+export function isOrchestrationStageError(error: unknown): error is OrchestrationStageError {
+  return error instanceof OrchestrationStageError;
+}
+
+export function isOrchestrationRetryableError(error: unknown): error is OrchestrationRetryableError {
+  return error instanceof OrchestrationRetryableError;
+}
 
 export function formatDuration(durationMs: number) {
   return `${(durationMs / 1000).toFixed(durationMs >= 10000 ? 0 : 1)}s`;
@@ -43,7 +91,15 @@ export function logStageResult(label: string, model: string, durationMs: number,
 }
 
 export function buildModelSummary(pipeline: string[]) {
-  return `multi-stage: ${Array.from(new Set(pipeline.map((item) => item.split('@')[1]))).join(' + ')}`;
+  const models = pipeline.flatMap((item) => {
+    const encodedModels = item.split('@')[1] ?? '';
+    return encodedModels
+      .split('+')
+      .map((model) => model.trim())
+      .filter(Boolean);
+  });
+
+  return `multi-stage: ${Array.from(new Set(models)).join(' + ')}`;
 }
 
 export function createNormalizationFallback(

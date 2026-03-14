@@ -3,18 +3,38 @@ import { initialEvidence } from '../data/mockData';
 import { isEnglishUi, useUiLanguage } from './useUiLanguage';
 import type { EvidenceItem } from '../types';
 
-const storageKey = 'wind-tunnel-evidence';
+const legacyEvidenceStorageKey = 'wind-tunnel-evidence';
+
+function buildEvidenceStorageKey(workspaceId: string) {
+  return `wind-tunnel-evidence:${workspaceId}`;
+}
+
+export function clearStoredEvidence(workspaceId: string) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.localStorage.removeItem(buildEvidenceStorageKey(workspaceId));
+  window.localStorage.removeItem(legacyEvidenceStorageKey);
+}
+
+type WorkspaceEvidenceState = {
+  workspaceId: string;
+  evidenceItems: EvidenceItem[];
+};
 
 function isDemoEvidence(items: EvidenceItem[]) {
   return JSON.stringify(items) === JSON.stringify(initialEvidence);
 }
 
-function readStoredEvidence() {
+function readStoredEvidence(workspaceId: string) {
   if (typeof window === 'undefined') {
     return [];
   }
 
-  const saved = window.localStorage.getItem(storageKey);
+  const saved =
+    window.localStorage.getItem(buildEvidenceStorageKey(workspaceId)) ??
+    window.localStorage.getItem(legacyEvidenceStorageKey);
   if (!saved) {
     return [];
   }
@@ -32,14 +52,34 @@ function readStoredEvidence() {
   }
 }
 
-export function useEvidence() {
+function readStoredEvidenceState(workspaceId: string): WorkspaceEvidenceState {
+  return {
+    workspaceId,
+    evidenceItems: readStoredEvidence(workspaceId),
+  };
+}
+
+export function useEvidence(workspaceId: string) {
   const { language } = useUiLanguage();
   const isEnglish = isEnglishUi(language);
-  const [evidenceItems, setEvidenceItems] = useState<EvidenceItem[]>(readStoredEvidence);
+  const [state, setState] = useState<WorkspaceEvidenceState>(() =>
+    readStoredEvidenceState(workspaceId),
+  );
+  const evidenceItems = state.workspaceId === workspaceId ? state.evidenceItems : [];
 
   useEffect(() => {
-    window.localStorage.setItem(storageKey, JSON.stringify(evidenceItems));
-  }, [evidenceItems]);
+    if (state.workspaceId !== workspaceId) {
+      setState(readStoredEvidenceState(workspaceId));
+    }
+  }, [state.workspaceId, workspaceId]);
+
+  useEffect(() => {
+    if (state.workspaceId !== workspaceId) {
+      return;
+    }
+
+    window.localStorage.setItem(buildEvidenceStorageKey(workspaceId), JSON.stringify(state.evidenceItems));
+  }, [state, workspaceId]);
 
   function addEvidenceEntries(lines: string[]) {
     const entries = lines
@@ -63,12 +103,18 @@ export function useEvidence() {
       return 0;
     }
 
-    setEvidenceItems((current) => [...entries, ...current]);
+    setState((current) => ({
+      ...current,
+      evidenceItems: [...entries, ...current.evidenceItems],
+    }));
     return entries.length;
   }
 
   function clearEvidence() {
-    setEvidenceItems([]);
+    setState((current) => ({
+      ...current,
+      evidenceItems: [],
+    }));
   }
 
   function appendEvidenceItems(nextItems: EvidenceItem[]) {
@@ -76,11 +122,17 @@ export function useEvidence() {
       return;
     }
 
-    setEvidenceItems((current) => [...nextItems, ...current]);
+    setState((current) => ({
+      ...current,
+      evidenceItems: [...nextItems, ...current.evidenceItems],
+    }));
   }
 
   function replaceEvidenceItems(nextItems: EvidenceItem[]) {
-    setEvidenceItems(nextItems);
+    setState((current) => ({
+      ...current,
+      evidenceItems: nextItems,
+    }));
   }
 
   return {

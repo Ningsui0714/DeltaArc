@@ -39,6 +39,7 @@ export async function runJsonStage(
       model: preferredModel,
       durationMs: Date.now() - startedAt,
       warnings: response.warnings,
+      degraded: response.degraded,
     };
   } catch (error) {
     const shouldFallback =
@@ -69,6 +70,7 @@ export async function runJsonStage(
         `${label} timed out on the reasoning model and fell back to ${serverConfig.balancedModel}.`,
         ...fallbackResponse.warnings,
       ],
+      degraded: fallbackResponse.degraded,
     };
   }
 }

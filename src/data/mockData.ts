@@ -160,4 +160,5 @@ export const stepLabels: StepLabel[] = [
   { id: 'modeling', label: '建模结果', kicker: 'Model' },
   { id: 'strategy', label: '策略对比', kicker: 'Routes' },
   { id: 'report', label: '最终报告', kicker: 'Brief' },
+  { id: 'sandbox', label: '变量推演', kicker: 'Sandbox' },
 ];

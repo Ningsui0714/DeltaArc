@@ -18,6 +18,7 @@ export type DeepseekJsonRequest = {
 export type DeepseekJsonResponse = {
   data: Record<string, unknown>;
   warnings: string[];
+  degraded: boolean;
 };
 
 type DeepseekCompletionRequest = {
@@ -147,6 +148,7 @@ export async function requestDeepseekJson(request: DeepseekJsonRequest): Promise
     return {
       data: extractJsonObject(content),
       warnings: [],
+      degraded: false,
     };
   } catch (parseError) {
     let localRepairMessage = 'Local repair was not attempted.';
@@ -162,6 +164,7 @@ export async function requestDeepseekJson(request: DeepseekJsonRequest): Promise
       return {
         data: locallyRepaired,
         warnings: [`${request.label} JSON required one local repair pass after the initial parse failed.`],
+        degraded: true,
       };
     } catch (localRepairError) {
       localRepairMessage =
@@ -176,6 +179,7 @@ export async function requestDeepseekJson(request: DeepseekJsonRequest): Promise
       return {
         data: repaired,
         warnings: [`${request.label} JSON required one repair pass after the initial parse failed.`],
+        degraded: true,
       };
     } catch (repairError) {
       const originalMessage =

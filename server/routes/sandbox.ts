@@ -1,62 +1,46 @@
 import { Router } from 'express';
-import { SchemaError } from '../../shared/schema';
-import { parseSandboxAnalysisRequest, parseSandboxAnalysisResult } from '../../shared/schema';
 import {
-  completeAnalysisJob,
-  createAnalysisJob,
-  failAnalysisJob,
-  getAnalysisJob,
-  markJobRunning,
-  updateAnalysisJobStage,
-} from '../lib/analysisJobStore';
-import { runDeepseekSandboxAnalysis } from '../lib/deepseekClient';
+  getAnalyzeJob,
+  getLatestAnalysisJobForWorkspace,
+  getLatestPersistedAnalysis,
+  getLatestRetryableAnalysisJobForWorkspace,
+  postAnalyze,
+  retryAnalyze,
+} from './sandbox/analysisHandlers';
+import {
+  createImpactScan,
+  getImpactScanJob,
+  getLatestOpenImpactScan,
+  listImpactScans,
+} from './sandbox/impactScanHandlers';
+import {
+  clearWorkspace,
+  freezeLatestBaseline,
+  getBaseline,
+  listBaselines,
+} from './sandbox/workspaceHandlers';
 
 const router = Router();
 
-router.post('/analyze', async (req, res) => {
-  let request;
-  try {
-    request = parseSandboxAnalysisRequest(req.body);
-  } catch (error) {
-    const message = error instanceof SchemaError ? error.message : 'Invalid analysis request.';
-    res.status(400).json({
-      error: message,
-    });
-    return;
-  }
+router.post('/analyze', postAnalyze);
+router.post('/analyze/:jobId/retry', retryAnalyze);
+router.get('/analyze/:jobId', getAnalyzeJob);
 
-  const job = createAnalysisJob(request.mode);
-  res.status(202).json(job);
-  markJobRunning(job.id);
+router.get('/workspaces/:workspaceId/latest-analysis', getLatestPersistedAnalysis);
+router.get('/workspaces/:workspaceId/latest-active-job', getLatestAnalysisJobForWorkspace);
+router.get(
+  '/workspaces/:workspaceId/latest-retryable-job',
+  getLatestRetryableAnalysisJobForWorkspace,
+);
 
-  void runDeepseekSandboxAnalysis(request, {
-    onProgress: (update) => {
-      updateAnalysisJobStage({
-        jobId: job.id,
-        ...update,
-      });
-    },
-  })
-    .then((result) => {
-      completeAnalysisJob(job.id, parseSandboxAnalysisResult(result));
-    })
-    .catch((error) => {
-      const message = error instanceof Error ? error.message : 'Analysis failed.';
-      failAnalysisJob(job.id, message);
-    });
-});
+router.get('/workspaces/:workspaceId/baselines', listBaselines);
+router.get('/workspaces/:workspaceId/baselines/:baselineId', getBaseline);
+router.post('/workspaces/:workspaceId/baselines', freezeLatestBaseline);
+router.delete('/workspaces/:workspaceId', clearWorkspace);
 
-router.get('/analyze/:jobId', (req, res) => {
-  const job = getAnalysisJob(req.params.jobId);
-
-  if (!job) {
-    res.status(404).json({
-      error: 'Analysis job not found.',
-    });
-    return;
-  }
-
-  res.json(job);
-});
+router.get('/workspaces/:workspaceId/impact-scans/latest-open', getLatestOpenImpactScan);
+router.get('/workspaces/:workspaceId/impact-scans', listImpactScans);
+router.post('/workspaces/:workspaceId/impact-scans', createImpactScan);
+router.get('/workspaces/:workspaceId/impact-scans/:jobId', getImpactScanJob);
 
 export { router as sandboxRouter };

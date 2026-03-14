@@ -8,7 +8,7 @@ export function createFallbackAnalysis(
   meta: SandboxAnalysisMeta = createAnalysisMeta('local_fallback', 'degraded'),
 ): SandboxAnalysisResult {
   return {
-    generatedAt: new Date().toLocaleString('zh-CN', { hour12: false }),
+    generatedAt: new Date().toISOString(),
     mode,
     model,
     pipeline,
