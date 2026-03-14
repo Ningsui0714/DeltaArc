@@ -10,6 +10,7 @@ export type SandboxAnalysisMode = 'balanced' | 'reasoning';
 export type AnalysisSource = 'remote' | 'local_fallback';
 export type AnalysisStatus = 'fresh' | 'stale' | 'degraded' | 'error';
 export type SandboxAnalysisStageKey = 'queued' | 'dossier' | SandboxPerspectiveKey | 'synthesis' | 'refine' | 'complete';
+export type SandboxAnalysisResumeStageKey = Exclude<SandboxAnalysisStageKey, 'queued' | 'complete'>;
 export type SandboxAnalysisJobStatus = 'queued' | 'running' | 'completed' | 'error';
 export type SandboxAnalysisJobStageStatus = 'pending' | 'running' | 'completed' | 'error';
 export type SandboxEvidenceLevel = 'low' | 'medium' | 'high';
@@ -145,10 +146,50 @@ export type SandboxReport = {
   actions: string[];
 };
 
+export type SandboxVerifierDecisionMode = 'verifier' | 'fallback' | 'single';
+
+export type SandboxSelectionRanking = {
+  candidateId: string;
+  overallScore: number;
+  strength: string;
+  risk: string;
+};
+
+export type SandboxSelectionSummary = {
+  stage: 'dossier' | 'action_brief';
+  candidateCount: number;
+  selectedCandidateId: string;
+  selectedFlavor: string;
+  decisionMode: SandboxVerifierDecisionMode;
+  rationale: string;
+  rankings: SandboxSelectionRanking[];
+};
+
+export type SandboxNecessaryConditionStatus =
+  | 'supported'
+  | 'uncertain'
+  | 'unsupported';
+
+export type SandboxNecessaryCondition = {
+  condition: string;
+  status: SandboxNecessaryConditionStatus;
+  evidenceRefs: string[];
+  impact: string;
+};
+
+export type SandboxReverseCheckSummary = {
+  tightened: boolean;
+  fragilitySummary: string;
+  necessaryConditions: SandboxNecessaryCondition[];
+};
+
 export type SandboxAnalysisMeta = {
   source: AnalysisSource;
   status: AnalysisStatus;
   requestId: string;
+  dossierSelection?: SandboxSelectionSummary;
+  actionBriefSelection?: SandboxSelectionSummary;
+  reverseCheck?: SandboxReverseCheckSummary;
 };
 
 export type SandboxAnalysisStagePreview = {
@@ -158,6 +199,7 @@ export type SandboxAnalysisStagePreview = {
 };
 
 export type SandboxAnalysisRequest = {
+  workspaceId: string;
   mode: SandboxAnalysisMode;
   project: ProjectSnapshot;
   evidenceItems: EvidenceItem[];
@@ -222,4 +264,18 @@ export type SandboxAnalysisJob = {
   stages: SandboxAnalysisJobStage[];
   result?: SandboxAnalysisResult;
   error?: string;
+  retryable?: boolean;
+  resumeFromStageKey?: SandboxAnalysisResumeStageKey;
+  resumedFromJobId?: string;
+  cachedStageKeys?: SandboxAnalysisResumeStageKey[];
+};
+
+export type LatestRetryableSandboxAnalysisJob = {
+  job: SandboxAnalysisJob;
+  inputSignature: string;
+};
+
+export type LatestActiveSandboxAnalysisJob = {
+  job: SandboxAnalysisJob;
+  inputSignature: string;
 };

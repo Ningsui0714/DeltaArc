@@ -35,6 +35,42 @@ export type Dossier = {
   warnings: string[];
 };
 
+export type DossierGrounding = {
+  facts: Array<{
+    dimension: string;
+    statement: string;
+    evidenceRefs: string[];
+  }>;
+  tensions: Array<{
+    title: string;
+    detail: string;
+  }>;
+  audiences: Array<{
+    name: string;
+    need: string;
+    risk: string;
+  }>;
+  constraints: string[];
+  unknowns: Array<{
+    topic: string;
+    whyUnknown: string;
+  }>;
+  memorySignals: SandboxMemorySignal[];
+  warnings: string[];
+};
+
+export type CandidateSelection = {
+  selectedCandidateId: string;
+  rationale: string;
+  rankings: Array<{
+    candidateId: string;
+    overallScore: number;
+    strength: string;
+    risk: string;
+  }>;
+  warnings: string[];
+};
+
 export type SpecialistOutput = {
   perspective: SandboxPerspective;
   blindSpots: SandboxBlindSpot[];
@@ -54,4 +90,5 @@ export type StageResult<T> = {
   model: string;
   durationMs: number;
   warnings: string[];
+  degraded: boolean;
 };

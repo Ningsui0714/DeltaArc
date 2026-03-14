@@ -1,8 +1,16 @@
 import type { SandboxAnalysisJob, SandboxAnalysisResult } from '../../shared/sandbox';
+import { AnalysisQualityPanel } from '../components/analysis/AnalysisQualityPanel';
 import { ForecastTimelinePanel } from '../components/analysis/ForecastTimelinePanel';
 import { PredictionGraphPanel } from '../components/analysis/PredictionGraphPanel';
 import { isEnglishUi, useUiLanguage } from '../hooks/useUiLanguage';
-import { formatJobDuration, getJobProgressStats } from '../lib/jobProgress';
+import {
+  formatJobDuration,
+  getJobProgressStats,
+  isAnalysisJobActive,
+  isAnalysisJobFailed,
+} from '../lib/jobProgress';
+import { getProjectReadiness } from '../lib/projectReadiness';
+import { trimCopy } from '../lib/trimCopy';
 import type { OutputStep } from '../lib/processPhases';
 import type { EvidenceItem, ProjectSnapshot, StepId } from '../types';
 
@@ -11,27 +19,38 @@ type AnalysisWorkbenchPageProps = {
   evidenceItems: EvidenceItem[];
   analysis: SandboxAnalysisResult;
   progress: SandboxAnalysisJob | null;
-  hasOfficialAnalysis: boolean;
-  lastAnalysisAt: string;
+  hasViewableAnalysis: boolean;
+  isAnalysisFresh: boolean;
+  isAnalysisStale: boolean;
+  isAnalysisDegraded: boolean;
+  requiresAnalysisRerun: boolean;
+  lastCompletedAt: string;
   error: string | null;
   warnings: string[];
   isLoading: boolean;
   focusStep: StepId;
+  canRetryFromFailure: boolean;
+  retryStageLabel: string | null;
   onRunQuickForecast: () => void;
   onRunDeepForecast: () => void;
+  onRetryFromFailure: () => void;
   onBackToInputs: () => void;
   onOpenOutput: (step: OutputStep) => void;
 };
 
-function countSetupFields(project: ProjectSnapshot) {
-  return [project.ideaSummary, project.coreLoop, project.targetPlayers.join(' '), project.validationGoal].filter(
-    (item) => item.trim().length > 0,
-  ).length;
-}
+function formatAbsoluteTime(value: string, language: 'zh' | 'en') {
+  const timestamp = Date.parse(value);
 
-function trimCopy(value: string, fallback: string) {
-  const normalized = value.trim();
-  return normalized.length > 0 ? normalized : fallback;
+  if (Number.isNaN(timestamp)) {
+    return value || (language === 'en' ? 'No record yet' : '尚无记录');
+  }
+
+  return new Intl.DateTimeFormat(language === 'en' ? 'en-US' : 'zh-CN', {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(timestamp);
 }
 
 export function AnalysisWorkbenchPage({
@@ -39,38 +58,104 @@ export function AnalysisWorkbenchPage({
   evidenceItems,
   analysis,
   progress,
-  hasOfficialAnalysis,
-  lastAnalysisAt,
+  hasViewableAnalysis,
+  isAnalysisFresh,
+  isAnalysisStale,
+  isAnalysisDegraded,
+  requiresAnalysisRerun,
+  lastCompletedAt,
   error,
   warnings,
   isLoading,
   focusStep,
+  canRetryFromFailure,
+  retryStageLabel,
   onRunQuickForecast,
   onRunDeepForecast,
+  onRetryFromFailure,
   onBackToInputs,
   onOpenOutput,
 }: AnalysisWorkbenchPageProps) {
   const { language } = useUiLanguage();
   const isEnglish = isEnglishUi(language);
   const progressStats = progress ? getJobProgressStats(progress) : null;
-  const setupFieldCount = countSetupFields(project);
-  const projectReady = setupFieldCount >= 3;
-  const evidenceReady = evidenceItems.length >= 3;
-  const canConfidentlyRun = projectReady && evidenceReady;
-  const runHeadline = progress
-    ? progress.currentStageLabel
-    : hasOfficialAnalysis
-      ? trimCopy(analysis.report.headline || analysis.systemVerdict, isEnglish ? 'Formal forecast is ready' : '正式预测已经完成')
+  const isRunActive = isAnalysisJobActive(progress);
+  const hasRunError = isAnalysisJobFailed(progress);
+  const { setupFieldCount, projectReady, evidenceReady } = getProjectReadiness(project, evidenceItems.length);
+  const canRunAnalysis = projectReady && evidenceReady;
+  const runHeadline = isRunActive || hasRunError
+    ? progress?.currentStageLabel ?? (isEnglish ? 'Inference Desk' : '推理台')
+    : hasViewableAnalysis
+      ? isAnalysisFresh
+        ? trimCopy(
+            analysis.report.headline || analysis.systemVerdict,
+            isEnglish ? 'Fresh formal forecast is ready' : '最新正式结果已经就绪',
+          )
+        : isAnalysisDegraded
+          ? isEnglish
+            ? 'Partial formal result is preserved'
+            : '已保留一份降级正式结果'
+          : isAnalysisStale
+            ? isEnglish
+              ? 'Previous formal result is still viewable'
+              : '上一份正式结果仍可继续查看'
+            : isEnglish
+              ? 'Formal output is available'
+              : '正式结果可查看'
       : isEnglish
         ? 'Formal inference has not started yet'
         : '还没启动正式推理';
-  const runSummary = progress
-    ? progress.message
-    : hasOfficialAnalysis
-      ? trimCopy(analysis.summary, isEnglish ? 'The latest formal result is available in Outputs.' : '最新正式结果已经挂到输出区。')
+  const runSummary = isRunActive || hasRunError
+    ? progress?.message ?? (isEnglish ? 'Inference desk is standing by.' : '推理台待命中。')
+    : hasViewableAnalysis
+      ? isAnalysisFresh
+        ? trimCopy(
+            analysis.summary,
+            isEnglish
+              ? 'The latest formal result is ready. Step 4 contains three parallel views, and Step 5 opens Variable Sandbox for continued testing.'
+              : '最新正式结果已经准备好。第 4 步承载三个并列结果视图，第 5 步则打开变量推演继续测试。',
+          )
+        : isAnalysisDegraded
+          ? isEnglish
+            ? 'A later stage failed, but cached earlier outputs were preserved. Review them now and rerun when ready.'
+            : '后续阶段曾失败，但已缓存的前置结果被保留下来了。你可以先查看，再在准备好后重跑。'
+          : isAnalysisStale
+            ? isEnglish
+              ? 'Current inputs changed after the last formal run. The old outputs remain viewable, but rerunning is recommended.'
+              : '当前输入在上次正式推理后发生了变化。旧输出仍可查看，但建议重新运行。'
+            : isEnglish
+              ? 'A formal output is available in Outputs.'
+              : '输出区已有一份正式结果。'
       : isEnglish
-        ? 'This desk is for running and observing inference. Once inputs are ready, start Quick Scan or Deep Dive here.'
-        : '这里专门负责运行和观察推理过程。输入准备好后，再在这里启动快速扫描或深度推演。';
+        ? 'This desk is for running and observing inference. Once the 4/4 setup and 3 evidence gate are ready, start Quick Scan or Deep Dive here.'
+        : '这里专门负责运行和观察正式推理过程。等 4/4 关键字段和 3 条证据达标后，再在这里启动快速扫描或深度推演。';
+  const runStatusLabel = isRunActive
+    ? isEnglish
+      ? 'Inference running'
+      : '推理进行中'
+    : hasRunError
+      ? progress?.retryable
+        ? isEnglish
+          ? 'Run failed, resume available'
+          : '运行失败，可继续重试'
+        : isEnglish
+          ? 'Run failed'
+          : '运行失败'
+    : hasViewableAnalysis
+      ? isAnalysisFresh
+        ? isEnglish
+          ? 'Fresh output ready'
+          : '最新结果就绪'
+        : isAnalysisDegraded
+          ? isEnglish
+            ? 'Degraded output'
+            : '降级结果'
+          : isEnglish
+            ? 'Stale output'
+            : '过期结果'
+      : isEnglish
+        ? 'Waiting to start'
+        : '等待启动';
 
   return (
     <section className="page-grid analysis-workbench-page">
@@ -83,9 +168,9 @@ export function AnalysisWorkbenchPage({
           </div>
           <div className="chip-row">
             <span className="meta-chip">{isEnglish ? `Project fields ${setupFieldCount}/4` : `项目字段 ${setupFieldCount}/4`}</span>
-            <span className="meta-chip">{isEnglish ? `Evidence ${evidenceItems.length}` : `证据 ${evidenceItems.length} 条`}</span>
-            <span className={`trust-chip ${hasOfficialAnalysis ? 'trust-high' : progress ? 'trust-medium' : 'trust-low'}`}>
-              {hasOfficialAnalysis ? (isEnglish ? 'Formal output ready' : '已有正式结果') : progress ? (isEnglish ? 'Inference running' : '推理进行中') : isEnglish ? 'Waiting to start' : '等待启动'}
+            <span className="meta-chip">{isEnglish ? `Evidence ${evidenceItems.length}/3+` : `证据 ${evidenceItems.length}/3+`}</span>
+            <span className={`trust-chip ${hasViewableAnalysis ? (isAnalysisFresh ? 'trust-high' : 'trust-medium') : isRunActive ? 'trust-medium' : 'trust-low'}`}>
+              {runStatusLabel}
             </span>
           </div>
         </div>
@@ -98,7 +183,15 @@ export function AnalysisWorkbenchPage({
               <p className="eyebrow">{isEnglish ? 'Run Modes' : '运行模式'}</p>
               <h3>{isEnglish ? 'Run inference first, then review outputs' : '先跑推理，再看结果'}</h3>
             </div>
-            <span className="panel-badge">{canConfidentlyRun ? (isEnglish ? 'Inputs look solid' : '输入已成型') : isEnglish ? 'A first pass is still possible' : '仍可先跑一轮'}</span>
+            <span className="panel-badge">
+              {canRunAnalysis
+                ? isEnglish
+                  ? '4/4 setup and evidence gate are ready'
+                  : '4/4 设定和证据门槛已达标'
+                : isEnglish
+                  ? 'Requires 4/4 setup + 3 evidence'
+                  : '需要 4/4 设定 + 3 条证据'}
+            </span>
           </div>
 
           <div className="analysis-readiness-grid">
@@ -109,13 +202,29 @@ export function AnalysisWorkbenchPage({
             </article>
             <article className={`analysis-readiness-card ${evidenceReady ? 'is-ready' : ''}`}>
               <span>{isEnglish ? 'Evidence Signals' : '证据信号'}</span>
-              <strong>{evidenceItems.length}</strong>
+              <strong>{evidenceItems.length}/3+</strong>
               <p>{isEnglish ? 'With three or more evidence items, blind spots and validation moves become much more credible.' : '3 条以上证据时，盲点和验证动作会更可信。'}</p>
             </article>
-            <article className={`analysis-readiness-card ${hasOfficialAnalysis ? 'is-ready' : ''}`}>
-              <span>{isEnglish ? 'Outputs Unlocked' : '输出解锁'}</span>
-              <strong>{hasOfficialAnalysis ? (isEnglish ? 'Complete' : '已完成') : isEnglish ? 'Not Yet' : '未完成'}</strong>
-              <p>{isEnglish ? 'Move into Outputs after the run completes so inputs and conclusions stay on separate surfaces.' : '运行结束后再进入输出区，不让输入和结论混在一个页面里。'}</p>
+            <article className={`analysis-readiness-card ${hasViewableAnalysis ? 'is-ready' : ''}`}>
+              <span>{isEnglish ? 'Outputs Available' : '输出可见性'}</span>
+              <strong>
+                {hasViewableAnalysis
+                  ? isAnalysisFresh
+                    ? isEnglish
+                      ? 'Fresh'
+                      : '最新'
+                    : isAnalysisDegraded
+                      ? isEnglish
+                        ? 'Degraded'
+                        : '降级'
+                      : isEnglish
+                        ? 'Stale'
+                        : '过期'
+                  : isEnglish
+                    ? 'Locked'
+                    : '未解锁'}
+              </strong>
+              <p>{isEnglish ? 'Outputs can stay viewable even after inputs change, but freshness and viewability are tracked separately now.' : '结果现在允许在输入变化后继续查看，但“可查看”和“是否最新”已经拆成两个独立状态。'}</p>
             </article>
           </div>
 
@@ -123,18 +232,20 @@ export function AnalysisWorkbenchPage({
             <article className="analysis-mode-card">
               <p className="eyebrow">{isEnglish ? 'Quick Scan' : '快速扫描'}</p>
               <h4>{isEnglish ? 'Get the first structured read' : '先拿第一轮结构化判断'}</h4>
-              <p>{isEnglish ? 'Use this first to confirm blind spots, primary risk, and the next validation move before opening Current Judgment.' : '适合先确认盲点、主要风险和下一步验证动作，跑完后直接进入“当前判断”。'}</p>
-              <button type="button" className="ghost-button" disabled={isLoading} onClick={onRunQuickForecast}>
-                {isLoading && progress?.mode === 'balanced' ? (isEnglish ? 'Quick Scan running' : '快速扫描运行中') : isEnglish ? 'Run Quick Scan' : '运行快速扫描'}
+              <p>{isEnglish ? 'Use this first to confirm blind spots, primary risk, and the next validation move with the smallest run cost.' : '适合先用最小成本确认盲点、主要风险和下一步验证动作。'}</p>
+              <p>{isEnglish ? 'The first-stage brief now goes through grounding, multiple candidates, and a verifier before the formal result is surfaced.' : '第一阶段简报现在会先经过依据对齐、多候选生成和校验器挑选，再把正式结果抛出来。'}</p>
+              <button type="button" className="ghost-button" disabled={isLoading || !canRunAnalysis} onClick={onRunQuickForecast}>
+                {isLoading && progress?.mode === 'balanced' ? (isEnglish ? 'Quick Scan running' : '快速扫描运行中') : isEnglish ? 'Run Quick Scan' : '开始快速扫描'}
               </button>
             </article>
 
             <article className="analysis-mode-card analysis-mode-card-featured">
               <p className="eyebrow">{isEnglish ? 'Deep Dive' : '深度推演'}</p>
               <h4>{isEnglish ? 'Run the full multi-stage reasoning chain' : '完整走完多阶段推理链'}</h4>
-              <p>{isEnglish ? 'Use this once the inputs are fuller and you want future evolution plus the final report.' : '适合在输入更完整时生成未来演化和最终报告，跑完后直接进入“预测报告”。'}</p>
-              <button type="button" className="accent-button" disabled={isLoading} onClick={onRunDeepForecast}>
-                {isLoading && progress?.mode === 'reasoning' ? (isEnglish ? 'Deep Dive running' : '深度推演运行中') : isEnglish ? 'Run Deep Dive' : '运行深度推演'}
+              <p>{isEnglish ? 'Use this once the inputs are fuller and you want future evolution plus the final report.' : '适合在输入更完整时生成未来演化和最终报告。'}</p>
+              <p>{isEnglish ? 'Deep Dive now adds verifier-selected action briefs and a reverse check that can tighten overconfident conclusions before the report lands.' : '深度推演现在还会加入校验器选出的行动摘要，以及一轮会主动收紧过度自信结论的反向核验。'}</p>
+              <button type="button" className="accent-button" disabled={isLoading || !canRunAnalysis} onClick={onRunDeepForecast}>
+                {isLoading && progress?.mode === 'reasoning' ? (isEnglish ? 'Deep Dive running' : '深度推演运行中') : isEnglish ? 'Run Deep Dive' : '开始深度推演'}
               </button>
             </article>
           </div>
@@ -143,27 +254,49 @@ export function AnalysisWorkbenchPage({
         <section className="panel analysis-ops-panel">
           <div className="panel-heading">
             <div>
-              <p className="eyebrow">{isEnglish ? 'Desk Status' : '桌面状态'}</p>
-              <h3>{isEnglish ? 'Current desk status' : '当前桌面状态'}</h3>
+              <p className="eyebrow">{isEnglish ? 'Desk Status' : '推理台状态'}</p>
+              <h3>{isEnglish ? 'Current desk status' : '当前推理台状态'}</h3>
             </div>
-            <span className="panel-badge">{progressStats ? `${progressStats.percent}%` : hasOfficialAnalysis ? (isEnglish ? 'Complete' : '已完成') : isEnglish ? 'Idle' : '空闲'}</span>
+            <span className="panel-badge">
+              {progressStats
+                ? `${progressStats.percent}%`
+                : hasRunError
+                  ? isEnglish
+                    ? 'Failed'
+                    : '失败'
+                : hasViewableAnalysis
+                  ? isAnalysisFresh
+                    ? isEnglish
+                      ? 'Fresh'
+                      : '最新'
+                    : isAnalysisDegraded
+                      ? isEnglish
+                        ? 'Degraded'
+                        : '降级'
+                      : isEnglish
+                        ? 'Stale'
+                        : '过期'
+                  : isEnglish
+                    ? 'Idle'
+                    : '空闲'}
+            </span>
           </div>
 
           <div className="analysis-ops-list">
             <article className="analysis-ops-card">
               <span>{isEnglish ? 'Current State' : '当前状态'}</span>
-              <strong>{progress ? progress.currentStageLabel : hasOfficialAnalysis ? (isEnglish ? 'Outputs ready to review' : '结果待查看') : isEnglish ? 'Waiting to start' : '等待启动'}</strong>
-              <p>{progress ? progress.message : hasOfficialAnalysis ? (isEnglish ? 'You can move directly into Outputs now.' : '可以直接切到输出区看结果。') : isEnglish ? 'Start by cleaning up the project setup and evidence inputs.' : '先从输入区整理项目和证据。'}</p>
+              <strong>{progress ? progress.currentStageLabel : runStatusLabel}</strong>
+              <p>{progress ? progress.message : hasViewableAnalysis ? runSummary : isEnglish ? 'Start by cleaning up the project setup and evidence inputs.' : '先从输入区整理项目和证据。'}</p>
             </article>
             <article className="analysis-ops-card">
-              <span>{isEnglish ? 'Run Time' : '累计运行'}</span>
-              <strong>{progressStats ? formatJobDuration(progressStats.elapsedMs, language) : lastAnalysisAt || (isEnglish ? 'No record yet' : '尚无记录')}</strong>
-              <p>{progressStats ? (isEnglish ? `${progressStats.completedStageCount}/${progressStats.actionableStageCount} stages completed.` : `已完成 ${progressStats.completedStageCount}/${progressStats.actionableStageCount} 个阶段。`) : isEnglish ? 'No backend run is currently active.' : '还没有进行中的后端运行。'}</p>
+              <span>{isEnglish ? 'This Run Duration' : '本次已运行'}</span>
+              <strong>{progressStats ? formatJobDuration(progressStats.elapsedMs, language) : isEnglish ? 'Idle' : '空闲'}</strong>
+              <p>{progressStats ? (isEnglish ? `${progressStats.completedStageCount}/${progressStats.actionableStageCount} stages completed.` : `已完成 ${progressStats.completedStageCount}/${progressStats.actionableStageCount} 个阶段。`) : isEnglish ? 'No backend run is currently active.' : '当前没有进行中的后端运行。'}</p>
             </article>
             <article className="analysis-ops-card">
-              <span>{isEnglish ? 'Next Move' : '下一步'}</span>
-              <strong>{hasOfficialAnalysis ? (isEnglish ? 'Go to Outputs' : '去输出区') : isEnglish ? 'Add inputs or start inference' : '补输入或启动推理'}</strong>
-              <p>{hasOfficialAnalysis ? trimCopy(analysis.nextStep, isEnglish ? 'Review the current judgment first, then decide whether to open the report.' : '可以先看当前判断，再决定是否继续看报告。') : isEnglish ? 'If you only need the first direction, Quick Scan is enough.' : '如果你只是想先看方向，快速扫描就够了。'}</p>
+              <span>{isEnglish ? 'Last Completed' : '上次完成于'}</span>
+              <strong>{lastCompletedAt ? formatAbsoluteTime(lastCompletedAt, language) : isEnglish ? 'No record yet' : '尚无记录'}</strong>
+              <p>{hasViewableAnalysis ? (requiresAnalysisRerun ? (isEnglish ? 'The visible outputs are not the latest truth anymore. A rerun is recommended.' : '当前可见输出已经不是最新真相源，建议重新运行。') : isEnglish ? 'This timestamp reflects the last completed formal run.' : '这个时间表示上一次正式推理完成的绝对时间。') : isEnglish ? 'A formal completion time will appear after the first successful run.' : '第一次正式推理完成后，这里会显示绝对完成时间。'}</p>
             </article>
           </div>
 
@@ -171,19 +304,35 @@ export function AnalysisWorkbenchPage({
             <button type="button" className="inline-button" onClick={onBackToInputs}>
               {isEnglish ? 'Back to Inputs' : '回输入区继续整理'}
             </button>
-            {hasOfficialAnalysis ? (
+            {canRetryFromFailure ? (
+              <button type="button" className="ghost-button" onClick={onRetryFromFailure}>
+                {isEnglish
+                  ? `Resume from ${retryStageLabel ?? 'failed stage'}`
+                  : `从${retryStageLabel ?? '失败阶段'}继续重试`}
+              </button>
+            ) : null}
+            {hasViewableAnalysis ? (
               <>
-                <button type="button" className="ghost-button" onClick={() => onOpenOutput('modeling')}>
-                  {isEnglish ? 'Open Current Judgment' : '看当前判断'}
+                <button type="button" className="ghost-button" onClick={() => onOpenOutput('report')}>
+                  {isEnglish ? 'Open Formal Results' : '进入正式结果'}
                 </button>
-                <button type="button" className="accent-button" onClick={() => onOpenOutput('report')}>
-                  {isEnglish ? 'Open Forecast Report' : '去预测报告'}
+                <button type="button" className="accent-button" onClick={() => onOpenOutput('sandbox')}>
+                  {isEnglish ? 'Open Variable Sandbox' : '进入变量推演'}
                 </button>
               </>
             ) : null}
           </div>
         </section>
       </section>
+
+      {hasViewableAnalysis ? (
+        <AnalysisQualityPanel
+          meta={analysis.meta}
+          mode={analysis.mode}
+          variant="compact"
+          showEmpty
+        />
+      ) : null}
 
       <section className="analysis-workbench-grid">
         <PredictionGraphPanel
@@ -192,7 +341,10 @@ export function AnalysisWorkbenchPage({
           evidenceItems={evidenceItems}
           analysis={analysis}
           progress={progress}
-          hasOfficialAnalysis={hasOfficialAnalysis}
+          hasViewableAnalysis={hasViewableAnalysis}
+          isAnalysisFresh={isAnalysisFresh}
+          isAnalysisStale={isAnalysisStale}
+          isAnalysisDegraded={isAnalysisDegraded}
         />
 
         <ForecastTimelinePanel
@@ -200,8 +352,11 @@ export function AnalysisWorkbenchPage({
           evidenceItems={evidenceItems}
           analysis={analysis}
           progress={progress}
-          hasOfficialAnalysis={hasOfficialAnalysis}
-          lastAnalysisAt={lastAnalysisAt}
+          hasViewableAnalysis={hasViewableAnalysis}
+          isAnalysisFresh={isAnalysisFresh}
+          isAnalysisStale={isAnalysisStale}
+          isAnalysisDegraded={isAnalysisDegraded}
+          lastCompletedAt={lastCompletedAt}
           error={error}
           warnings={warnings}
         />

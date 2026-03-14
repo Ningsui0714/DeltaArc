@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import type { SandboxAnalysisMeta, SandboxAnalysisMode } from '../../shared/sandbox';
+import { AnalysisQualityPanel } from '../components/analysis/AnalysisQualityPanel';
 import { RedTeamPanel } from '../components/analysis/RedTeamPanel';
 import { PhaseTabs } from '../components/ui/PhaseTabs';
 import { isEnglishUi, useUiLanguage } from '../hooks/useUiLanguage';
@@ -18,6 +20,9 @@ type ReportPageProps = {
   futureTimeline: SandboxFutureTimelineItem[];
   trajectorySignals: SandboxTrajectorySignal[];
   pipeline: string[];
+  analysisMeta: SandboxAnalysisMeta;
+  analysisMode: SandboxAnalysisMode;
+  onOpenSandbox: () => void;
 };
 
 function getTabs(isEnglish: boolean) {
@@ -27,6 +32,7 @@ function getTabs(isEnglish: boolean) {
     { id: 'signals', label: isEnglish ? 'Signals' : '信号', hint: isEnglish ? 'Review inflection signs' : '看走势转折' },
     { id: 'redteam', label: isEnglish ? 'Red Team' : '反方', hint: isEnglish ? 'Check the worst case' : '看最坏情况' },
     { id: 'actions', label: isEnglish ? 'Actions' : '行动', hint: isEnglish ? 'Finish with next moves' : '最后看下一步' },
+    { id: 'verifier', label: isEnglish ? 'Verifier' : '校验', hint: isEnglish ? 'See why this answer survived' : '看它为什么能过关' },
   ] as const;
 }
 
@@ -37,6 +43,9 @@ export function ReportPage({
   futureTimeline,
   trajectorySignals,
   pipeline,
+  analysisMeta,
+  analysisMode,
+  onOpenSandbox,
 }: ReportPageProps) {
   const { language } = useUiLanguage();
   const isEnglish = isEnglishUi(language);
@@ -62,8 +71,8 @@ export function ReportPage({
       <section className="panel staged-panel">
         <div className="panel-heading">
           <div>
-            <p className="eyebrow">{isEnglish ? 'Report Stages' : '报告阶段'}</p>
-            <h3>{isEnglish ? 'Review the formal report stage by stage' : '逐阶段查看正式报告'}</h3>
+            <p className="eyebrow">{isEnglish ? 'Formal Report' : '正式报告'}</p>
+            <h3>{isEnglish ? 'Read the formal result first' : '先把正式结果看完'}</h3>
           </div>
         </div>
 
@@ -149,6 +158,42 @@ export function ReportPage({
             </section>
           </section>
         ) : null}
+
+        {activeTab === 'verifier' ? (
+          <section className="stage-panel-body">
+            <AnalysisQualityPanel
+              meta={analysisMeta}
+              mode={analysisMode}
+              showEmpty
+            />
+          </section>
+        ) : null}
+      </section>
+
+      <section className="panel split-panel sandbox-entry-panel">
+        <div className="panel-heading">
+          <div>
+            <p className="eyebrow">{isEnglish ? 'Step 5' : '第 5 步'}</p>
+            <h3>{isEnglish ? 'Open the Variable Sandbox next' : '下一步进入变量推演'}</h3>
+            <p className="panel-copy">
+              {isEnglish
+                ? 'Variable Sandbox is a first-class Step 5 workflow, not a hidden appendix. Freeze the formal result into a baseline, inject a new variable, and inspect direct effects, risks, guardrails, and validation steps.'
+                : '变量推演是独立的第 5 步核心流程，不是藏在报告后的附录。你可以把正式结果冻结成基线，再注入一个新变量，继续查看直接影响、风险、护栏和验证动作。'}
+            </p>
+          </div>
+        </div>
+        <div className="sandbox-entry-side">
+          <div className="chip-row">
+            <button type="button" className="accent-button" onClick={onOpenSandbox}>
+              {isEnglish ? 'Open Variable Sandbox' : '进入变量推演'}
+            </button>
+          </div>
+          <ul className="bullet-list">
+            <li>{isEnglish ? 'Start from the latest formal result and freeze one baseline' : '从最新正式结果出发并冻结一份基线'}</li>
+            <li>{isEnglish ? 'Describe one new variable with the lightweight idea-first form' : '用轻量表单写一个新变量想法'}</li>
+            <li>{isEnglish ? 'Run one quick or deep impact scan' : '先跑一轮快速扫描，需要更细时再做深度推演'}</li>
+          </ul>
+        </div>
       </section>
     </section>
   );
