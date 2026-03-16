@@ -23,6 +23,33 @@
 当前仓库已经不只是“分析工作台骨架”，而是已经具备第一条变量沙盒闭环：  
 项目录入、正式分析、基线冻结、轻量变量注入、影响扫描和结果回看都已经可以在现有工作流里跑通。
 
+## 界面预览
+
+如果你想先看它大概长什么样，当前工作台核心界面是下面这样：
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <strong>信息填充</strong><br/>
+      <img src="./examples/images/信息填充示例.jpg" alt="信息填充示例" width="100%" />
+    </td>
+    <td width="50%" valign="top">
+      <strong>推理过程</strong><br/>
+      <img src="./examples/images/推理示例.jpg" alt="推理示例" width="100%" />
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <strong>校验解释</strong><br/>
+      <img src="./examples/images/校验示例.jpg" alt="校验示例" width="100%" />
+    </td>
+    <td width="50%" valign="top">
+      <strong>正式结论</strong><br/>
+      <img src="./examples/images/结论示例.jpg" alt="结论示例" width="100%" />
+    </td>
+  </tr>
+</table>
+
 ## 为什么它可能值得你在意
 
 - 它不是从空白 prompt 重新脑补项目，而是先冻结一份正式结果，再在这份基线上继续试变量。
@@ -247,26 +274,37 @@
 
 ```mermaid
 flowchart TD
-    A["输入<br/>workspaceId + mode + project + evidenceItems"] --> B["召回本地记忆<br/>memoryContext + memorySignals"]
-    B --> C["dossier-grounding<br/>提取事实 / 约束 / 未知项 / 张力"]
-    C --> D1["dossier candidate<br/>balanced"]
-    C --> D2["dossier candidate<br/>skeptic"]
-    C --> D3["dossier candidate<br/>feasibility"]
-    D1 --> E["dossier-select<br/>选择共享简报"]
-    D2 --> E
-    D3 --> E
-    E --> F{"分析模式"}
-    F -->|"balanced"| G["specialists<br/>systems / psychology / market / red_team"]
-    F -->|"reasoning"| H["specialists<br/>systems / psychology / economy / market / production / red_team"]
-    G --> I["synthesis<br/>future slice + action brief candidates"]
+    A[输入 项目 证据 模式]
+    B[召回本地记忆]
+    C[dossier grounding]
+    D[dossier 多候选]
+    E[dossier select]
+    F{模式分流}
+    G[balanced specialists]
+    H[reasoning specialists]
+    I[synthesis]
+    J{是否追加 reverse check}
+    K{是否启用 refine}
+    L[reverse check]
+    M[正式结果]
+    N[refine]
+    O[写入 latest analysis]
+    P[fresh 写入 sandbox memory]
+
+    A --> B --> C --> D --> E --> F
+    F --> G
+    F --> H
+    G --> I
     H --> I
-    I --> J{"reasoning 模式?"}
-    J -->|"否"| K{"启用 refine?"}
-    J -->|"是"| L["reverse check<br/>倒推结论成立条件"] --> K
-    K -->|"否"| M["正式结果<br/>pipeline + model + warnings + meta.status"]
-    K -->|"是"| N["refine<br/>压缩空话，收束结果"] --> M
-    M --> O["写入 latest-analysis.json"]
-    M --> P["fresh 时写入 sandbox-memory.json"]
+    I --> J
+    J --> K
+    J --> L
+    L --> K
+    K --> M
+    K --> N
+    N --> M
+    M --> O
+    M --> P
 ```
 
 - `dossier` 不是单次直出，而是 `grounding -> 多候选 -> 选择器` 的组合链路；拆分链失败时会退回旧的单次 `dossier` 路径。

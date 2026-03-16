@@ -23,6 +23,33 @@ The point is not to ask whether an idea sounds cool. The point is to answer hard
 This repository already contains the first complete variable-sandbox loop.  
 Project intake, formal analysis, baseline freezing, lightweight variable injection, impact scan, and result review now work inside the current flow.
 
+## Interface Preview
+
+If you want to see the product shape first, the core workbench currently looks like this:
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <strong>Project Intake</strong><br/>
+      <img src="./examples/images/信息填充示例.jpg" alt="Project intake example" width="100%" />
+    </td>
+    <td width="50%" valign="top">
+      <strong>Reasoning Flow</strong><br/>
+      <img src="./examples/images/推理示例.jpg" alt="Reasoning flow example" width="100%" />
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <strong>Validation View</strong><br/>
+      <img src="./examples/images/校验示例.jpg" alt="Validation view example" width="100%" />
+    </td>
+    <td width="50%" valign="top">
+      <strong>Final Conclusion</strong><br/>
+      <img src="./examples/images/结论示例.jpg" alt="Final conclusion example" width="100%" />
+    </td>
+  </tr>
+</table>
+
 ## Why This Might Be Worth Your Attention
 
 - It does not restart from an empty prompt every time. It freezes a formal baseline and keeps reasoning from there.
@@ -234,26 +261,37 @@ Phase 1 here means the formal-analysis pipeline that runs before the variable sa
 
 ```mermaid
 flowchart TD
-    A["Input<br/>workspaceId + mode + project + evidenceItems"] --> B["Recall local memory<br/>memoryContext + memorySignals"]
-    B --> C["dossier-grounding<br/>extract facts / constraints / unknowns / tensions"]
-    C --> D1["dossier candidate<br/>balanced"]
-    C --> D2["dossier candidate<br/>skeptic"]
-    C --> D3["dossier candidate<br/>feasibility"]
-    D1 --> E["dossier-select<br/>pick the shared brief"]
-    D2 --> E
-    D3 --> E
-    E --> F{"Mode"}
-    F -->|"balanced"| G["specialists<br/>systems / psychology / market / red_team"]
-    F -->|"reasoning"| H["specialists<br/>systems / psychology / economy / market / production / red_team"]
-    G --> I["synthesis<br/>future slice + action-brief candidates"]
+    A[Input project evidence mode]
+    B[Recall local memory]
+    C[dossier grounding]
+    D[dossier candidates]
+    E[dossier select]
+    F{Mode split}
+    G[balanced specialists]
+    H[reasoning specialists]
+    I[synthesis]
+    J{Add reverse check}
+    K{Refine enabled}
+    L[reverse check]
+    M[formal result]
+    N[refine]
+    O[write latest analysis]
+    P[persist sandbox memory when fresh]
+
+    A --> B --> C --> D --> E --> F
+    F --> G
+    F --> H
+    G --> I
     H --> I
-    I --> J{"Reasoning mode?"}
-    J -->|"No"| K{"Refine enabled?"}
-    J -->|"Yes"| L["reverse check<br/>backsolve required conditions"] --> K
-    K -->|"No"| M["formal result<br/>pipeline + model + warnings + meta.status"]
-    K -->|"Yes"| N["refine<br/>tighten and compress the write-up"] --> M
-    M --> O["write latest-analysis.json"]
-    M --> P["persist sandbox-memory.json when fresh"]
+    I --> J
+    J --> K
+    J --> L
+    L --> K
+    K --> M
+    K --> N
+    N --> M
+    M --> O
+    M --> P
 ```
 
 - `dossier` is not a single one-shot pass anymore. It runs as `grounding -> multi-candidate -> selector`, and falls back to the legacy one-pass dossier path only when the split path fails.
