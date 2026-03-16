@@ -3,7 +3,8 @@ import test from 'node:test';
 import type { SandboxAnalysisRequest, SandboxAnalysisResult } from '../../../shared/sandbox';
 import { createAnalysisMeta, createFallbackAnalysis } from '../normalizeSandboxResult';
 import type { AnalysisCheckpointState } from './checkpoints';
-import { orchestrateSandboxAnalysis } from './index';
+import { createRetryableStageError, orchestrateSandboxAnalysis } from './index';
+import { OrchestrationStageError } from './orchestrationCore';
 import type { MemoryStore } from './memoryStore';
 
 function createBaseRequest(): SandboxAnalysisRequest {
@@ -174,4 +175,58 @@ test('resume from cached checkpoints keeps degraded status instead of washing it
   assert.equal(result.meta.status, 'degraded');
   assert.match(result.warnings.join(' '), /Reliability degraded/i);
   assert.equal(persistCalls, 0);
+});
+
+test('createRetryableStageError preserves the partial result for retryable failures', () => {
+  const partialResult = createSynthesisProvisional();
+  const checkpoints: AnalysisCheckpointState = {
+    dossier: {
+      dossier: {
+        systemFrame: 'Co-op rituals can differentiate the mid-game loop.',
+        opportunityThesis: 'There is early evidence that shared tasks create stronger recall.',
+        evidenceLevel: 'medium',
+        playerAcceptance: 68,
+        confidence: 61,
+        supportRatio: 57,
+        scores: {
+          coreFun: 72,
+          learningCost: 48,
+          novelty: 66,
+          acceptanceRisk: 44,
+          prototypeCost: 53,
+        },
+        personas: [],
+        hypotheses: [],
+        evidenceDigest: [],
+        coreTensions: ['clarity vs novelty'],
+        openQuestions: ['Will solo players feel excluded?'],
+        memorySignals: [],
+        warnings: [],
+      },
+      pipelineEntry: 'dossier@test-model',
+      warnings: [],
+      degraded: false,
+    },
+    specialists: [],
+    synthesis: {
+      provisional: partialResult,
+      pipelineEntry: 'synthesis@test-model',
+      warnings: [],
+      degraded: false,
+    },
+  };
+
+  const retryableError = createRetryableStageError(
+    new OrchestrationStageError(
+      'refine',
+      'Refine',
+      'Refine stage failed: simulated timeout',
+      partialResult,
+    ),
+    checkpoints,
+  );
+
+  assert.equal(retryableError.stageKey, 'refine');
+  assert.equal(retryableError.partialResult?.summary, partialResult.summary);
+  assert.equal(retryableError.checkpoints.synthesis?.provisional.summary, partialResult.summary);
 });

@@ -33,10 +33,35 @@ type DeepseekCompletionRequest = {
 type DeepseekCompletionPayload = {
   choices?: Array<{
     message?: {
-      content?: string;
+      content?: string | null;
     };
+    finish_reason?: string | null;
   }>;
 };
+
+export class DeepseekNoUsableContentError extends Error {
+  readonly label: string;
+  readonly model: string;
+  readonly finishReason?: string;
+
+  constructor(request: Pick<DeepseekCompletionRequest, 'label' | 'model'>, finishReason?: string) {
+    super(
+      `DeepSeek ${request.label} returned no usable content${
+        finishReason ? ` (finish reason: ${finishReason})` : ''
+      }.`,
+    );
+    this.name = 'DeepseekNoUsableContentError';
+    this.label = request.label;
+    this.model = request.model;
+    this.finishReason = finishReason;
+  }
+}
+
+export function isDeepseekNoUsableContentError(
+  error: unknown,
+): error is DeepseekNoUsableContentError {
+  return error instanceof DeepseekNoUsableContentError;
+}
 
 function clampRepairPayload(content: string) {
   const trimmed = content.trim();
@@ -49,12 +74,26 @@ function clampRepairPayload(content: string) {
   return trimmed.slice(0, maxLength);
 }
 
+function resolveMaxTokens(request: DeepseekCompletionRequest) {
+  if (typeof request.maxTokens !== 'number') {
+    return undefined;
+  }
+
+  if (request.model !== serverConfig.reasoningModel) {
+    return request.maxTokens;
+  }
+
+  const reasoningHeadroom = Math.max(8192, request.maxTokens * 2);
+  return Math.min(request.maxTokens + reasoningHeadroom, 64000);
+}
+
 async function requestDeepseekCompletion(request: DeepseekCompletionRequest) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), request.timeoutMs);
 
   try {
     const isReasoningModel = request.model === serverConfig.reasoningModel;
+    const effectiveMaxTokens = resolveMaxTokens(request);
     const requestBody = {
       model: request.model,
       response_format: {
@@ -64,7 +103,7 @@ async function requestDeepseekCompletion(request: DeepseekCompletionRequest) {
       ...(typeof request.temperature === 'number' && !isReasoningModel
         ? { temperature: request.temperature }
         : {}),
-      ...(typeof request.maxTokens === 'number' ? { max_tokens: request.maxTokens } : {}),
+      ...(typeof effectiveMaxTokens === 'number' ? { max_tokens: effectiveMaxTokens } : {}),
     };
 
     const response = await fetch(`${serverConfig.deepseekBaseUrl}/chat/completions`, {
@@ -83,10 +122,18 @@ async function requestDeepseekCompletion(request: DeepseekCompletionRequest) {
     }
 
     const responseBody = (await response.json()) as DeepseekCompletionPayload;
-    const content = responseBody.choices?.[0]?.message?.content;
+    const choice = responseBody.choices?.[0];
+    const content =
+      typeof choice?.message?.content === 'string' && choice.message.content.trim()
+        ? choice.message.content
+        : undefined;
 
     if (!content) {
-      throw new Error(`DeepSeek ${request.label} returned no usable content.`);
+      const finishReason =
+        typeof choice?.finish_reason === 'string' && choice.finish_reason.trim()
+          ? choice.finish_reason
+          : undefined;
+      throw new DeepseekNoUsableContentError(request, finishReason);
     }
 
     return content;
@@ -164,7 +211,7 @@ export async function requestDeepseekJson(request: DeepseekJsonRequest): Promise
       return {
         data: locallyRepaired,
         warnings: [`${request.label} JSON required one local repair pass after the initial parse failed.`],
-        degraded: true,
+        degraded: false,
       };
     } catch (localRepairError) {
       localRepairMessage =

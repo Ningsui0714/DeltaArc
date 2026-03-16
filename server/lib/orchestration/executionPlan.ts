@@ -5,6 +5,10 @@ import { specialistBlueprints } from './specialists';
 const fastScanSpecialistKeys = new Set(['systems', 'psychology', 'market', 'red_team']);
 const deepDiveReasoningSpecialistKeys = new Set(['systems', 'psychology', 'red_team']);
 
+function getReasoningStageTimeoutMs() {
+  return Math.max(serverConfig.reasoningTimeoutMs, 300000);
+}
+
 export function createExecutionPlan(mode: SandboxAnalysisMode) {
   if (mode === 'balanced') {
     return {
@@ -24,18 +28,23 @@ export function createExecutionPlan(mode: SandboxAnalysisMode) {
     };
   }
 
+  const reasoningStageTimeoutMs = getReasoningStageTimeoutMs();
+
   return {
     specialists: specialistBlueprints,
     specialistStrategy: 'remote' as const,
     dossierPreference: 'reasoning' as const,
     specialistReasoningKeys: deepDiveReasoningSpecialistKeys,
-    specialistConcurrency: serverConfig.reasoningSpecialistConcurrency,
+    specialistConcurrency: Math.max(
+      1,
+      Math.min(serverConfig.reasoningSpecialistConcurrency, 2),
+    ),
     synthesisPreference: 'reasoning' as const,
     refinePreference: 'reasoning' as const,
-    dossierTimeoutMs: 180000,
-    specialistTimeoutMs: 180000,
-    synthesisTimeoutMs: 360000,
-    refineTimeoutMs: 180000,
+    dossierTimeoutMs: reasoningStageTimeoutMs,
+    specialistTimeoutMs: reasoningStageTimeoutMs,
+    synthesisTimeoutMs: Math.max(reasoningStageTimeoutMs + 120000, 420000),
+    refineTimeoutMs: reasoningStageTimeoutMs,
     shouldRunSynthesis: true,
     shouldRunRefine: serverConfig.enableReasoningRefineStage,
   };

@@ -8,6 +8,7 @@ import {
   type FrozenBaseline,
   type PersistedLatestAnalysis,
   type VariableImpactScanResult,
+  isFrozenBaselineSourceAnalysisStatus,
 } from '../../shared/variableSandbox';
 import {
   parseDesignVariableV1,
@@ -299,9 +300,9 @@ export function createProjectTruthStore(projectsRoot = defaultProjectsRoot) {
           );
         }
 
-        if (latest.analysis.meta.status !== 'fresh') {
+        if (!isFrozenBaselineSourceAnalysisStatus(latest.analysis.meta.status)) {
           throw new ProjectTruthStoreConflictError(
-            'Only a fresh latest analysis can be frozen as a baseline.',
+            'Only the latest remote analysis in fresh or degraded status can be frozen as a baseline.',
           );
         }
 
@@ -312,7 +313,7 @@ export function createProjectTruthStore(projectsRoot = defaultProjectsRoot) {
           sourceAnalysisRequestId: latest.analysis.meta.requestId,
           sourceAnalysisMode: latest.analysis.mode,
           sourceAnalysisGeneratedAt: latest.analysis.generatedAt,
-          sourceAnalysisStatus: 'fresh',
+          sourceAnalysisStatus: latest.analysis.meta.status,
           projectSnapshot: latest.projectSnapshot,
           evidenceSnapshot: latest.evidenceSnapshot,
           analysisSnapshot: buildBaselineAnalysisSnapshot(latest.analysis),

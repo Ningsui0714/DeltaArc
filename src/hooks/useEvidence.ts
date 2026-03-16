@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { initialEvidence } from '../data/mockData';
 import { isEnglishUi, useUiLanguage } from './useUiLanguage';
+import { ensureCurrentWorkspaceStorageEpoch } from '../lib/workspaceStorage';
 import type { EvidenceItem } from '../types';
 
 const legacyEvidenceStorageKey = 'wind-tunnel-evidence';
@@ -13,6 +14,8 @@ export function clearStoredEvidence(workspaceId: string) {
   if (typeof window === 'undefined') {
     return;
   }
+
+  ensureCurrentWorkspaceStorageEpoch();
 
   window.localStorage.removeItem(buildEvidenceStorageKey(workspaceId));
   window.localStorage.removeItem(legacyEvidenceStorageKey);
@@ -31,6 +34,8 @@ function readStoredEvidence(workspaceId: string) {
   if (typeof window === 'undefined') {
     return [];
   }
+
+  ensureCurrentWorkspaceStorageEpoch();
 
   const saved =
     window.localStorage.getItem(buildEvidenceStorageKey(workspaceId)) ??

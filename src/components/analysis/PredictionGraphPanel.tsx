@@ -66,32 +66,28 @@ export function PredictionGraphPanel({
       zone: 'inputs',
       index: '01',
       title: isEnglish ? 'Input Load' : '输入装载',
-      summary: `${view.projectCard.title} / ${view.evidenceCard.title}`,
-      detail: `${view.inputsStat} · ${view.projectModeLabel}`,
+      metric: view.inputsStat,
       status: resolveAggregateStatus([view.projectCard.status, view.evidenceCard.status]),
     },
     {
       zone: 'brief',
       index: '02',
       title: isEnglish ? 'Shared Brief' : '共享简报',
-      summary: view.dossierCard.title,
-      detail: view.liveRun.isActive ? view.liveRun.label : isEnglish ? 'Waiting for formal run' : '等待正式推理',
+      metric: view.liveRun.isActive ? view.liveRun.label : isEnglish ? 'Waiting' : '等待中',
       status: view.dossierCard.status,
     },
     {
       zone: 'agents',
       index: '03',
       title: isEnglish ? 'Agent Run' : '多代理推演',
-      summary: isEnglish ? `${view.agentCards.length} specialists working in parallel` : `${view.agentCards.length} 个专项代理并行工作`,
-      detail: view.agentsStat,
+      metric: view.agentsStat,
       status: resolveAggregateStatus(view.agentCards.map((card) => card.status)),
     },
     {
       zone: 'forecast',
       index: '04',
       title: isEnglish ? 'Output Closure' : '结果收束',
-      summary: view.reportCard.title,
-      detail: hasViewableAnalysis ? (isEnglish ? 'Formal output connected' : '正式结果已接入') : view.timelineStat,
+      metric: hasViewableAnalysis ? view.timelineStat : isEnglish ? 'Locked' : '未解锁',
       status: resolveAggregateStatus([view.synthesisCard.status, view.refineCard.status, view.reportCard.status]),
     },
   ] as const;
@@ -102,11 +98,6 @@ export function PredictionGraphPanel({
         <div>
           <p className="eyebrow">{isEnglish ? 'Prediction Graph' : '预测图谱'}</p>
           <h2>{isEnglish ? 'Left Inference Console' : '左侧推理控制台'}</h2>
-          <p className="graph-panel-copy">
-            {isEnglish
-              ? 'This is no longer a loose diagram. It compresses input loading, the shared brief, agent collaboration, and output closure into one dense work console.'
-              : '这里不再做松散示意图，而是把输入装载、共享简报、多代理协作和结果收束压成一个高密度工作台。'}
-          </p>
         </div>
         <div className="chip-row">
           <span className="meta-chip">{view.progressChip}</span>
@@ -114,26 +105,17 @@ export function PredictionGraphPanel({
         </div>
       </div>
 
-      <div className="graph-inspector compact">
-        <div className="graph-inspector-copy">
-          <p className="eyebrow">{isEnglish ? 'Live Status' : '实时状态'}</p>
-          <h3>{view.graphHeadline}</h3>
-          <p>{view.graphSummary}</p>
-        </div>
-        <dl className="graph-stats compact">
-          <div>
-            <dt>{isEnglish ? 'Inputs' : '输入'}</dt>
-            <dd>{view.inputsStat}</dd>
-          </div>
-          <div>
-            <dt>{isEnglish ? 'Agents' : '代理'}</dt>
-            <dd>{view.agentsStat}</dd>
-          </div>
-          <div>
-            <dt>{isEnglish ? 'Timeline' : '时间线'}</dt>
-            <dd>{view.timelineStat}</dd>
-          </div>
-        </dl>
+      <div className="graph-status-strip" aria-label={isEnglish ? 'Graph status' : '图谱状态'}>
+        <span className="graph-status-pill is-primary">{view.graphHeadline}</span>
+        <span className="graph-status-pill">
+          {isEnglish ? 'Inputs' : '输入'} · {view.inputsStat}
+        </span>
+        <span className="graph-status-pill">
+          {isEnglish ? 'Agents' : '代理'} · {view.agentsStat}
+        </span>
+        <span className="graph-status-pill">
+          {isEnglish ? 'Timeline' : '时间线'} · {view.timelineStat}
+        </span>
       </div>
 
       <div className="graph-stage-strip">
@@ -146,9 +128,10 @@ export function PredictionGraphPanel({
               <span className="graph-stage-index">{stage.index}</span>
               <span className="tiny-chip">{getStatusLabel(stage.status, language)}</span>
             </div>
-            <strong>{stage.title}</strong>
-            <p>{stage.summary}</p>
-            <small>{stage.detail}</small>
+            <div className="graph-stage-card-body">
+              <strong>{stage.title}</strong>
+              <small>{stage.metric}</small>
+            </div>
           </article>
         ))}
       </div>
@@ -230,7 +213,7 @@ export function PredictionGraphPanel({
             ) : (
               <div className="graph-mini-progress is-idle">
                 <strong>{isEnglish ? 'Formal Run Gate' : '正式推理闸门'}</strong>
-                <span>{isEnglish ? 'Future evolution content will not appear here before the backend run starts.' : '没有启动后端前，这里不会自己长出未来演化内容。'}</span>
+                <span>{isEnglish ? 'Waiting to start' : '等待启动'}</span>
               </div>
             )}
           </section>

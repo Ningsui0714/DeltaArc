@@ -58,6 +58,15 @@ export function OutputStageContent({
     onRunQuickForecast: () => void runQuickForecast('report'),
     onRunDeepForecast: () => void runDeepForecast('report'),
   };
+  const canFreezeLatestBaseline =
+    hasViewableAnalysis &&
+    (isAnalysisFresh || isAnalysisDegraded) &&
+    (!requiresAnalysisRerun || isAnalysisDegraded);
+  const freezeBaselineSourceStatus = isAnalysisDegraded
+    ? 'degraded'
+    : isAnalysisFresh
+      ? 'fresh'
+      : 'stale';
 
   if (activeOutputStep === 'modeling') {
     if (!hasViewableAnalysis) {
@@ -170,7 +179,8 @@ export function OutputStageContent({
           baselines={baselines}
           baselineStatus={baselineStatus}
           baselineError={baselineError}
-          canFreezeBaseline={isAnalysisFresh && !requiresAnalysisRerun}
+          canFreezeBaseline={canFreezeLatestBaseline}
+          freezeBaselineSourceStatus={freezeBaselineSourceStatus}
           onFreezeBaseline={() => void freezeLatestBaseline()}
           onBackToReport={() => navigate('report')}
         />
@@ -203,6 +213,10 @@ export function OutputStageContent({
         {...rerunActions}
       />
       <ReportPage
+        summary={analysis.summary}
+        systemVerdict={analysis.systemVerdict}
+        primaryRisk={analysis.primaryRisk}
+        nextStep={analysis.nextStep}
         report={analysis.report}
         redTeam={analysis.redTeam}
         memorySignals={analysis.memorySignals}

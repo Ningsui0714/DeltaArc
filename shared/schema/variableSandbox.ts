@@ -5,7 +5,6 @@ import type {
   DesignVariableV1Category,
   FrozenBaseline,
   FrozenBaselineAnalysisSnapshot,
-  FrozenBaselineSourceAnalysisStatus,
   PersistedLatestAnalysis,
   VariableImpactRiskLevel,
   VariableImpactScanJob,
@@ -14,6 +13,10 @@ import type {
   VariableImpactScanStageKey,
   VariableImpactScanRequest,
   VariableImpactScanResult,
+} from '../variableSandbox';
+import {
+  frozenBaselineSourceStatuses,
+  isFrozenBaselineSourceAnalysisStatus,
 } from '../variableSandbox';
 import {
   clampPercent,
@@ -41,7 +44,6 @@ import {
 } from './sandboxResult';
 import { analysisModes, evidenceLevels, validationPriorities } from './sandboxResultOptions';
 
-const baselineSourceStatuses: FrozenBaselineSourceAnalysisStatus[] = ['fresh', 'degraded'];
 const designVariableCategories: DesignVariableV1Category[] = [
   'gameplay',
   'system',
@@ -105,12 +107,6 @@ function parseFrozenBaselineAnalysisSnapshot(input: unknown): FrozenBaselineAnal
   };
 }
 
-function isFrozenBaselineSourceStatus(
-  status: string,
-): status is FrozenBaselineSourceAnalysisStatus {
-  return baselineSourceStatuses.includes(status as FrozenBaselineSourceAnalysisStatus);
-}
-
 export function parseCreateFrozenBaselineRequest(input: unknown): CreateFrozenBaselineRequest {
   const record = requireRecord(input, 'create frozen baseline request');
   const analysis = parseSandboxAnalysisResult(record.analysis);
@@ -119,7 +115,7 @@ export function parseCreateFrozenBaselineRequest(input: unknown): CreateFrozenBa
     throw new SchemaError('analysis 必须来自正式远端结果。');
   }
 
-  if (!isFrozenBaselineSourceStatus(analysis.meta.status)) {
+  if (!isFrozenBaselineSourceAnalysisStatus(analysis.meta.status)) {
     throw new SchemaError('analysis.meta.status 必须是 fresh 或 degraded。');
   }
 
@@ -152,7 +148,7 @@ export function parseFrozenBaseline(input: unknown): FrozenBaseline {
     ),
     sourceAnalysisStatus: requireOneOf(
       record.sourceAnalysisStatus,
-      baselineSourceStatuses,
+      frozenBaselineSourceStatuses,
       'sourceAnalysisStatus',
     ),
     projectSnapshot: parseProjectSnapshot(record.projectSnapshot),

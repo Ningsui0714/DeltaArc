@@ -1,6 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  filterVisibleAnalysisWarnings,
+  isInternalAnalysisWarning,
+  withVisibleAnalysisWarnings,
+} from '../analysisWarnings';
+import {
   createAnalysisMeta,
   createFallbackAnalysis,
   extractJsonObject,
@@ -118,4 +123,32 @@ test('normalizeFinalAnalysis preserves verifier and reverse-check metadata from 
   assert.equal(normalized.meta.actionBriefSelection?.selectedFlavor, 'execution_first');
   assert.equal(normalized.meta.reverseCheck?.tightened, true);
   assert.equal(normalized.meta.reverseCheck?.necessaryConditions[0]?.status, 'unsupported');
+});
+
+test('filterVisibleAnalysisWarnings strips internal repair and fallback traces', () => {
+  const warnings = filterVisibleAnalysisWarnings([
+    'dossier-grounding JSON required one local repair pass after the initial parse failed.',
+    'dossier-compose-feasibility returned no usable content on the reasoning model and fell back to deepseek-chat.',
+    'Dossier verifier selected feasibility candidate: 事实边界更稳。',
+    '推断：playerAcceptance 仍基于有限证据。',
+    '证据中未提供新手引导对早期情绪和留存的影响细节。',
+  ]);
+
+  assert.deepEqual(warnings, [
+    '推断：playerAcceptance 仍基于有限证据。',
+    '证据中未提供新手引导对早期情绪和留存的影响细节。',
+  ]);
+});
+
+test('withVisibleAnalysisWarnings returns a warning-clean object copy', () => {
+  const cleaned = withVisibleAnalysisWarnings({
+    warnings: [
+      'Action brief verifier selected balanced candidate: 更可执行。',
+      'Reverse check: 当前正向判断依赖首局高光真实成立。',
+    ],
+    summary: 'fixture',
+  });
+
+  assert.deepEqual(cleaned.warnings, ['Reverse check: 当前正向判断依赖首局高光真实成立。']);
+  assert.equal(isInternalAnalysisWarning('Action brief verifier selected balanced candidate: 更可执行。'), true);
 });

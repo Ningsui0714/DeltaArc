@@ -14,6 +14,10 @@ import type {
 import { getSandboxLabels } from '../lib/sandboxLabels';
 
 type ReportPageProps = {
+  summary: string;
+  systemVerdict: string;
+  primaryRisk: string;
+  nextStep: string;
   report: SandboxReport;
   redTeam: SandboxRedTeamReport;
   memorySignals: SandboxMemorySignal[];
@@ -37,6 +41,10 @@ function getTabs(isEnglish: boolean) {
 }
 
 export function ReportPage({
+  summary,
+  systemVerdict,
+  primaryRisk,
+  nextStep,
   report,
   redTeam,
   memorySignals,
@@ -57,8 +65,8 @@ export function ReportPage({
     <section className="page-grid">
       <article className="hero-panel report-hero">
         <p className="eyebrow">{isEnglish ? 'Final Forecast' : '最终预测'}</p>
-        <h3>{report.headline}</h3>
-        <p className="hero-copy">{report.summary}</p>
+        <h3>{systemVerdict}</h3>
+        <p className="hero-copy">{summary}</p>
         <div className="chip-row">
           {pipeline.map((step) => (
             <span key={step} className="meta-chip">
@@ -83,18 +91,19 @@ export function ReportPage({
             <div className="report-grid">
               <div className="report-card">
                 <p className="eyebrow">{isEnglish ? 'Conclusion' : '结论'}</p>
-                <h4>{isEnglish ? 'Forecast conclusion' : '走势结论'}</h4>
-                <p>{report.conclusion}</p>
+                <h4>{isEnglish ? 'Current judgment' : '当前判断'}</h4>
+                <p>{summary}</p>
+                <strong>{systemVerdict}</strong>
               </div>
               <div className="report-card">
-                <p className="eyebrow">{isEnglish ? 'Why Now' : '当下判断'}</p>
-                <h4>{isEnglish ? 'Why it matters now' : '为什么现在看'}</h4>
-                <p>{report.whyNow}</p>
+                <p className="eyebrow">{isEnglish ? 'Next Step' : '下一步'}</p>
+                <h4>{isEnglish ? 'What to validate now' : '现在先验证什么'}</h4>
+                <p>{nextStep}</p>
               </div>
               <div className="report-card">
                 <p className="eyebrow">{isEnglish ? 'Risk' : '风险'}</p>
                 <h4>{isEnglish ? 'Primary risk' : '当前主风险'}</h4>
-                <p>{report.risk}</p>
+                <p>{primaryRisk}</p>
               </div>
             </div>
           </section>

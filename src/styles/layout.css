@@ -87,6 +87,8 @@
 
 .workspace-brand {
   align-items: flex-start;
+  justify-content: flex-start;
+  min-width: 0;
 }
 
 .workspace-brand-mark {
@@ -134,7 +136,7 @@
 
 .workspace-command-summary {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(120px, 1fr));
   gap: 8px;
 }
 
@@ -223,7 +225,7 @@
 
 .workspace-process-rail {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 10px;
 }
 

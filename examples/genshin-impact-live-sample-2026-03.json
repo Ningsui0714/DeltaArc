@@ -1,0 +1,79 @@
+{
+  "project": {
+    "name": "原神（2026-03 公开运营信号测试包）",
+    "mode": "Live",
+    "genre": "开放世界动作角色扮演 / 长线内容运营",
+    "platforms": ["PC", "iOS", "Android", "PS5", "Xbox Series X|S", "Xbox Cloud Gaming"],
+    "targetPlayers": ["开放世界探索玩家", "角色收集与养成玩家", "长线活动回流玩家", "跨平台联机玩家"],
+    "coreFantasy": "在持续扩张的提瓦特中探索新地区、抽取新角色、围绕版本活动与赛季内容保持回流和讨论热度。",
+    "ideaSummary": "以 2026-03-16 前后的公开信息为基线，判断原神在 Luna V 周期里，是否还能同时依靠新角色首发、怀旧型旗舰活动、Miliastra Wonderland 赛季更新和平台迁移维持活跃、付费与口碑。",
+    "coreLoop": "探索地图 -> 推主线与活动 -> 抽卡养成 -> 深渊/剧场/限时玩法 -> 日常回流",
+    "sessionLength": "日常 15-30 分钟；版本活动高峰期可扩展到 1-3 小时。",
+    "differentiators": "开放世界探索、七元素反应、角色阵容构筑、多平台跨进度，以及围绕版本更新展开的长期内容节奏。",
+    "progressionHook": "新角色、新剧情、新区域/副玩法与深渊、剧场、活动奖励共同驱动长期回流。",
+    "socialHook": "攻略讨论、角色强度与剧情热议、好友联机、副本协作，以及版本前瞻和活动期间的内容传播。",
+    "monetization": "免费游玩 + 角色/武器抽卡 + 月卡/纪行 + 各档位付费货币包。",
+    "referenceGames": ["塞尔达传说：旷野之息", "Fate/Grand Order", "崩坏：星穹铁道"],
+    "validationGoal": "重点判断：1) 新角色与返场能否继续带动回流；2) 怀旧型 Mondstadt 活动是否有效激活老玩家情绪；3) Miliastra Wonderland 赛季化更新能否补足版本中段留存；4) PS4 内容终止对口碑与迁移成本的影响是否可控。",
+    "productionConstraints": "多平台长线 Live 服务，内容体量极大；截至 2026-03-16，PS4 版已进入停更倒计时，版本运营需要兼顾新内容生产、老玩家迁移与跨平台体验一致性。",
+    "currentStatus": "基于 2026-03-16 前可验证公开信息，原神正处于 Luna V 周期：当前公开卖点包含 Varka、Cloudglow 与 Mondstadt 回归活动，Cloudglow Season 持续到 2026-04-07，PS4 新内容支持将在 2026-04-08 结束。"
+  },
+  "evidenceItems": [
+    {
+      "type": "design_doc",
+      "title": "Xbox Wire：跨平台、跨进度与多人联机定位",
+      "source": "Xbox Wire（官方） | https://news.xbox.com/en-us/2024/08/20/genshin-impact-coming-to-xbox-on-november-20/ | 抓取于 2026-03-16",
+      "trust": "high",
+      "summary": "Xbox Wire 写明《原神》支持 Xbox 与 PlayStation、PC、Android、iOS 之间的 cross-play 和 cross-progression，并支持 4 人联机；同时强调它是一款 free-to-play 的 open-world adventure RPG。"
+    },
+    {
+      "type": "design_doc",
+      "title": "App Store：当前版本主打内容",
+      "source": "Apple App Store（官方） | https://apps.apple.com/us/app/genshin-impact/id1517783697 | 抓取于 2026-03-16",
+      "trust": "high",
+      "summary": "App Store 当前更新文案直接突出 'Varka Is Here!'、'Cloudglow in the Drifting Mist'、'Flins Is Back!' 和 'Chronicled Wish Now Available!'，说明这一轮版本仍在依赖新角色、返场与限时活动共振。"
+    },
+    {
+      "type": "metric_snapshot",
+      "title": "Xbox 商店：付费结构仍以月卡与充值包为主",
+      "source": "Xbox 商店（官方） | https://www.xbox.com/en-US/games/store/genshin-impact/9n7tffrrzcc9 | 抓取于 2026-03-16",
+      "trust": "high",
+      "summary": "Xbox 商店页直接列出 Blessing of the Welkin Moon、Genesis Crystals 各档位和 Chronal Nexus 各档位，说明《原神》的常规变现仍以月卡和分层货币包为主，而不是一次性买断。"
+    },
+    {
+      "type": "metric_snapshot",
+      "title": "App Store：移动端仍有超大规模评分基数",
+      "source": "Apple App Store（官方） | https://apps.apple.com/us/app/genshin-impact/id1517783697 | 抓取于 2026-03-16",
+      "trust": "high",
+      "summary": "App Store 页面显示《原神》在美国区仍有约 562K Ratings、4.3/5 的聚合评分，说明其移动端用户规模和舆情样本仍然很大。"
+    },
+    {
+      "type": "note",
+      "title": "Miliastra Wonderland 官方 X：Cloudglow Season 时程",
+      "source": "Genshin Impact - Miliastra Wonderland 官方 X | https://x.com/GenshinImpactMW/status/2026235658889564644 | 2026-02-24",
+      "trust": "high",
+      "summary": "官方公布 'Cloudglow Season' 的玩法期为 2026-02-26 10:00 至 2026-04-07 03:59，展示期持续到 Luna V 结束，说明 2026-03-16 时版本赛季仍在运行中。"
+    },
+    {
+      "type": "note",
+      "title": "Genshin Impact 官方 X：Cloudglow in the Drifting Mist 活动说明",
+      "source": "Genshin Impact 官方 X | https://x.com/GenshinImpact/status/2026190356149072080 | 2026-02-24",
+      "trust": "high",
+      "summary": "官方说明玩家可以通过 'Cloudglow in the Drifting Mist' Event Ode、Cloudglow Chronicles 和 Miliastra Shop 获取新套装，并通过 Popular Wonderland stages 获取 Primogems 奖励。"
+    },
+    {
+      "type": "note",
+      "title": "PlayStation 官方页：PS4 停更时间已明确",
+      "source": "PlayStation（官方） | https://www.playstation.com/en-us/games/genshin-impact/ | 抓取于 2026-03-16",
+      "trust": "high",
+      "summary": "PlayStation 官方页面写明《原神》在 PS4 上将于 2026-04-08 后不再获得新内容更新，并引导玩家迁移到 PS5，说明平台分层与存量用户迁移已进入明确执行阶段。"
+    },
+    {
+      "type": "note",
+      "title": "Luna V 版本上线时间与旗舰活动主题",
+      "source": "RPG Site（转述 HoYoverse 官方公告） | https://www.rpgsite.net/news/19624-genshin-impact-version-luna-v-homeward-he-who-caught-the-wind-launches-on-february-25 | 2026-02-13",
+      "trust": "medium",
+      "summary": "RPG Site 转述 HoYoverse 官方公告称，Version Luna V《Song of the Welkin Moon: Variation — Homeward, He Who Caught the Wind》于 2026-02-25 上线，主打 Mondstadt 回归、Varka 登场和 Miliastra Wonderland 更新。"
+    }
+  ]
+}

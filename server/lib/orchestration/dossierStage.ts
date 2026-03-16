@@ -3,6 +3,7 @@ import type {
   SandboxMemorySignal,
   SandboxAnalysisRequest,
 } from '../../../shared/sandbox';
+import { filterVisibleAnalysisWarnings } from '../../../shared/analysisWarnings';
 import type { ExecutionPlan } from './executionPlan';
 import {
   normalizeCandidateSelection,
@@ -108,6 +109,10 @@ function pickFallbackDossierCandidate(candidates: DossierCandidateRun[]) {
         return warningDelta;
       }
 
+      if (left.degraded !== right.degraded) {
+        return left.degraded ? 1 : -1;
+      }
+
       const confidenceDelta =
         right.dossier.confidence + right.dossier.supportRatio - (left.dossier.confidence + left.dossier.supportRatio);
       if (confidenceDelta !== 0) {
@@ -126,7 +131,9 @@ async function runDossierCandidates(
 ) {
   const settled = await mapSettledWithConcurrency(
     dossierCandidateBlueprints,
-    Math.min(3, dossierCandidateBlueprints.length),
+    request.mode === 'reasoning'
+      ? Math.min(2, dossierCandidateBlueprints.length)
+      : Math.min(3, dossierCandidateBlueprints.length),
     async (blueprint) => {
       const stage = await runJsonStage(
         request,
@@ -147,6 +154,10 @@ async function runDossierCandidates(
       );
 
       const dossier = normalizeDossier(stage.data, memorySignals);
+      const visibleWarnings = filterVisibleAnalysisWarnings([
+        ...stage.warnings,
+        ...dossier.warnings,
+      ]);
 
       return {
         candidateId: blueprint.candidateId,
@@ -154,7 +165,7 @@ async function runDossierCandidates(
         dossier,
         model: stage.model,
         durationMs: stage.durationMs,
-        warnings: dedupeBy([...stage.warnings, ...dossier.warnings], (item) => item, 10),
+        warnings: dedupeBy(visibleWarnings, (item) => item, 10),
         degraded: stage.degraded,
       } satisfies DossierCandidateRun;
     },
@@ -220,8 +231,8 @@ async function selectDossierCandidate(
     const selectionStage = await runJsonStage(
       request,
       'dossier-select',
-      executionPlan.dossierPreference,
-      request.mode === 'reasoning' ? 0.12 : 0.08,
+      'balanced',
+      request.mode === 'reasoning' ? 0.08 : 0.08,
       buildDossierSelectionMessages(
         request,
         groundingPack,
@@ -254,7 +265,6 @@ async function selectDossierCandidate(
         [
           ...selectionStage.warnings,
           ...selection.warnings,
-          `Dossier verifier selected ${selected.flavor} candidate: ${selection.rationale}`,
         ],
         (item) => item,
         10,
@@ -317,7 +327,7 @@ export async function runDossierStage(
       const groundingStage = await runJsonStage(
         request,
         'dossier-grounding',
-        executionPlan.dossierPreference,
+        'balanced',
         request.mode === 'reasoning' ? 0.14 : 0.2,
         buildDossierGroundingMessages(request, memoryContext),
         executionPlan.dossierTimeoutMs,
@@ -349,13 +359,13 @@ export async function runDossierStage(
       const models = [groundingStage.model, ...selection.models];
       const pipelineEntry = buildDossierPipelineEntry(models);
       const warnings = dedupeBy(
-        [
+        filterVisibleAnalysisWarnings([
           ...groundingStage.warnings,
           ...groundingPack.warnings,
           ...candidateRun.warnings,
           ...selection.selected.warnings,
           ...selection.selectionWarnings,
-        ],
+        ]),
         (item) => item,
         12,
       );
@@ -419,12 +429,12 @@ export async function runDossierStage(
           dossier,
           pipelineEntry: `dossier@${dossierStage.model}`,
           warnings: dedupeBy(
-            [
+            filterVisibleAnalysisWarnings([
               'dossier split pipeline failed and fell back to the legacy single-pass dossier path.',
               splitMessage,
               ...dossierStage.warnings,
               ...dossier.warnings,
-            ],
+            ]),
             (item) => item,
             12,
           ),

@@ -1,4 +1,5 @@
 import type { SandboxAnalysisRequest, SandboxAnalysisResult } from '../../../shared/sandbox';
+import { filterVisibleAnalysisWarnings, withVisibleAnalysisWarnings } from '../../../shared/analysisWarnings';
 import { createAnalysisMeta, createAnalysisRequestId } from '../normalizeSandboxResult';
 import { jsonMemoryStore } from '../sandboxMemoryStore';
 import {
@@ -7,6 +8,7 @@ import {
   getOrderedSpecialistCheckpoints,
   orderSpecialistCheckpoints,
   getSpecialistResumeState,
+  type AnalysisCheckpointState,
 } from './checkpoints';
 import { createExecutionPlan } from './executionPlan';
 import { runDossierStage } from './dossierStage';
@@ -23,6 +25,19 @@ import {
 import { runRefineStage, runSynthesisStage } from './postStages';
 import { runSpecialistStages } from './specialistStage';
 import { dedupeBy } from './utils';
+
+export function createRetryableStageError(
+  error: OrchestrationStageError,
+  checkpoints: AnalysisCheckpointState,
+) {
+  return new OrchestrationRetryableError(
+    error.stageKey,
+    error.stageLabel,
+    error.message,
+    checkpoints,
+    error.partialResult ?? null,
+  );
+}
 
 export async function orchestrateSandboxAnalysis(
   request: SandboxAnalysisRequest,
@@ -87,7 +102,7 @@ export async function orchestrateSandboxAnalysis(
     }
 
     pipeline.push(dossierStage.pipelineEntry);
-    stageWarnings.push(...dossierStage.warnings);
+    stageWarnings.push(...filterVisibleAnalysisWarnings(dossierStage.warnings));
 
     const specialistStage = canResumeFromSynthesis || canResumeFromRefine
       ? {
@@ -149,7 +164,7 @@ export async function orchestrateSandboxAnalysis(
     }
 
     pipeline.push(...specialistStage.pipelineEntries);
-    stageWarnings.push(...specialistStage.warnings);
+    stageWarnings.push(...filterVisibleAnalysisWarnings(specialistStage.warnings));
 
     const degradedStageKeys = new Set<string>(specialistStage.degradedStageKeys);
     if (dossierStage.degraded) {
@@ -240,7 +255,12 @@ export async function orchestrateSandboxAnalysis(
         ...createAnalysisMeta('remote', degradedStageKeys.size > 0 ? 'degraded' : 'fresh', requestId),
       },
       warnings: dedupeBy(
-        [...stageWarnings, ...finalResult.warnings, ...synthesisStage.warnings, ...refineStage.warnings],
+        filterVisibleAnalysisWarnings([
+          ...stageWarnings,
+          ...finalResult.warnings,
+          ...synthesisStage.warnings,
+          ...refineStage.warnings,
+        ]),
         (item) => item,
         12,
       ),
@@ -250,16 +270,10 @@ export async function orchestrateSandboxAnalysis(
       await persistFreshAnalysisMemory(memoryStore, request, hydratedResult);
     }
 
-    return hydratedResult;
+    return withVisibleAnalysisWarnings(hydratedResult);
   } catch (error) {
     if (isOrchestrationStageError(error)) {
-      throw new OrchestrationRetryableError(
-        error.stageKey,
-        error.stageLabel,
-        error.message,
-        checkpoints,
-        null,
-      );
+      throw createRetryableStageError(error, checkpoints);
     }
 
     throw error;

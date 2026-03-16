@@ -76,8 +76,8 @@ export function OverviewPage({
         : '最新正式结果已在输出区就绪'
       : isAnalysisDegraded
         ? isEnglish
-          ? 'A partial formal result is still viewable'
-          : '一份降级正式结果仍可继续查看'
+          ? 'A stabilized formal result is still viewable'
+          : '一份经过回退稳定的正式结果仍可继续查看'
         : isAnalysisStale
           ? isEnglish
             ? 'A previous formal result is still viewable'
@@ -95,8 +95,8 @@ export function OverviewPage({
         : '输入阶段继续专注项目和证据；建模、策略和报告请到输出区查看。'
       : isAnalysisDegraded
         ? isEnglish
-          ? 'The current outputs come from a partial formal run. They stay viewable, but a rerun is recommended before freezing or deciding.'
-          : '当前输出来自一次未完整结束的正式推理。结果仍可查看，但在冻结或决策前建议重跑。'
+          ? 'The current outputs come from a completed run that needed fallback handling. They stay viewable, but a rerun is recommended before freezing or deciding.'
+          : '当前输出来自一轮已经完成、但中途触发过回退处理的正式推理。结果仍可查看，但在冻结或决策前建议重跑。'
         : isEnglish
           ? 'Current inputs have changed since the last formal run. The previous outputs stay viewable, but a rerun is recommended.'
           : '自上次正式推理后，当前输入已经变化。旧结果仍可查看，但建议重新运行。'
@@ -183,8 +183,8 @@ export function OverviewPage({
             : '最新正式结果仍是当前版本。输入阶段继续专注输入整理，真正查看判断时再打开输出区。'
           : isAnalysisDegraded
             ? isEnglish
-              ? 'The visible result is degraded because a later stage failed. Earlier completed stages were preserved for review.'
-              : '当前可见结果是降级结果，因为后续阶段失败了；已完成的前置阶段已被保留下来。'
+              ? 'The visible result is degraded because one or more stages needed fallback handling or JSON repair during the run.'
+              : '当前可见结果被标记为降级，是因为运行过程中有一个或多个阶段触发了回退处理或 JSON 修复。'
             : isEnglish
               ? 'The visible result is stale because current inputs no longer match the last formal run.'
               : '当前可见结果已经过期，因为当前输入与上次正式推理时不再一致。',

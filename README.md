@@ -241,6 +241,46 @@
 6. 成功结果返回给前端，并按工作区写入 `server/data/projects/<workspaceId>/latest-analysis.json`
 7. 如果分析是 `fresh`，关键信号还会写入 `server/data/sandbox-memory.json`
 
+### 第一阶段推理过程（当前实现）
+
+这里说的“第一阶段”，就是变量沙盒之前的那条正式分析链路。
+
+```mermaid
+flowchart TD
+    A["输入<br/>workspaceId + mode + project + evidenceItems"] --> B["召回本地记忆<br/>memoryContext + memorySignals"]
+    B --> C["dossier-grounding<br/>提取事实 / 约束 / 未知项 / 张力"]
+    C --> D1["dossier candidate<br/>balanced"]
+    C --> D2["dossier candidate<br/>skeptic"]
+    C --> D3["dossier candidate<br/>feasibility"]
+    D1 --> E["dossier-select<br/>选择共享简报"]
+    D2 --> E
+    D3 --> E
+    E --> F{"分析模式"}
+    F -->|"balanced"| G["specialists<br/>systems / psychology / market / red_team"]
+    F -->|"reasoning"| H["specialists<br/>systems / psychology / economy / market / production / red_team"]
+    G --> I["synthesis<br/>future slice + action brief candidates"]
+    H --> I
+    I --> J{"reasoning 模式?"}
+    J -->|"否"| K{"启用 refine?"}
+    J -->|"是"| L["reverse check<br/>倒推结论成立条件"] --> K
+    K -->|"否"| M["正式结果<br/>pipeline + model + warnings + meta.status"]
+    K -->|"是"| N["refine<br/>压缩空话，收束结果"] --> M
+    M --> O["写入 latest-analysis.json"]
+    M --> P["fresh 时写入 sandbox-memory.json"]
+```
+
+- `dossier` 不是单次直出，而是 `grounding -> 多候选 -> 选择器` 的组合链路；拆分链失败时会退回旧的单次 `dossier` 路径。
+- `specialists` 使用 `PROJECT + DOSSIER` 共同输入；如果 `dossier` 和原始项目冲突，以原始项目为准。
+- 已完成的专项阶段会缓存 checkpoint；如果后续阶段失败，可以从已完成部分继续 `resume / retry`。
+- 如果某个切片触发 JSON 修复、fallback 或局部保留，最终结果会标成 `degraded`；`refine` 失败时也会保留 `synthesis` 草稿，不会整轮白跑。
+
+### 两种模式当前的实际差异
+
+| 模式 | 当前定位 | 专项阶段 | 综合阶段 | Refine |
+| --- | --- | --- | --- | --- |
+| `balanced` | 快速扫描 | 4 个专项视角 | 跑 `synthesis` | 默认关闭 |
+| `reasoning` | 深度推演 | 6 个专项视角 | 跑 `synthesis` + `reverse check` | 默认关闭，可配置开启 |
+
 ### 变量推演数据流
 
 1. 前端从最新正式分析里冻结一份基线
@@ -295,6 +335,8 @@ npm run dev:server
 - 前端：`http://127.0.0.1:3000`
 - 后端：`http://127.0.0.1:5001`
 
+开发时请直接打开前端地址。`npm run dev:server` 在开发模式下只提供 API，不再回退托管旧的 `dist/` 页面。
+
 ### 4. 构建与启动生产包
 
 ```bash
@@ -306,7 +348,7 @@ npm start
 
 - `npm run build:client` 会生成 `dist/`
 - `npm run build:server` 会生成 `dist-server/`
-- `server/index.ts` 在检测到 `dist/` 存在时，会顺带托管前端静态资源
+- `dist-server/server/index.js` 运行时，如果检测到 `dist/` 存在，会顺带托管前端静态资源
 
 ## 常用脚本
 

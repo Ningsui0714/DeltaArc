@@ -3,6 +3,7 @@ import type {
   SandboxAnalysisResult,
   SandboxMemorySignal,
 } from '../../../shared/sandbox';
+import { filterVisibleAnalysisWarnings } from '../../../shared/analysisWarnings';
 import { createAnalysisMeta, createFallbackAnalysis } from '../normalizeSandboxResult';
 import type { Dossier, SpecialistOutput } from './types';
 import {
@@ -79,6 +80,7 @@ export function buildProvisionalFallback(
   const futureTimeline = buildFutureTimelineFromFallback(request, dossier, scenarioVariants, validationTracks);
   const communityRhythms = buildCommunityRhythmsFromFallback(request, dossier, resolvedStrategies);
   const trajectorySignals = buildTrajectorySignalsFromFallback(secondOrderEffects, validationTracks, redTeam);
+  const visibleWarnings = filterVisibleAnalysisWarnings(warnings);
 
   return {
     ...fallback,
@@ -122,6 +124,6 @@ export function buildProvisionalFallback(
           ? validationTracks.slice(0, 4).map((item) => `${item.priority} ${item.goal}`)
           : fallback.report.actions,
     },
-    warnings,
+    warnings: visibleWarnings,
   };
 }

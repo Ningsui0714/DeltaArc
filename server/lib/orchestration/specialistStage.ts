@@ -1,4 +1,5 @@
 import type { ExecutionPlan } from './executionPlan';
+import { filterVisibleAnalysisWarnings } from '../../../shared/analysisWarnings';
 import { normalizeSpecialistOutput } from './normalize';
 import {
   emitProgress,
@@ -114,18 +115,18 @@ export async function runSpecialistStages(
       if (result.value.degraded) {
         degradedStageKeys.add(blueprint.key);
       }
+      const visibleWarnings = filterVisibleAnalysisWarnings([
+        ...result.value.warnings,
+        ...result.value.output.warnings,
+      ]);
       pipelineEntries.push(`${result.value.blueprint.key}@${result.value.model}`);
-      stageWarnings.push(...result.value.warnings, ...result.value.output.warnings);
+      stageWarnings.push(...visibleWarnings);
       specialistOutputs.push(result.value.output);
       specialistCheckpoints.push({
         key: blueprint.key,
         output: result.value.output,
         pipelineEntry: `${result.value.blueprint.key}@${result.value.model}`,
-        warnings: dedupeBy(
-          [...result.value.warnings, ...result.value.output.warnings],
-          (item) => item,
-          8,
-        ),
+        warnings: dedupeBy(visibleWarnings, (item) => item, 8),
         degraded: result.value.degraded,
       });
       return;

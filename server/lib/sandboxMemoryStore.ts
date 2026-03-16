@@ -6,15 +6,43 @@ import type { MemoryStore, SandboxMemoryRecord } from './orchestration/memorySto
 
 const defaultMemoryFilePath = path.resolve(process.cwd(), 'server/data/sandbox-memory.json');
 const maxRecords = 48;
+const minRelevantMemoryScore = 4;
+const genericMemoryTokens = new Set([
+  'can',
+  'concept',
+  'core',
+  'current',
+  'game',
+  'games',
+  'idea',
+  'live',
+  'loop',
+  'mode',
+  'player',
+  'players',
+  'project',
+  'prototype',
+  'risk',
+  'summary',
+  'support',
+  'validate',
+  'validation',
+  'verify',
+  'whether',
+]);
 
 function tokenize(value: string) {
   return value
     .toLowerCase()
     .split(/[^a-z0-9\u4e00-\u9fa5]+/u)
-    .filter((token) => token.length >= 2);
+    .filter((token) => token.length >= 2 && !genericMemoryTokens.has(token));
 }
 
-function buildProjectKey(project: ProjectSnapshot) {
+function normalizeComparableText(value: string) {
+  return value.trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function buildProjectTokens(project: ProjectSnapshot) {
   return tokenize(
     [
       project.name,
@@ -25,28 +53,34 @@ function buildProjectKey(project: ProjectSnapshot) {
       project.targetPlayers.join(' '),
       project.referenceGames.join(' '),
     ].join(' '),
-  )
+  );
+}
+
+function buildProjectKey(project: ProjectSnapshot) {
+  return buildProjectTokens(project)
     .slice(0, 24)
     .join('_');
 }
 
 function scoreRecord(record: SandboxMemoryRecord, project: ProjectSnapshot) {
-  const projectTokens = new Set(
-    tokenize(
-      [
-        project.name,
-        project.genre,
-        project.ideaSummary,
-        project.coreFantasy,
-        project.validationGoal,
-        project.targetPlayers.join(' '),
-        project.referenceGames.join(' '),
-      ].join(' '),
-    ),
-  );
-  const recordTokens = tokenize([record.projectName, record.projectKey].join(' '));
+  const projectTokens = new Set(buildProjectTokens(project));
+  const recordTokens = new Set(tokenize([record.projectName, record.projectKey].join(' ')));
+  let score = 0;
 
-  return recordTokens.reduce((score, token) => score + (projectTokens.has(token) ? 1 : 0), 0);
+  if (
+    project.name.trim().length > 0 &&
+    normalizeComparableText(record.projectName) === normalizeComparableText(project.name)
+  ) {
+    score += 12;
+  }
+
+  recordTokens.forEach((token) => {
+    if (projectTokens.has(token)) {
+      score += 1;
+    }
+  });
+
+  return score;
 }
 
 function buildMemoryRecord(project: ProjectSnapshot, analysis: SandboxAnalysisResult): SandboxMemoryRecord {
@@ -101,7 +135,7 @@ export function createJsonMemoryStore(memoryFilePath = defaultMemoryFilePath): M
           record,
           score: record.projectKey === projectKey ? 99 : scoreRecord(record, project),
         }))
-        .filter((entry) => entry.score > 0)
+        .filter((entry) => entry.score >= minRelevantMemoryScore)
         .sort((left, right) => right.score - left.score)
         .slice(0, 4)
         .map((entry) => entry.record);

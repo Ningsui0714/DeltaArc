@@ -13,6 +13,86 @@ type AnalysisQualityPanelProps = {
   showEmpty?: boolean;
 };
 
+const zhInternalTermReplacements = [
+  ['candidate_balanced', '平衡视角候选'],
+  ['candidate_skeptic', '怀疑视角候选'],
+  ['candidate_feasibility', '落地优先候选'],
+  ['brief_balanced', '平衡视角摘要'],
+  ['brief_skeptical', '怀疑视角摘要'],
+  ['brief_execution_first', '执行优先摘要'],
+  ['grounded pack', '基础证据包'],
+  ['provisional_base', '临时基础稿'],
+  ['report.actions', '报告行动项'],
+  ['memorySignals', '记忆信号'],
+  ['openQuestions', '待确认问题'],
+  ['evidenceDigest', '证据摘要'],
+  ['coreTensions', '核心张力'],
+  ['systemFrame', '系统框架'],
+  ['opportunityThesis', '机会判断'],
+  ['systemVerdict', '系统结论'],
+  ['primaryRisk', '核心风险'],
+  ['validationTracks', '验证路径'],
+  ['decisionLenses', '决策视角'],
+  ['playerAcceptance', '玩家接受度'],
+  ['supportRatio', '支持比例'],
+  ['confidence', '置信度'],
+  ['evidenceLevel', '证据等级'],
+  ['learningCost', '学习成本'],
+  ['acceptanceRisk', '接受风险'],
+  ['prototypeCost', '原型成本'],
+  ['coreFun', '核心乐趣'],
+  ['novelty', '新鲜感'],
+  ['personas', '玩家画像'],
+  ['hypotheses', '假设'],
+  ['unknowns', '未知项'],
+  ['audiences', '目标受众'],
+  ['tensions', '核心张力'],
+  ['strategies', '策略'],
+  ['warnings', '风险提示'],
+  ['summary', '摘要'],
+  ['report', '报告'],
+  ['scores', '评分'],
+  ['dossier', '共享简报'],
+  ['gap', '缺口'],
+  ['The validation gap is not clear yet.', '验证缺口暂时还不清楚。'],
+  ['Negative triggers are still unclear.', '负向触发因素暂时还不清楚。'],
+  ['The verdict is still provisional.', '当前判断仍然只是暂定结论。'],
+] as const;
+
+function replaceDisplayTerms(
+  text: string,
+  replacements: readonly (readonly [string, string])[],
+) {
+  return [...replacements]
+    .sort((left, right) => right[0].length - left[0].length)
+    .reduce((current, [from, to]) => current.split(from).join(to), text);
+}
+
+function localizeAnalysisQualityText(text: string, isEnglish: boolean): string {
+  if (isEnglish || !text.trim()) {
+    return text;
+  }
+
+  const withLocalizedCandidateIds: string = text.replace(
+    /\b(?:candidate|brief)_[a-z_]+\b/g,
+    (match): string => {
+      const label: string = formatCandidateLabel(match, '', false);
+
+      if (match.startsWith('brief_')) {
+        return `${label}摘要`;
+      }
+
+      if (match.startsWith('candidate_')) {
+        return `${label}候选`;
+      }
+
+      return label;
+    },
+  );
+
+  return replaceDisplayTerms(withLocalizedCandidateIds, zhInternalTermReplacements);
+}
+
 function formatFlavorLabel(flavor: string, isEnglish: boolean) {
   if (flavor.includes('execution')) {
     return isEnglish ? 'Execution-first' : '执行优先';
@@ -33,7 +113,11 @@ function formatFlavorLabel(flavor: string, isEnglish: boolean) {
   return flavor.replace(/_/g, ' ');
 }
 
-function formatCandidateLabel(candidateId: string, selectedFlavor: string, isEnglish: boolean) {
+function formatCandidateLabel(
+  candidateId: string,
+  selectedFlavor: string,
+  isEnglish: boolean,
+): string {
   if (!candidateId) {
     return isEnglish ? 'Candidate' : '候选';
   }
@@ -58,7 +142,9 @@ function formatCandidateLabel(candidateId: string, selectedFlavor: string, isEng
     return formatFlavorLabel(selectedFlavor, isEnglish);
   }
 
-  return candidateId.replace(/_/g, ' ');
+  return isEnglish
+    ? candidateId.replace(/_/g, ' ')
+    : localizeAnalysisQualityText(candidateId.replace(/_/g, ' '), false);
 }
 
 function formatDecisionModeLabel(
@@ -125,6 +211,17 @@ function getConditionTone(status: SandboxNecessaryCondition['status']) {
   return 'uncertain';
 }
 
+function getSelectedBadgeLabel(
+  stage: SandboxSelectionSummary['stage'],
+  isEnglish: boolean,
+) {
+  if (stage === 'dossier') {
+    return isEnglish ? 'Selected brief' : '已入选简报';
+  }
+
+  return isEnglish ? 'Selected summary' : '已入选摘要';
+}
+
 function SelectionCard({
   summary,
   isEnglish,
@@ -153,10 +250,12 @@ function SelectionCard({
         <span className="analysis-quality-flavor">
           {formatFlavorLabel(summary.selectedFlavor, isEnglish)}
         </span>
-        <span className="tiny-chip">{summary.selectedCandidateId}</span>
+        <span className="tiny-chip">{getSelectedBadgeLabel(summary.stage, isEnglish)}</span>
       </div>
 
-      <p className="analysis-quality-rationale">{summary.rationale}</p>
+      <p className="analysis-quality-rationale">
+        {localizeAnalysisQualityText(summary.rationale, isEnglish)}
+      </p>
 
       {summary.rankings.length > 0 ? (
         <div className="analysis-quality-ranking-list">
@@ -172,10 +271,10 @@ function SelectionCard({
               <div className="analysis-quality-ranking-bar" aria-hidden="true">
                 <span style={{ width: `${ranking.overallScore}%` }} />
               </div>
-              <p>{ranking.strength}</p>
+              <p>{localizeAnalysisQualityText(ranking.strength, isEnglish)}</p>
               <small>
                 {isEnglish ? 'Risk: ' : '风险：'}
-                {ranking.risk}
+                {localizeAnalysisQualityText(ranking.risk, isEnglish)}
               </small>
             </article>
           ))}
@@ -205,6 +304,17 @@ export function AnalysisQualityPanel({
     0,
     variant === 'compact' ? 3 : 5,
   ) ?? [];
+  const summaryCopy = hasInsights
+    ? isEnglish
+      ? 'The first-stage pipeline now exposes which candidate was chosen, why it won, and which necessary conditions still keep the final call fragile.'
+      : '第一阶段现在会显式展示：选中了哪个候选、为什么赢，以及哪些必要条件仍然在卡住最终判断。'
+    : mode === 'reasoning'
+      ? isEnglish
+        ? 'This visible result was generated before verifier traces were exposed in the UI. Run Deep Dive again to see candidate selection and reverse-check output.'
+        : '这份可见结果生成于校验轨迹接入界面之前。重新跑一次深度推演，就能看到候选筛选和反证核验输出。'
+      : isEnglish
+        ? 'This visible result does not include verifier traces yet. Run a fresh analysis to expose the new first-stage gating details.'
+        : '这份可见结果还没有校验轨迹。重新跑一次分析，就能看到新的第一阶段筛选细节。';
 
   return (
     <section
@@ -213,26 +323,13 @@ export function AnalysisQualityPanel({
       } ${!hasInsights ? 'is-empty' : ''}`}
     >
       <div className="analysis-quality-topline">
-        <div>
+        <div className="analysis-quality-heading">
           <p className="eyebrow">{isEnglish ? 'Verifier Lens' : '校验视角'}</p>
           <h3>
             {isEnglish
               ? 'Why this answer survived the first-stage filters'
               : '为什么这一版结论能通过第一阶段筛选'}
           </h3>
-          <p className="panel-copy">
-            {hasInsights
-              ? isEnglish
-                ? 'The first-stage pipeline now exposes which candidate was chosen, why it won, and which necessary conditions still keep the final call fragile.'
-                : '第一阶段现在会显式展示：选中了哪个候选、为什么赢，以及哪些必要条件仍然在卡住最终判断。'
-              : mode === 'reasoning'
-                ? isEnglish
-                  ? 'This visible result was generated before verifier traces were exposed in the UI. Run Deep Dive again to see candidate selection and reverse-check output.'
-                  : '这份可见结果生成于校验轨迹接入界面之前。重新跑一次深度推演，就能看到候选筛选和反证核验输出。'
-                : isEnglish
-                  ? 'This visible result does not include verifier traces yet. Run a fresh analysis to expose the new first-stage gating details.'
-                  : '这份可见结果还没有校验轨迹。重新跑一次分析，就能看到新的第一阶段筛选细节。'}
-          </p>
         </div>
         <div className="chip-row">
           <span className="meta-chip">
@@ -269,83 +366,101 @@ export function AnalysisQualityPanel({
       </div>
 
       {hasInsights ? (
-        <div className="analysis-quality-grid">
-          {meta.dossierSelection ? (
-            <SelectionCard summary={meta.dossierSelection} isEnglish={isEnglish} />
-          ) : null}
+        <>
+          <div className="analysis-quality-grid">
+            {meta.dossierSelection ? (
+              <SelectionCard summary={meta.dossierSelection} isEnglish={isEnglish} />
+            ) : null}
 
-          {meta.actionBriefSelection ? (
-            <SelectionCard summary={meta.actionBriefSelection} isEnglish={isEnglish} />
-          ) : null}
+            {meta.actionBriefSelection ? (
+              <SelectionCard summary={meta.actionBriefSelection} isEnglish={isEnglish} />
+            ) : null}
 
-          {meta.reverseCheck ? (
-            <article className="analysis-quality-card analysis-quality-card-reverse">
-              <div className="analysis-quality-card-topline">
-                <div>
-                  <p className="eyebrow">{isEnglish ? 'Reverse Check' : '反向核验'}</p>
-                  <h4>{isEnglish ? 'Necessary conditions still on the board' : '仍在牌桌上的必要条件'}</h4>
+            {meta.reverseCheck ? (
+              <article className="analysis-quality-card analysis-quality-card-reverse">
+                <div className="analysis-quality-card-topline">
+                  <div>
+                    <p className="eyebrow">{isEnglish ? 'Reverse Check' : '反向核验'}</p>
+                    <h4>{isEnglish ? 'Necessary conditions still on the board' : '仍在牌桌上的必要条件'}</h4>
+                  </div>
+                  <div className="chip-row">
+                    <span className={`analysis-quality-mode ${meta.reverseCheck.tightened ? 'mode-tightened' : 'mode-stable'}`}>
+                      {meta.reverseCheck.tightened
+                        ? isEnglish
+                          ? 'Tightened final call'
+                          : '已收紧结论'
+                        : isEnglish
+                          ? 'No shrink needed'
+                          : '暂未收缩'}
+                    </span>
+                  </div>
                 </div>
-                <div className="chip-row">
-                  <span className={`analysis-quality-mode ${meta.reverseCheck.tightened ? 'mode-tightened' : 'mode-stable'}`}>
-                    {meta.reverseCheck.tightened
-                      ? isEnglish
-                        ? 'Tightened final call'
-                        : '已收紧结论'
-                      : isEnglish
-                        ? 'No shrink needed'
-                        : '暂未收缩'}
-                  </span>
-                </div>
-              </div>
 
-              <p className="analysis-quality-rationale">
-                {meta.reverseCheck.fragilitySummary ||
-                  (isEnglish
-                    ? 'The reverse check did not return a fragility summary, so keep reviewing the conditions below manually.'
-                    : '反向核验没有返回额外脆弱性摘要，请直接查看下面的必要条件。')}
-              </p>
+                <p className="analysis-quality-rationale">
+                  {localizeAnalysisQualityText(
+                    meta.reverseCheck.fragilitySummary ||
+                    (isEnglish
+                      ? 'The reverse check did not return a fragility summary, so keep reviewing the conditions below manually.'
+                      : '反向核验没有返回额外脆弱性摘要，请直接查看下面的必要条件。'),
+                    isEnglish,
+                  )}
+                </p>
 
-              {visibleConditions.length > 0 ? (
-                <div className="analysis-condition-grid">
-                  {visibleConditions.map((condition) => (
-                    <article
-                      key={`${condition.condition}-${condition.status}`}
-                      className={`analysis-condition-card status-${getConditionTone(condition.status)}`}
-                    >
-                      <div className="analysis-condition-topline">
-                        <span className={`analysis-condition-status status-${getConditionTone(condition.status)}`}>
-                          {formatConditionStatusLabel(condition.status, isEnglish)}
-                        </span>
-                        {condition.evidenceRefs.length > 0 ? (
-                          <span className="tiny-chip">
-                            {isEnglish
-                              ? `${condition.evidenceRefs.length} refs`
-                              : `${condition.evidenceRefs.length} 个引用`}
+                {visibleConditions.length > 0 ? (
+                  <div className="analysis-condition-grid">
+                    {visibleConditions.map((condition) => (
+                      <article
+                        key={`${condition.condition}-${condition.status}`}
+                        className={`analysis-condition-card status-${getConditionTone(condition.status)}`}
+                      >
+                        <div className="analysis-condition-topline">
+                          <span className={`analysis-condition-status status-${getConditionTone(condition.status)}`}>
+                            {formatConditionStatusLabel(condition.status, isEnglish)}
                           </span>
+                          {condition.evidenceRefs.length > 0 ? (
+                            <span className="tiny-chip">
+                              {isEnglish
+                                ? `${condition.evidenceRefs.length} refs`
+                                : `${condition.evidenceRefs.length} 个引用`}
+                            </span>
+                          ) : null}
+                        </div>
+                        <strong>{localizeAnalysisQualityText(condition.condition, isEnglish)}</strong>
+                        <p>{localizeAnalysisQualityText(condition.impact, isEnglish)}</p>
+                        {condition.evidenceRefs.length > 0 ? (
+                          <small>
+                            {localizeAnalysisQualityText(
+                              condition.evidenceRefs.join(' / '),
+                              isEnglish,
+                            )}
+                          </small>
                         ) : null}
-                      </div>
-                      <strong>{condition.condition}</strong>
-                      <p>{condition.impact}</p>
-                      {condition.evidenceRefs.length > 0 ? (
-                        <small>{condition.evidenceRefs.join(' / ')}</small>
-                      ) : null}
-                    </article>
-                  ))}
-                </div>
-              ) : (
-                <div className="analysis-quality-empty-note">
-                  <strong>{isEnglish ? 'No structured conditions returned' : '没有返回结构化必要条件'}</strong>
-                  <p>
-                    {isEnglish
-                      ? 'The reverse check ran, but it did not emit condition-level structure in this result.'
-                      : '这次反向核验已经运行，但当前结果里没有输出条件级结构。'}
-                  </p>
-                </div>
-              )}
-            </article>
-          ) : null}
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="analysis-quality-empty-note">
+                    <strong>{isEnglish ? 'No structured conditions returned' : '没有返回结构化必要条件'}</strong>
+                    <p>
+                      {isEnglish
+                        ? 'The reverse check ran, but it did not emit condition-level structure in this result.'
+                        : '这次反向核验已经运行，但当前结果里没有输出条件级结构。'}
+                    </p>
+                  </div>
+                )}
+              </article>
+            ) : null}
+          </div>
+
+          <div className="analysis-quality-context-note">
+            <p>{summaryCopy}</p>
+          </div>
+        </>
+      ) : (
+        <div className="analysis-quality-context-note">
+          <p>{summaryCopy}</p>
         </div>
-      ) : null}
+      )}
     </section>
   );
 }

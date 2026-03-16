@@ -49,7 +49,7 @@ function createEvidence(): EvidenceItem[] {
 }
 
 function createAnalysis(
-  status: 'fresh' | 'degraded' = 'fresh',
+  status: 'fresh' | 'stale' | 'degraded' = 'fresh',
   options?: {
     mode?: SandboxAnalysisResult['mode'];
     requestId?: string;
@@ -242,7 +242,7 @@ test('project truth store freezes baselines from persisted latest analysis', asy
   }
 });
 
-test('project truth store rejects freezing degraded latest analysis snapshots', async () => {
+test('project truth store freezes degraded latest analysis snapshots', async () => {
   const tempDir = await mkdtemp(path.join(os.tmpdir(), 'wind-tunnel-project-truth-'));
   const store = createProjectTruthStore(tempDir);
 
@@ -256,9 +256,32 @@ test('project truth store rejects freezing degraded latest analysis snapshots', 
       analysis: createAnalysis('degraded'),
     });
 
+    const baseline = await store.freezeLatestBaseline('workspace_demo_001');
+
+    assert.equal(baseline.sourceAnalysisStatus, 'degraded');
+    assert.equal(baseline.sourceAnalysisRequestId, 'analysis_degraded');
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('project truth store rejects freezing stale latest analysis snapshots', async () => {
+  const tempDir = await mkdtemp(path.join(os.tmpdir(), 'wind-tunnel-project-truth-'));
+  const store = createProjectTruthStore(tempDir);
+
+  try {
+    await store.persistLatestAnalysis({
+      workspaceId: 'workspace_demo_001',
+      runStartedAt: '2026-03-14T08:57:00.000Z',
+      analysisJobId: 'job_demo_001',
+      projectSnapshot: createProject(),
+      evidenceSnapshot: createEvidence(),
+      analysis: createAnalysis('stale'),
+    });
+
     await assert.rejects(
       () => store.freezeLatestBaseline('workspace_demo_001'),
-      /fresh latest analysis can be frozen as a baseline/i,
+      /fresh or degraded status can be frozen as a baseline/i,
     );
   } finally {
     await rm(tempDir, { recursive: true, force: true });

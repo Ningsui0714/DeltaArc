@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createBlankProject, demoProject } from '../data/mockData';
+import { ensureCurrentWorkspaceStorageEpoch } from '../lib/workspaceStorage';
 import type { ProjectSnapshot } from '../types';
 import { normalizeProjectSnapshot } from '../../shared/schema';
 
@@ -30,6 +31,8 @@ function readStoredProject(workspaceId: string) {
     return blankProject;
   }
 
+  ensureCurrentWorkspaceStorageEpoch();
+
   const saved =
     window.localStorage.getItem(buildProjectStorageKey(workspaceId)) ??
     window.localStorage.getItem(legacyProjectStorageKey);
@@ -49,6 +52,8 @@ function readStoredWorkspaceId() {
   if (typeof window === 'undefined') {
     return createWorkspaceId();
   }
+
+  ensureCurrentWorkspaceStorageEpoch();
 
   const saved = window.localStorage.getItem(workspaceStorageKey);
   return saved && /^[A-Za-z0-9_-]+$/.test(saved) ? saved : createWorkspaceId();

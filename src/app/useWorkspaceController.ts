@@ -17,6 +17,7 @@ import {
   createClearEvidenceOnlyAction,
   createEvidenceImportAction,
   createProjectImportAction,
+  createProjectUpdateAction,
   createRefreshAnalysisAction,
   createResetWorkspaceAction,
   createWorkspaceNavigation,
@@ -118,12 +119,24 @@ export function useWorkspaceController(): WorkspaceController {
     runAnalysis,
     navigate,
   });
+  const updateProjectAction = createProjectUpdateAction({
+    workspaceId,
+    project,
+    updateProject,
+    resetAnalysisState,
+    resetBaselines,
+    setActivePhase,
+    setActiveOutputStep,
+  });
   const importProjectFile = createProjectImportAction({
+    workspaceId,
     language,
     isEnglish,
     replaceProject,
     replaceEvidenceItems,
     appendEvidenceItems,
+    resetAnalysisState,
+    resetBaselines,
     setProjectImportFeedback,
   });
   const importEvidenceFile = createEvidenceImportAction({
@@ -182,7 +195,7 @@ export function useWorkspaceController(): WorkspaceController {
     runDeepForecast: (nextStep) => refreshAnalysis('reasoning', nextStep),
     retryAnalysisFromFailure,
     freezeLatestBaseline,
-    updateProject,
+    updateProject: updateProjectAction,
     addEvidenceEntries,
     resetWorkspace,
     clearEvidenceOnly,

@@ -24,6 +24,59 @@ import { projectTruthStore } from '../../lib/projectTruthStore';
 import { getServerErrorMessage, parseRouteToken, sendSchemaError } from './routeUtils';
 
 type ParsedSandboxAnalysisRequest = ReturnType<typeof parseSandboxAnalysisRequest>;
+type AnalysisResumeState = {
+  startStageKey: SandboxAnalysisResumeStageKey;
+  checkpoints: AnalysisCheckpointState;
+};
+type AnalysisRunDependencies = NonNullable<Parameters<typeof runDeepseekSandboxAnalysis>[1]>;
+
+const automaticResumeAttemptLimit = 1;
+
+function getAutomaticResumeDetail(stageLabel: string) {
+  return `${stageLabel} failed late in the run. Retrying once from the cached stage.`;
+}
+
+export async function runAnalysisWithAutomaticResume(params: {
+  jobId: string;
+  request: ParsedSandboxAnalysisRequest;
+  resume?: AnalysisResumeState;
+  onProgress?: AnalysisRunDependencies['onProgress'];
+  runAnalysis?: typeof runDeepseekSandboxAnalysis;
+}) {
+  const runAnalysis = params.runAnalysis ?? runDeepseekSandboxAnalysis;
+  let resume = params.resume;
+  let attempt = 0;
+
+  while (true) {
+    try {
+      return await runAnalysis(params.request, {
+        onProgress: params.onProgress,
+        ...(resume ? { resume } : {}),
+      });
+    } catch (error) {
+      if (
+        !isOrchestrationRetryableError(error) ||
+        attempt >= automaticResumeAttemptLimit ||
+        !hasAnalysisJob(params.jobId)
+      ) {
+        throw error;
+      }
+
+      attempt += 1;
+      updateAnalysisJobStage({
+        jobId: params.jobId,
+        key: error.stageKey,
+        label: error.stageLabel,
+        detail: getAutomaticResumeDetail(error.stageLabel),
+        status: 'running',
+      });
+      resume = {
+        startStageKey: error.stageKey,
+        checkpoints: error.checkpoints,
+      };
+    }
+  }
+}
 
 function appendPersistenceWarning(
   result: ReturnType<typeof parseSandboxAnalysisResult>,
@@ -128,21 +181,22 @@ function startAnalysisJob(options: {
   jobId: string;
   request: ParsedSandboxAnalysisRequest;
   runStartedAt: string;
-  resume?: {
-    startStageKey: SandboxAnalysisResumeStageKey;
-    checkpoints: AnalysisCheckpointState;
-  };
+  resume?: AnalysisResumeState;
 }) {
   markJobRunning(options.jobId);
 
-  void runDeepseekSandboxAnalysis(options.request, {
-    onProgress: (update) => {
-      updateAnalysisJobStage({
-        jobId: options.jobId,
-        ...update,
-      });
-    },
-    ...(options.resume ? { resume: options.resume } : {}),
+  const onProgress: AnalysisRunDependencies['onProgress'] = (update) => {
+    updateAnalysisJobStage({
+      jobId: options.jobId,
+      ...update,
+    });
+  };
+
+  void runAnalysisWithAutomaticResume({
+    jobId: options.jobId,
+    request: options.request,
+    resume: options.resume,
+    onProgress,
   })
     .then((result) =>
       handleAnalysisJobSuccess(

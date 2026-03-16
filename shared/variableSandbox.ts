@@ -12,6 +12,14 @@ import type {
 } from './sandbox';
 
 export type FrozenBaselineSourceAnalysisStatus = Extract<AnalysisStatus, 'fresh' | 'degraded'>;
+export const frozenBaselineSourceStatuses = ['fresh', 'degraded'] as const satisfies readonly FrozenBaselineSourceAnalysisStatus[];
+
+export function isFrozenBaselineSourceAnalysisStatus(
+  status: AnalysisStatus,
+): status is FrozenBaselineSourceAnalysisStatus {
+  return frozenBaselineSourceStatuses.includes(status as FrozenBaselineSourceAnalysisStatus);
+}
+
 export type DesignVariableV1Category = 'gameplay' | 'system' | 'live_ops' | 'monetization';
 export type DesignVariableActivationStage = 'early' | 'mid' | 'late';
 export type VariableImpactRiskLevel = 'low' | 'medium' | 'high';

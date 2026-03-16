@@ -59,8 +59,8 @@ export function OutputStatusBanner({
         : `最近一次${requestedModeLabel}失败了，当前仍在显示上一份可查看的${visibleModeLabel}结果`
     : isAnalysisDegraded
       ? isEnglish
-        ? 'Current outputs come from a partial formal run'
-        : '当前输出来自一次未完整结束的正式推理'
+        ? 'Current outputs needed fallback handling during the formal run'
+        : '当前输出在正式推理中触发了回退或修复'
       : isEnglish
         ? 'Current outputs are stale'
         : '当前输出结果已过期';
@@ -74,8 +74,8 @@ export function OutputStatusBanner({
         : `最近一次重跑没有产出可替换的新结果，所以当前屏幕上仍保留着上一份可查看的${visibleModeLabel}输出。${error ? `错误：${error}` : ''}`
     : isAnalysisDegraded
       ? isEnglish
-        ? 'You can keep reading the preserved outputs, but some later stages failed. Run the desk again before treating this as the final truth source.'
-        : '你仍然可以继续阅读已保留的输出，但后续阶段曾失败。把它当成最终真相源之前，建议回推理台再跑一次。'
+        ? 'The run still completed, but one or more stages needed timeout fallback or JSON repair. The result stays readable, though rerunning is recommended before treating it as a final truth source.'
+        : '这轮推理已经完成，但其中一个或多个阶段触发了超时回退或 JSON 修复。结果仍可阅读，不过在把它当成最终真相源之前，建议再重跑一次。'
       : isEnglish
         ? 'The latest visible outputs were generated before the current inputs changed. They stay viewable, but rerunning will refresh the decision surface.'
         : '当前可见输出生成于本轮输入变化之前。旧结果仍可查看，但建议重跑以刷新决策面。';

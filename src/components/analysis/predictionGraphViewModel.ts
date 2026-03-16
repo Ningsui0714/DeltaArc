@@ -211,7 +211,7 @@ export function buildPredictionGraphViewModel(params: {
         stage?.preview?.summary ||
           meta?.handoff ||
           stage?.detail ||
-          (isEnglish ? 'Waiting for the shared brief to dispatch work.' : '等待共享简报分发。'),
+          (isEnglish ? 'Waiting for dispatch.' : '等待派发。'),
       ),
       status: resolveStageStatus(stage, hasViewableAnalysis),
       metrics: [stage?.model, stage?.durationMs ? formatJobDuration(stage.durationMs, language) : '']
@@ -248,19 +248,19 @@ export function buildPredictionGraphViewModel(params: {
   const connectedSummary = isAnalysisFresh
     ? trimCopy(
         analysis.report.summary || analysis.summary,
-        isEnglish ? 'The formal output is already attached to this workspace.' : '正式结果已经挂到当前工作区。',
+        isEnglish ? 'Formal output connected.' : '正式结果已接入。',
       )
     : isAnalysisDegraded
       ? isEnglish
-        ? 'A later stage failed, but cached earlier outputs were preserved and remain connected here.'
-        : '后续阶段曾失败，但前面已缓存的输出被保留了下来，并继续挂在这里。'
+        ? 'Fallback was used in part of the run. Review with caution.'
+        : '结果包含回退处理，请谨慎使用。'
       : isAnalysisStale
         ? isEnglish
-          ? 'The connected output was generated before the current inputs changed, so it is still viewable but no longer fresh.'
-          : '当前挂接结果生成于本轮输入变化之前，因此它仍可查看，但已经不是最新状态。'
+          ? 'Inputs changed after this run. Output is viewable but not fresh.'
+          : '输入已变化，结果可查看但不再是最新。'
         : isEnglish
-          ? 'A formal output remains connected to this workspace.'
-          : '当前工作区仍挂着一份正式结果。';
+          ? 'Formal output available.'
+          : '正式结果可查看。';
 
   return {
     focusZone,
@@ -318,12 +318,12 @@ export function buildPredictionGraphViewModel(params: {
           ? 'Prediction graph waiting to start'
           : '预测图谱待启动',
     graphSummary: isProgressActive || hasProgressError
-      ? progress?.message ?? (isEnglish ? 'Formal run state is currently unavailable.' : '当前正式推理状态暂不可用。')
+      ? progress?.message ?? (isEnglish ? 'Run status unavailable.' : '运行状态暂不可用。')
       : hasViewableAnalysis
         ? connectedSummary
         : isEnglish
-          ? 'Before the backend run starts, this area only shows inputs and structure. It will not fake a conclusion.'
-          : '没有启动后端运行前，这里只显示输入和结构，不会提前伪造结论。',
+          ? 'Waiting for the formal run.'
+          : '等待正式推理。',
     inputsStat: evidenceItems.length > 0 ? (isEnglish ? `${evidenceItems.length} signals` : `${evidenceItems.length} 条信号`) : isEnglish ? 'Waiting for inputs' : '等待输入',
     agentsStat: progressStats
       ? isEnglish
@@ -351,8 +351,8 @@ export function buildPredictionGraphViewModel(params: {
         trimCopy(
           project.ideaSummary,
           isEnglish
-            ? 'Write down the release question you want to predict before sending it into the later reasoning graph.'
-            : '先把这次要预测的发布问题写清楚，再送进后面的推演图谱。',
+            ? 'Add the prediction question.'
+            : '请补充预测问题。',
         ),
       ),
       metrics: [project.genre, project.platforms[0], project.validationGoal ? (isEnglish ? 'Validation goal set' : '已有验证目标') : ''].filter(
@@ -377,8 +377,8 @@ export function buildPredictionGraphViewModel(params: {
                 .join(' / '),
             )
           : isEnglish
-            ? 'Import reviews, interviews, playtest notes, and design docs before this graph has real evidence to work with.'
-            : '把评测、访谈、试玩记录和设计文档导进来，图谱才会有真正可用的依据。',
+            ? 'No evidence yet.'
+            : '暂无证据。',
       metrics: evidenceItems.slice(0, 3).map((item) => item.type),
     },
     dossierCard: {
@@ -387,9 +387,7 @@ export function buildPredictionGraphViewModel(params: {
       summary: shorten(
         dossierStage?.preview?.summary ||
           dossierStage?.detail ||
-          (isEnglish
-            ? 'This stage packages the project summary and evidence signals into one shared handoff for the specialist agents.'
-            : '这里会把项目简述和证据信号打包成一份统一交接简报，再交给各个专项代理。'),
+          (isEnglish ? 'Shared brief ready for agent dispatch.' : '已整理为共享简报。'),
       ),
       metrics: [],
     },
@@ -398,7 +396,7 @@ export function buildPredictionGraphViewModel(params: {
       isActive: isProgressActive || hasProgressError,
       percent: progressStats?.percent ?? 0,
       label: progress?.currentStageLabel ?? (isEnglish ? 'Waiting for formal run' : '等待正式推理'),
-      message: progress?.message ?? (isEnglish ? 'The shared brief and agent stages only light up after the backend run actually starts.' : '只有后端真正启动后，共享简报和多代理阶段才会逐步点亮。'),
+      message: progress?.message ?? (isEnglish ? 'Run not started yet.' : '尚未启动。'),
     },
     agentCards,
     synthesisCard: {
@@ -406,9 +404,7 @@ export function buildPredictionGraphViewModel(params: {
       title: synthesisStage?.preview?.headline || (isEnglish ? 'Future Timeline Simulation' : '未来时间线模拟'),
       summary: shorten(
         synthesisStage?.preview?.summary ||
-          (isEnglish
-            ? 'Specialist judgments are merged here into future beats, community rhythms, and key inflection points.'
-            : '各个专项代理的判断会在这里汇总成未来节点、社区节奏和关键转折。'),
+          (isEnglish ? 'Future beats merged here.' : '这里汇总未来节点。'),
       ),
       metrics: [],
     },
@@ -417,9 +413,7 @@ export function buildPredictionGraphViewModel(params: {
       title: refineStage?.preview?.headline || (isEnglish ? 'Report Structure Cleanup' : '报告结构整理'),
       summary: shorten(
         refineStage?.preview?.summary ||
-          (isEnglish
-            ? 'The final pass compresses fluff, sharpens pacing, and folds the forecast into a directly readable report.'
-            : '最后一轮会压缩空话、整理节奏，并把预测内容收束成可直接阅读的报告。'),
+          (isEnglish ? 'Final report cleanup.' : '结果收束整理。'),
       ),
       metrics: [],
     },
@@ -431,12 +425,12 @@ export function buildPredictionGraphViewModel(params: {
             isEnglish ? 'Formal forecast output has been generated.' : '正式结果已经生成。',
           )
         : latestPreviewStage?.preview?.headline ||
-          (isEnglish ? 'The future timeline only unlocks after the backend run finishes.' : '只有后端完成后，未来时间线才会真正解锁。'),
+          (isEnglish ? 'Timeline locked.' : '时间线未解锁。'),
       summary: hasViewableAnalysis
         ? shorten(connectedSummary)
         : isEnglish
-          ? 'The timeline and report stay locked until the backend run truly finishes. This graph will not pretend it already knows the answer.'
-          : '只有后端真正完成后，时间线和报告才会解锁，图谱不会假装自己已经知道答案。',
+          ? 'Waiting for run completion.'
+          : '等待运行完成。',
       metrics: [
         hasViewableAnalysis ? (isEnglish ? `${analysis.futureTimeline.length} timeline beats` : `${analysis.futureTimeline.length} 个时间节点`) : '',
         hasViewableAnalysis ? (isEnglish ? `${analysis.communityRhythms.length} community rhythms` : `${analysis.communityRhythms.length} 个社区节奏`) : '',

@@ -228,6 +228,39 @@ Detailed design specs stay local under `docs/specs/` and are intentionally exclu
 6. The final formal result returns to the frontend and is also written into `server/data/projects/<workspaceId>/latest-analysis.json`
 7. Fresh runs additionally contribute key signals into `server/data/sandbox-memory.json`
 
+### Current Phase 1 Reasoning Flow
+
+Phase 1 here means the formal-analysis pipeline that runs before the variable sandbox.
+
+```mermaid
+flowchart TD
+    A["Input<br/>workspaceId + mode + project + evidenceItems"] --> B["Recall local memory<br/>memoryContext + memorySignals"]
+    B --> C["dossier-grounding<br/>extract facts / constraints / unknowns / tensions"]
+    C --> D1["dossier candidate<br/>balanced"]
+    C --> D2["dossier candidate<br/>skeptic"]
+    C --> D3["dossier candidate<br/>feasibility"]
+    D1 --> E["dossier-select<br/>pick the shared brief"]
+    D2 --> E
+    D3 --> E
+    E --> F{"Mode"}
+    F -->|"balanced"| G["specialists<br/>systems / psychology / market / red_team"]
+    F -->|"reasoning"| H["specialists<br/>systems / psychology / economy / market / production / red_team"]
+    G --> I["synthesis<br/>future slice + action-brief candidates"]
+    H --> I
+    I --> J{"Reasoning mode?"}
+    J -->|"No"| K{"Refine enabled?"}
+    J -->|"Yes"| L["reverse check<br/>backsolve required conditions"] --> K
+    K -->|"No"| M["formal result<br/>pipeline + model + warnings + meta.status"]
+    K -->|"Yes"| N["refine<br/>tighten and compress the write-up"] --> M
+    M --> O["write latest-analysis.json"]
+    M --> P["persist sandbox-memory.json when fresh"]
+```
+
+- `dossier` is not a single one-shot pass anymore. It runs as `grounding -> multi-candidate -> selector`, and falls back to the legacy one-pass dossier path only when the split path fails.
+- `specialists` consume both `PROJECT` and `DOSSIER`; if dossier content conflicts with the raw project input, the raw project wins.
+- Completed specialist stages are cached as checkpoints, so later failures can `resume / retry` from completed work instead of rerunning everything.
+- Any JSON repair, fallback handling, or partial preservation marks the final result as `degraded`; if `refine` fails, the synthesis draft is still kept for recovery.
+
 ### Variable Sandbox Flow
 
 1. The frontend freezes the latest formal analysis into a baseline
@@ -282,6 +315,8 @@ Default addresses:
 - Frontend: `http://127.0.0.1:3000`
 - Backend: `http://127.0.0.1:5001`
 
+During development, open the frontend address directly. `npm run dev:server` is API-only and no longer falls back to serving an old `dist/` build.
+
 ### 4. Build And Run Production
 
 ```bash
@@ -293,7 +328,7 @@ Notes:
 
 - `npm run build:client` writes `dist/`
 - `npm run build:server` writes `dist-server/`
-- `server/index.ts` serves frontend static assets when `dist/` exists
+- `dist-server/server/index.js` serves frontend static assets when `dist/` exists
 
 ## Common Scripts
 

@@ -96,6 +96,90 @@ test('parseCreateFrozenBaselineRequest accepts a fresh remote analysis payload',
   assert.equal(request.analysis.meta.status, 'fresh');
 });
 
+test('parseCreateFrozenBaselineRequest accepts a degraded remote analysis payload', () => {
+  const request = parseCreateFrozenBaselineRequest({
+    project: {
+      name: '代号：远岸旅团',
+      mode: 'Concept',
+      genre: '合作生存建造',
+      platforms: ['PC'],
+      targetPlayers: ['轻中度合作生存玩家'],
+      coreFantasy: '和朋友临场补位救回一局快要崩盘的危机。',
+      ideaSummary: '验证双人协作机关是否能提升中期留存。',
+      coreLoop: '探索 -> 收集 -> 建造 -> 协作机关 -> 防守',
+      sessionLength: '15-20 分钟',
+      differentiators: '高频高压的合作高光。',
+      progressionHook: '局内外双层成长。',
+      socialHook: '双人同步操作与补位空间并存。',
+      monetization: '当前阶段不验证付费。',
+      referenceGames: ['双人成行'],
+      validationGoal: '确认首局 10 分钟内是否能稳定出现高光。',
+      productionConstraints: '2 人团队，2 周原型窗口。',
+      currentStatus: '担心学习成本会掩盖合作乐趣。'
+    },
+    evidenceItems: [],
+    analysis: {
+      generatedAt: '2026-03-14T08:58:00.000Z',
+      mode: 'balanced',
+      model: 'fixture-model',
+      pipeline: ['dossier@fixture-model'],
+      meta: {
+        source: 'remote',
+        status: 'degraded',
+        requestId: 'analysis_fixture_003'
+      },
+      summary: '双人协作机关有机会制造中期记忆点。',
+      systemVerdict: '值得做单局原型。',
+      evidenceLevel: 'medium',
+      primaryRisk: '等待队友会把轻度玩家挤出局。',
+      nextStep: '先做 15 分钟短局原型。',
+      playerAcceptance: 68,
+      confidence: 64,
+      supportRatio: 62,
+      scores: {
+        coreFun: 72,
+        learningCost: 58,
+        novelty: 70,
+        acceptanceRisk: 61,
+        prototypeCost: 54
+      },
+      personas: [],
+      hypotheses: [],
+      strategies: [],
+      perspectives: [],
+      blindSpots: [],
+      secondOrderEffects: [],
+      scenarioVariants: [],
+      futureTimeline: [],
+      communityRhythms: [],
+      trajectorySignals: [],
+      decisionLenses: [],
+      validationTracks: [],
+      contrarianMoves: [],
+      unknowns: [],
+      redTeam: {
+        thesis: '失败惩罚可能会压过合作乐趣。',
+        attackVectors: [],
+        failureModes: [],
+        mitigation: '先缩小原型边界。'
+      },
+      memorySignals: [],
+      report: {
+        headline: '值得做短局原型。',
+        summary: '合作高光有潜力，但等待感要先压住。',
+        conclusion: '继续做，但要优先补失败恢复。',
+        whyNow: '当前最缺的是可玩样本。',
+        risk: '等待队友的成本会被快速放大。',
+        actions: ['做 15 分钟短局原型']
+      },
+      warnings: []
+    }
+  });
+
+  assert.equal(request.analysis.meta.source, 'remote');
+  assert.equal(request.analysis.meta.status, 'degraded');
+});
+
 test('parseFrozenBaseline accepts a valid baseline snapshot', () => {
   const baseline = parseFrozenBaseline({
     id: 'baseline_demo_001',

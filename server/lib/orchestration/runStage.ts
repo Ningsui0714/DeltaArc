@@ -1,6 +1,10 @@
 import type { SandboxAnalysisRequest } from '../../../shared/sandbox';
 import { serverConfig } from '../../config';
-import { requestDeepseekJson, type DeepseekMessage } from '../deepseekApi';
+import {
+  isDeepseekNoUsableContentError,
+  requestDeepseekJson,
+  type DeepseekMessage,
+} from '../deepseekApi';
 import type { StageResult } from './types';
 import { isAbortError } from './utils';
 
@@ -45,7 +49,7 @@ export async function runJsonStage(
     const shouldFallback =
       preferred === 'reasoning' &&
       request.mode === 'reasoning' &&
-      isAbortError(error) &&
+      (isAbortError(error) || isDeepseekNoUsableContentError(error)) &&
       preferredModel !== serverConfig.balancedModel;
 
     if (!shouldFallback) {
@@ -67,10 +71,12 @@ export async function runJsonStage(
       model: serverConfig.balancedModel,
       durationMs: Date.now() - startedAt,
       warnings: [
-        `${label} timed out on the reasoning model and fell back to ${serverConfig.balancedModel}.`,
+        isAbortError(error)
+          ? `${label} timed out on the reasoning model and fell back to ${serverConfig.balancedModel}.`
+          : `${label} returned no usable content on the reasoning model and fell back to ${serverConfig.balancedModel}.`,
         ...fallbackResponse.warnings,
       ],
-      degraded: fallbackResponse.degraded,
+      degraded: true,
     };
   }
 }

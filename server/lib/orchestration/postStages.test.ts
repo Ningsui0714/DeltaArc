@@ -2,14 +2,17 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { SandboxAnalysisRequest, SandboxAnalysisResult } from '../../../shared/sandbox';
 import { createAnalysisMeta, createFallbackAnalysis } from '../normalizeSandboxResult';
+import { createExecutionPlan } from './executionPlan';
 import { buildModelSummary } from './orchestrationCore';
 import {
   applyReverseCheckToProvisional,
   assembleSynthesisProvisional,
+  runRefineStage,
 } from './postStages';
 import {
   buildActionBriefMessages,
   buildActionBriefSelectionMessages,
+  buildRefinementMessages,
   buildReverseCheckMessages,
 } from './prompts';
 
@@ -256,6 +259,16 @@ test('buildReverseCheckMessages asks for necessary conditions and constraint-awa
   assert.match(messages[1]?.content ?? '', /supported \/ uncertain \/ unsupported/);
 });
 
+test('buildRefinementMessages requests an incremental patch instead of a full schema rewrite', () => {
+  const messages = buildRefinementMessages(createBaseProvisional());
+
+  assert.match(messages[0]?.content ?? '', /增量修订/);
+  assert.match(messages[0]?.content ?? '', /合法 JSON patch/);
+  assert.match(messages[1]?.content ?? '', /这是增量 patch，不是完整 schema/);
+  assert.match(messages[1]?.content ?? '', /不要返回 generatedAt、mode、model、pipeline、meta/);
+  assert.match(messages[1]?.content ?? '', /只返回一个极小 patch/);
+});
+
 test('applyReverseCheckToProvisional folds reverse-check fragility into warnings and top-level fields', () => {
   const next = applyReverseCheckToProvisional(
     createBaseProvisional(),
@@ -291,6 +304,57 @@ test('applyReverseCheckToProvisional folds reverse-check fragility into warnings
   assert.ok(next.provisional.warnings.some((warning) => warning.includes('Reverse check: 当前正向判断依赖首局高光真实成立。')));
   assert.equal(next.reverseCheckSummary?.tightened, true);
   assert.equal(next.reverseCheckSummary?.necessaryConditions[0]?.status, 'unsupported');
+});
+
+test('runRefineStage throws a retryable stage error and preserves the synthesis draft on failure', async () => {
+  const provisional = createBaseProvisional();
+  const executionPlan = {
+    ...createExecutionPlan('reasoning'),
+    shouldRunRefine: true,
+  };
+
+  await assert.rejects(
+    () =>
+      runRefineStage(
+        createBaseRequest(),
+        executionPlan,
+        provisional,
+        provisional.pipeline,
+        provisional.model,
+        ['synthesis warning'],
+        undefined,
+        {
+          runJsonStage: async () => {
+            throw new Error('simulated refine timeout');
+          },
+        },
+      ),
+    (error: unknown) => {
+      assert.equal((error as { name?: string })?.name, 'OrchestrationStageError');
+      assert.equal((error as { stageKey?: string })?.stageKey, 'refine');
+      assert.equal((error as { stageLabel?: string })?.stageLabel, 'Refine');
+      assert.match((error as { message?: string })?.message ?? '', /preserved for retry/i);
+      assert.equal(
+        (error as { partialResult?: SandboxAnalysisResult | null })?.partialResult?.summary,
+        provisional.summary,
+      );
+      assert.equal(
+        (error as { partialResult?: SandboxAnalysisResult | null })?.partialResult?.meta.status,
+        'degraded',
+      );
+      assert.ok(
+        (error as { partialResult?: SandboxAnalysisResult | null })?.partialResult?.warnings.includes(
+          'synthesis warning',
+        ),
+      );
+      assert.ok(
+        (error as { partialResult?: SandboxAnalysisResult | null })?.partialResult?.warnings.some(
+          (warning) => warning.includes('Refine failed; returning the synthesis draft for retry'),
+        ),
+      );
+      return true;
+    },
+  );
 });
 
 test('buildModelSummary expands composite synthesis pipeline entries', () => {

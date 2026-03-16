@@ -1,5 +1,4 @@
 import type { SandboxAnalysisJob, SandboxAnalysisResult } from '../../shared/sandbox';
-import { AnalysisQualityPanel } from '../components/analysis/AnalysisQualityPanel';
 import { ForecastTimelinePanel } from '../components/analysis/ForecastTimelinePanel';
 import { PredictionGraphPanel } from '../components/analysis/PredictionGraphPanel';
 import { isEnglishUi, useUiLanguage } from '../hooks/useUiLanguage';
@@ -93,8 +92,8 @@ export function AnalysisWorkbenchPage({
           )
         : isAnalysisDegraded
           ? isEnglish
-            ? 'Partial formal result is preserved'
-            : '已保留一份降级正式结果'
+            ? 'Fallback-stabilized formal result is preserved'
+            : '已保留一份经过回退稳定的正式结果'
           : isAnalysisStale
             ? isEnglish
               ? 'Previous formal result is still viewable'
@@ -117,8 +116,8 @@ export function AnalysisWorkbenchPage({
           )
         : isAnalysisDegraded
           ? isEnglish
-            ? 'A later stage failed, but cached earlier outputs were preserved. Review them now and rerun when ready.'
-            : '后续阶段曾失败，但已缓存的前置结果被保留下来了。你可以先查看，再在准备好后重跑。'
+            ? 'This run still completed, but one or more stages needed fallback handling or JSON repair. Review the result now and rerun when ready.'
+            : '这轮运行仍然完成了，但其中一个或多个阶段触发了回退处理或 JSON 修复。你可以先查看结果，再在准备好后重跑。'
           : isAnalysisStale
             ? isEnglish
               ? 'Current inputs changed after the last formal run. The old outputs remain viewable, but rerunning is recommended.'
@@ -324,15 +323,6 @@ export function AnalysisWorkbenchPage({
           </div>
         </section>
       </section>
-
-      {hasViewableAnalysis ? (
-        <AnalysisQualityPanel
-          meta={analysis.meta}
-          mode={analysis.mode}
-          variant="compact"
-          showEmpty
-        />
-      ) : null}
 
       <section className="analysis-workbench-grid">
         <PredictionGraphPanel

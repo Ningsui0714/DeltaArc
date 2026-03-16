@@ -4,6 +4,10 @@ import type {
   SandboxAnalysisResult,
   SandboxNecessaryCondition,
 } from '../../../shared/sandbox';
+import {
+  filterVisibleAnalysisWarnings,
+  withVisibleAnalysisWarnings,
+} from '../../../shared/analysisWarnings';
 import { clampPercent } from '../normalizeSandboxResult';
 import { normalizeFinalAnalysis } from '../normalizeSandboxResult';
 import type { ExecutionPlan } from './executionPlan';
@@ -51,6 +55,9 @@ type RefineStageResult = {
   warnings: string[];
   degraded: boolean;
 };
+
+type StageRunner = typeof runJsonStage;
+type ActionBriefSelectionRunner = typeof runActionBriefCandidateSelection;
 
 function readStringArray(value: unknown) {
   return Array.isArray(value)
@@ -142,6 +149,10 @@ function pickFallbackActionBriefCandidate(candidates: ActionBriefCandidateRun[])
         return actionDelta;
       }
 
+      if (left.degraded !== right.degraded) {
+        return left.degraded ? 1 : -1;
+      }
+
       const leftSignal =
         clampPercent(left.data.confidence, 50) +
         clampPercent(left.data.supportRatio, 50) -
@@ -167,7 +178,9 @@ async function runActionBriefCandidateSelection(
 ): Promise<ActionBriefSelectionResult> {
   const settled = await mapSettledWithConcurrency(
     actionBriefCandidateBlueprints,
-    Math.min(3, actionBriefCandidateBlueprints.length),
+    request.mode === 'reasoning'
+      ? Math.min(2, actionBriefCandidateBlueprints.length)
+      : Math.min(3, actionBriefCandidateBlueprints.length),
     async (blueprint) => {
       const stage = await runJsonStage(
         request,
@@ -193,7 +206,10 @@ async function runActionBriefCandidateSelection(
         data: stage.data,
         model: stage.model,
         durationMs: stage.durationMs,
-        warnings: [...stage.warnings, ...readStringArray(stage.data.warnings)],
+        warnings: filterVisibleAnalysisWarnings([
+          ...stage.warnings,
+          ...readStringArray(stage.data.warnings),
+        ]),
         degraded: stage.degraded,
       } satisfies ActionBriefCandidateRun;
     },
@@ -229,7 +245,7 @@ async function runActionBriefCandidateSelection(
   if (candidates.length === 1) {
     return {
       data: candidates[0].data,
-      warnings: dedupeBy(warnings, (item) => item, 12),
+      warnings: dedupeBy(filterVisibleAnalysisWarnings(warnings), (item) => item, 12),
       models: [candidates[0].model],
       degraded,
       selectionSummary: {
@@ -250,8 +266,8 @@ async function runActionBriefCandidateSelection(
     const selectionStage = await runJsonStage(
       request,
       'synthesis-brief-select',
-      executionPlan.synthesisPreference,
-      request.mode === 'reasoning' ? 0.08 : 0,
+      'balanced',
+      request.mode === 'reasoning' ? 0.04 : 0,
       buildActionBriefSelectionMessages(
         request,
         dossier,
@@ -282,12 +298,11 @@ async function runActionBriefCandidateSelection(
     return {
       data: selected.data,
       warnings: dedupeBy(
-        [
+        filterVisibleAnalysisWarnings([
           ...warnings,
           ...selectionStage.warnings,
           ...selection.warnings,
-          `Action brief verifier selected ${selected.flavor} candidate: ${selection.rationale}`,
-        ],
+        ]),
         (item) => item,
         12,
       ),
@@ -311,11 +326,11 @@ async function runActionBriefCandidateSelection(
     return {
       data: fallbackCandidate.data,
       warnings: dedupeBy(
-        [
+        filterVisibleAnalysisWarnings([
           ...warnings,
           `Action brief verifier failed: ${message}`,
           `Fell back to ${fallbackCandidate.flavor} action brief candidate based on local ranking.`,
-        ],
+        ]),
         (item) => item,
         12,
       ),
@@ -410,18 +425,18 @@ export function applyReverseCheckToProvisional(
   const fragilitySummary =
     typeof reverseData.fragilitySummary === 'string' ? reverseData.fragilitySummary.trim() : '';
   const mergedWarnings = dedupeBy(
-    [
+    filterVisibleAnalysisWarnings([
       ...provisional.warnings,
       ...stageWarnings,
       ...readStringArray(reverseData.warnings),
       ...derivedWarnings,
       ...(fragilitySummary ? [`Reverse check: ${fragilitySummary}`] : []),
-    ],
+    ]),
     (item) => item,
     16,
   );
 
-  const nextProvisional = normalizeFinalAnalysis(
+  const nextProvisional = withVisibleAnalysisWarnings(normalizeFinalAnalysis(
     {
       ...(typeof reverseData.summary === 'string' ? { summary: reverseData.summary } : {}),
       ...(typeof reverseData.systemVerdict === 'string'
@@ -440,7 +455,7 @@ export function applyReverseCheckToProvisional(
       ...provisional,
       warnings: mergedWarnings,
     },
-  );
+  ));
   const reverseCheckSummary =
     fragilitySummary || conditions.length > 0
       ? {
@@ -468,12 +483,12 @@ export function assembleSynthesisProvisional(params: {
   const pipelineEntry = buildSynthesisPipelineEntry(models);
   const nextPipeline = [...pipeline, pipelineEntry];
   const mergedWarnings = dedupeBy(
-    [
+    filterVisibleAnalysisWarnings([
       ...provisional.warnings,
       ...readStringArray(futureData?.warnings),
       ...readStringArray(actionData?.warnings),
       ...warnings,
-    ],
+    ]),
     (item) => item,
     16,
   );
@@ -511,12 +526,35 @@ export function assembleSynthesisProvisional(params: {
 
   return {
     pipelineEntry,
-    provisional: normalizeFinalAnalysis(assembledData, {
+    provisional: withVisibleAnalysisWarnings(normalizeFinalAnalysis(assembledData, {
       ...provisional,
       pipeline: nextPipeline,
       model: buildModelSummary(nextPipeline),
       warnings: mergedWarnings,
-    }),
+    })),
+  };
+}
+
+export function buildRefineFailurePartialResult(
+  provisional: SandboxAnalysisResult,
+  synthesisWarnings: string[],
+  message: string,
+): SandboxAnalysisResult {
+  return {
+    ...provisional,
+    meta: {
+      ...provisional.meta,
+      status: 'degraded',
+    },
+    warnings: dedupeBy(
+      filterVisibleAnalysisWarnings([
+        ...provisional.warnings,
+        ...synthesisWarnings,
+        `Refine failed; returning the synthesis draft for retry: ${message}`,
+      ]),
+      (item) => item,
+      16,
+    ),
   };
 }
 
@@ -528,6 +566,10 @@ export async function runSynthesisStage(
   pipeline: string[],
   provisional: SandboxAnalysisResult,
   onProgress: ((update: ProgressUpdate) => void) | undefined,
+  dependencies: {
+    runJsonStage?: StageRunner;
+    runActionBriefCandidateSelection?: ActionBriefSelectionRunner;
+  } = {},
 ): Promise<SynthesisStageResult> {
   if (!executionPlan.shouldRunSynthesis) {
     return {
@@ -544,8 +586,12 @@ export async function runSynthesisStage(
     status: 'running',
   });
 
+  const executeJsonStage = dependencies.runJsonStage ?? runJsonStage;
+  const executeActionBriefSelection =
+    dependencies.runActionBriefCandidateSelection ?? runActionBriefCandidateSelection;
+
   try {
-    const futureSlicePromise = runJsonStage(
+    const futureSlicePromise = executeJsonStage(
       request,
       'synthesis-future',
       executionPlan.synthesisPreference,
@@ -554,7 +600,7 @@ export async function runSynthesisStage(
       executionPlan.synthesisTimeoutMs,
       futureEvolutionMaxTokens,
     );
-    const actionSlicePromise = runActionBriefCandidateSelection(
+    const actionSlicePromise = executeActionBriefSelection(
       request,
       executionPlan,
       dossier,
@@ -588,7 +634,9 @@ export async function runSynthesisStage(
         futureSlice.reason instanceof Error
           ? futureSlice.reason.message
           : 'Future evolution slice failed.';
-      console.warn(`[orchestration] synthesis-future failed because ${message}; stopping synthesis before any local assembly leaks out`);
+      console.warn(
+        `[orchestration] synthesis-future failed because ${message}; keeping the local synthesis base for that slice`,
+      );
       sliceFailures.push(`Future evolution slice failed: ${message}`);
     }
 
@@ -603,16 +651,27 @@ export async function runSynthesisStage(
         actionSlice.reason instanceof Error
           ? actionSlice.reason.message
           : 'Action brief slice failed.';
-      console.warn(`[orchestration] synthesis-brief failed because ${message}; stopping synthesis before any local assembly leaks out`);
+      console.warn(
+        `[orchestration] synthesis-brief failed because ${message}; keeping the local synthesis base for that slice`,
+      );
       sliceFailures.push(`Action brief slice failed: ${message}`);
     }
 
-    if (sliceFailures.length > 0) {
+    if (!futureData && !actionData) {
       const combinedMessage = dedupeBy(sliceFailures, (item) => item, 6).join(' | ');
       throw new OrchestrationStageError(
         'synthesis',
         'Synthesis',
         `Synthesis stage failed: ${combinedMessage}`,
+      );
+    }
+
+    if (sliceFailures.length > 0) {
+      degraded = true;
+      sliceWarnings.push(
+        ...sliceFailures.map(
+          (failure) => `${failure} The local synthesis base was kept for the missing slice.`,
+        ),
       );
     }
 
@@ -690,10 +749,18 @@ export async function runSynthesisStage(
       model: buildModelSummary([...pipeline, pipelineEntry]),
     });
 
+    const synthesisWarnings = dedupeBy(
+      filterVisibleAnalysisWarnings(
+        nextProvisional.warnings.filter((warning) => !provisional.warnings.includes(warning)),
+      ),
+      (item) => item,
+      12,
+    );
+
     return {
       provisional: nextProvisional,
       pipelineEntry,
-      warnings: dedupeBy(sliceWarnings, (item) => item, 12),
+      warnings: synthesisWarnings,
       degraded,
     };
   } catch (error) {
@@ -725,6 +792,9 @@ export async function runRefineStage(
   modelSummary: string,
   synthesisWarnings: string[],
   onProgress: ((update: ProgressUpdate) => void) | undefined,
+  dependencies: {
+    runJsonStage?: StageRunner;
+  } = {},
 ): Promise<RefineStageResult> {
   if (!executionPlan.shouldRunRefine) {
     return {
@@ -734,6 +804,8 @@ export async function runRefineStage(
     };
   }
 
+  const executeJsonStage = dependencies.runJsonStage ?? runJsonStage;
+
   emitProgress(onProgress, {
     key: 'refine',
     label: 'Refine',
@@ -742,7 +814,7 @@ export async function runRefineStage(
   });
 
   try {
-    const refinementStage = await runJsonStage(
+    const refinementStage = await executeJsonStage(
       request,
       'refine',
       executionPlan.refinePreference,
@@ -760,7 +832,11 @@ export async function runRefineStage(
       pipeline: nextPipeline,
       model: modelSummary,
       warnings: dedupeBy(
-        [...provisional.warnings, ...synthesisWarnings, ...refinementStage.warnings],
+        filterVisibleAnalysisWarnings([
+          ...provisional.warnings,
+          ...synthesisWarnings,
+          ...refinementStage.warnings,
+        ]),
         (item) => item,
         12,
       ),
@@ -776,26 +852,30 @@ export async function runRefineStage(
     });
 
     return {
-      finalResult,
+      finalResult: withVisibleAnalysisWarnings(finalResult),
       pipelineEntry,
-      warnings: refinementStage.warnings,
+      warnings: filterVisibleAnalysisWarnings(refinementStage.warnings),
       degraded: refinementStage.degraded,
     };
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Refine failed and the synthesis result was kept.';
-    console.warn(`[orchestration] refine failed because ${error instanceof Error ? error.message : 'Refine failed.'}`);
+    const message = error instanceof Error ? error.message : 'Refine failed.';
+    const partialResult = buildRefineFailurePartialResult(
+      provisional,
+      synthesisWarnings,
+      message,
+    );
+    console.warn(`[orchestration] refine failed because ${message}`);
     emitProgress(onProgress, {
       key: 'refine',
       label: 'Refine',
-      detail: 'Refine failed; keeping the last successful remote synthesis result.',
+      detail: 'Refine failed; cached synthesis draft is available for retry.',
       status: 'error',
     });
-
-    return {
-      finalResult: provisional,
-      warnings: [message],
-      degraded: true,
-    };
+    throw new OrchestrationStageError(
+      'refine',
+      'Refine',
+      `Refine stage failed: ${message} Cached synthesis result was preserved for retry.`,
+      partialResult,
+    );
   }
 }

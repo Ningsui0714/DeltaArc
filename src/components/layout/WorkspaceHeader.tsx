@@ -114,9 +114,9 @@ function getPhaseStatusLabel(
         ? 'Ready to rerun'
         : '可重新运行'
       : isAnalysisDegraded
-        ? isEnglish
-          ? 'Rerun recommended'
-          : '建议重跑'
+      ? isEnglish
+        ? 'Rerun recommended'
+        : '建议重跑'
         : isAnalysisStale
           ? isEnglish
             ? 'Stale, rerun recommended'
@@ -136,8 +136,8 @@ function getPhaseStatusLabel(
       : '结果已解锁'
     : isAnalysisDegraded
       ? isEnglish
-        ? 'Partial outputs ready'
-        : '部分结果可查看'
+        ? 'Stabilized outputs ready'
+        : '稳定化结果可查看'
       : isAnalysisStale
         ? isEnglish
           ? 'Stale outputs ready'
@@ -273,36 +273,36 @@ export function WorkspaceHeader({
   const currentGoalTitle =
     activePhase === 'analysis'
       ? isEnglish
-        ? 'Step 3 · Formal Inference'
-        : '第 3 步 · 正式推演'
+        ? 'Step 3 · Inference'
+        : '第3步·正式推演'
       : activePhase === 'output'
         ? outputStep === 'sandbox'
           ? isEnglish
-            ? 'Step 5 · Variable Sandbox'
-            : '第 5 步 · 变量推演'
+            ? 'Step 5 · Sandbox'
+            : '第5步·变量推演'
           : isEnglish
-            ? 'Step 4 · Formal Results'
-            : '第 4 步 · 正式结果'
+            ? 'Step 4 · Results'
+            : '第4步·正式结果'
         : inputStep === 'overview'
           ? isEnglish
-            ? 'Step 1 · Project Setup'
-            : '第 1 步 · 项目设定'
+            ? 'Step 1 · Setup'
+            : '第1步·项目设定'
           : isEnglish
-            ? 'Step 2 · Evidence Signals'
-            : '第 2 步 · 证据信号';
+            ? 'Step 2 · Evidence'
+            : '第2步·证据信号';
   const journeySteps = [
     {
       id: 'overview' as const,
       label: isEnglish ? 'Project Setup' : '项目设定',
-      brief: isEnglish ? 'Define the problem and baseline context.' : '先把这次要判断的问题写清楚。',
+      brief: isEnglish ? 'Define the problem.' : '先定问题。',
       status:
         readiness.setupFieldCount >= 4
           ? isEnglish
             ? 'Core setup is ready'
             : '核心设定已达标'
           : isEnglish
-            ? 'Fill the 4 required fields'
-            : '补齐 4 个关键字段',
+            ? 'Fill required fields'
+            : '补齐关键字段',
       metric: `${readiness.setupFieldCount}/4`,
       locked: false,
       onSelect: () => onSelectInputStep('overview'),
@@ -310,12 +310,12 @@ export function WorkspaceHeader({
     {
       id: 'evidence' as const,
       label: isEnglish ? 'Evidence Signals' : '证据信号',
-      brief: isEnglish ? 'Load enough signals before formal inference.' : '先补到足够支撑正式推演的证据量。',
+      brief: isEnglish ? 'Load enough evidence.' : '先补够证据。',
       status:
         evidenceCount >= 3
           ? isEnglish
-            ? 'Evidence gate is ready'
-            : '证据门槛已达标'
+            ? 'Evidence is ready'
+            : '证据已达标'
           : isEnglish
             ? 'Keep adding evidence'
             : '继续补证据',
@@ -326,7 +326,7 @@ export function WorkspaceHeader({
     {
       id: 'analysis' as const,
       label: isEnglish ? 'Formal Inference' : '正式推演',
-      brief: isEnglish ? 'Run the formal chain and watch it complete.' : '运行正式推理链，并清楚看到它进行到哪一步。',
+      brief: isEnglish ? 'Run the formal chain.' : '运行正式推演。',
       status: getPhaseStatusLabel(
         'analysis',
         hasViewableAnalysis,
@@ -357,16 +357,16 @@ export function WorkspaceHeader({
       id: 'results' as const,
       label: isEnglish ? 'Formal Results' : '正式结果',
       brief: isEnglish
-        ? 'Current Judgment, Future Evolution, and Forecast Report live here side by side.'
-        : '当前判断、未来演化、预测报告都在这里并列查看。',
+        ? 'Review the result views.'
+        : '查看正式结果。',
       status: !hasViewableAnalysis
         ? isEnglish
           ? 'Waiting for formal result'
           : '等待正式结果'
         : isAnalysisDegraded
-          ? isEnglish
-            ? 'Partial results are available'
-            : '已有降级结果'
+        ? isEnglish
+            ? 'Stabilized results are available'
+            : '已有稳定化结果'
           : isAnalysisStale
             ? isEnglish
               ? 'Older results are still viewable'
@@ -394,8 +394,8 @@ export function WorkspaceHeader({
       id: 'sandbox' as const,
       label: isEnglish ? 'Variable Sandbox' : '变量推演',
       brief: isEnglish
-        ? 'Freeze a baseline from the formal result, then test one new variable.'
-        : '从正式结果冻结基线，再继续测试一个新变量。',
+        ? 'Freeze a baseline and test one variable.'
+        : '冻结基线再试变量。',
       status: !hasViewableAnalysis
         ? isEnglish
           ? 'Waiting for formal result'
@@ -403,14 +403,14 @@ export function WorkspaceHeader({
         : baselineCount > 0
           ? outputStep === 'sandbox'
             ? isEnglish
-              ? 'Core sandbox flow is open'
-              : '核心推演流程已打开'
+              ? 'Sandbox is open'
+              : '流程已打开'
             : isEnglish
-              ? 'Baseline is ready for new tests'
-              : '基线已就绪，可继续试变量'
+              ? 'Baseline is ready'
+              : '基线已就绪'
           : isEnglish
             ? 'Freeze the first baseline'
-            : '先冻结第一份基线',
+            : '先冻结基线',
       metric: !hasViewableAnalysis
         ? isEnglish
           ? 'Locked'
@@ -439,8 +439,8 @@ export function WorkspaceHeader({
               )
             : isAnalysisDegraded
               ? isEnglish
-                ? 'Partial formal output is preserved'
-                : '已保留一份降级正式结果'
+                ? 'A stabilized formal output is preserved'
+                : '已保留一份经过回退稳定的正式结果'
               : isEnglish
                 ? 'Previous formal output is still viewable'
                 : '上一份正式结果仍可继续查看'
@@ -461,78 +461,78 @@ export function WorkspaceHeader({
     activePhase === 'analysis'
       ? isRunActive && progressStats
         ? isEnglish
-          ? `${progressStats.completedStageCount}/${progressStats.actionableStageCount} stages finished in ${formatJobDuration(progressStats.elapsedMs, language)}.`
-          : `已完成 ${progressStats.completedStageCount}/${progressStats.actionableStageCount} 个阶段，累计运行 ${formatJobDuration(progressStats.elapsedMs, language)}`
+          ? `${progressStats.completedStageCount}/${progressStats.actionableStageCount} done · ${formatJobDuration(progressStats.elapsedMs, language)}`
+          : `已完成 ${progressStats.completedStageCount}/${progressStats.actionableStageCount} · ${formatJobDuration(progressStats.elapsedMs, language)}`
         : isShowingFallbackAnalysis && hasViewableAnalysis && requestedModeLabel
           ? isShowingDifferentModeFallback
             ? isEnglish
-              ? `The latest ${requestedModeLabel} failed. You are still looking at the previous ${visibleModeLabel} result.`
-              : `最近一次${requestedModeLabel}失败了。你现在看到的仍是上一份${visibleModeLabel}结果。`
+              ? `Latest ${requestedModeLabel} failed. Showing previous ${visibleModeLabel}.`
+              : `最近一次${requestedModeLabel}失败，当前仍显示上一份${visibleModeLabel}。`
             : isEnglish
-              ? `The latest ${requestedModeLabel} failed. You are still looking at the last viewable ${visibleModeLabel} result.`
-              : `最近一次${requestedModeLabel}失败了。你现在看到的仍是上一份可查看的${visibleModeLabel}结果。`
+              ? `Latest ${requestedModeLabel} failed. Showing last ${visibleModeLabel}.`
+              : `最近一次${requestedModeLabel}失败，当前仍显示上一份${visibleModeLabel}结果。`
         : hasRunError
           ? progress?.retryable
             ? isEnglish
-              ? 'The latest run failed after caching earlier stages. Resume from the failed stage or start a fresh run if the inputs changed.'
-              : '最近一次运行在缓存前置阶段后失败了。输入没变时可以从失败阶段继续；如果输入已变化，直接发起一轮新运行更稳妥。'
+              ? 'Latest run failed. Resume is available.'
+              : '最近一次运行失败，可从失败阶段继续。'
             : isEnglish
-              ? 'The latest run failed before producing a resumable checkpoint. Adjust the inputs if needed, then start a new run.'
-              : '最近一次运行失败，且没有留下可续跑的 checkpoint。必要时先调整输入，再重新发起一轮运行。'
+              ? 'Latest run failed. Start a new run.'
+              : '最近一次运行失败，请重新发起。'
           : hasViewableAnalysis
             ? isEnglish
-              ? 'Formal inference is complete. Step 4 now holds the formal result views, and Step 5 is ready for variable testing.'
-              : '正式推演已经跑完。第 4 步里是正式结果视图，第 5 步则用于继续做变量推演。'
+              ? 'Formal inference is complete.'
+              : '正式推演已完成。'
             : canRunAnalysis
               ? isEnglish
-                ? 'The minimum gate is ready. Start Quick Scan or Deep Dive from the desk.'
-                : '最小门槛已经达标，现在可以从推理台启动快速扫描或深度推演。'
+                ? 'The minimum gate is ready.'
+                : '门槛已达标，可以开始运行。'
               : isEnglish
-                ? 'Finish the 4/4 setup and 3 evidence gate first, then come back to run inference.'
-                : '先补齐 4/4 关键字段和 3 条证据，再回来运行推理。'
+                ? 'Finish 4/4 setup and 3 evidence first.'
+                : '先补齐 4/4 设定和 3 条证据。'
       : activePhase === 'intake'
         ? hasViewableAnalysis
           ? isEnglish
-            ? 'A formal result already exists, but Steps 1 and 2 still stay focused on project setup and evidence.'
-            : '虽然已经有正式结果，但第 1、2 步仍只专注项目设定和证据整理。'
+            ? 'A formal result already exists.'
+            : '当前已经有正式结果。'
           : isEnglish
-            ? 'The graph, timeline, and inputs no longer share one long page. Move forward stage by stage.'
-            : '现在不再把图谱、时间线和输入混在一个大页面里，而是按流程往前推进。'
+            ? 'Start with project setup and evidence.'
+            : '先整理项目和证据。'
         : isShowingFallbackAnalysis && hasViewableAnalysis && requestedModeLabel
           ? isShowingDifferentModeFallback
             ? isEnglish
-              ? `The latest ${requestedModeLabel} did not replace the current output. Step 4 is still showing the previous ${visibleModeLabel} result.`
-              : `最近一次${requestedModeLabel}没有替换掉当前结果。第 4 步里仍然显示的是上一份${visibleModeLabel}结果。`
+              ? `Latest ${requestedModeLabel} failed. Showing previous ${visibleModeLabel}.`
+              : `最近一次${requestedModeLabel}失败，当前仍显示上一份${visibleModeLabel}。`
             : isEnglish
-              ? `The latest ${requestedModeLabel} failed. Step 4 is still showing the last viewable ${visibleModeLabel} result.`
-              : `最近一次${requestedModeLabel}失败了。第 4 步里仍然显示的是上一份可查看的${visibleModeLabel}结果。`
+              ? `Latest ${requestedModeLabel} failed. Showing last ${visibleModeLabel}.`
+              : `最近一次${requestedModeLabel}失败，当前仍显示上一份${visibleModeLabel}结果。`
         : hasViewableAnalysis
           ? outputStep === 'sandbox'
             ? isAnalysisFresh
               ? isEnglish
-                ? 'You are inside Step 5. Variable Sandbox is a first-class workflow built on top of the formal result.'
-                : '你现在在第 5 步。变量推演是建立在正式结果之上的一条独立主流程。'
+                ? 'You are in Step 5: Variable Sandbox.'
+                : '你现在在第5步：变量推演。'
               : isAnalysisDegraded
                 ? isEnglish
-                  ? 'You are inside Step 5, but the connected formal result is partial. Rerun before trusting the sandbox as a final decision surface.'
-                  : '你现在在第 5 步，但当前依赖的正式结果是不完整的。先重跑，再把变量推演当成最终决策面。'
+                  ? 'You are in Step 5. The source result used fallback handling.'
+                  : '你现在在第5步，依赖结果触发过回退。'
                 : isEnglish
-                  ? 'You are inside Step 5, but the connected formal result is stale. The sandbox is still readable, though rerunning is recommended.'
-                  : '你现在在第 5 步，但当前依赖的正式结果已经过期。变量推演仍可查看，不过建议先重跑。'
+                  ? 'You are in Step 5. The source result is stale.'
+                  : '你现在在第5步，依赖结果已经过期。'
             : isAnalysisFresh
               ? isEnglish
-                ? `You are inside Step 4. Current view: ${currentStep.label}. Current Judgment, Future Evolution, and Forecast Report are parallel result views produced by the formal run.`
-                : `你现在在第 4 步。当前视图：${currentStep.label}。当前判断、未来演化、预测报告都是正式推演产出的并列结果视图。`
+                ? `You are in Step 4. View: ${currentStep.label}.`
+                : `你现在在第4步。当前视图：${currentStep.label}。`
               : isAnalysisDegraded
                 ? isEnglish
-                  ? `You are inside Step 4 with a partial preserved output. Current view: ${currentStep.label}. These result views are still parallel, but rerun before treating them as final.`
-                  : `你现在在第 4 步，但当前只有一份保留下来的降级结果。当前视图：${currentStep.label}。这些结果视图仍然是并列的，但在当成最终结论前请先重跑。`
+                  ? `You are in Step 4. View: ${currentStep.label}. Rerun recommended.`
+                  : `你现在在第4步。当前视图：${currentStep.label}，建议重跑。`
                 : isEnglish
-                  ? `You are inside Step 4 with a stale output. Current view: ${currentStep.label}. The result views remain parallel, but rerunning is recommended.`
-                  : `你现在在第 4 步，当前看到的是旧结果。当前视图：${currentStep.label}。这些结果视图仍然并列可看，但建议重跑。`
+                  ? `You are in Step 4. View: ${currentStep.label}. Output is stale.`
+                  : `你现在在第4步。当前视图：${currentStep.label}，结果已过期。`
           : isEnglish
-            ? `Run formal inference first. Step ${outputStep === 'sandbox' ? '5' : '4'} unlocks only after a formal result exists.`
-            : `先完成正式推演。只有正式结果出现后，第 ${outputStep === 'sandbox' ? '5' : '4'} 步才会解锁。`;
+            ? `Run formal inference first. Step ${outputStep === 'sandbox' ? '5' : '4'} is still locked.`
+            : `先完成正式推演，第${outputStep === 'sandbox' ? '5' : '4'}步才会解锁。`;
 
   return (
     <header className="workspace-header">
@@ -645,7 +645,6 @@ export function WorkspaceHeader({
               </span>
               <span className="workspace-process-copy">
                 <strong>{step.label}</strong>
-                <small>{step.brief}</small>
               </span>
               <span className="workspace-process-meta">
                 <em>{step.status}</em>

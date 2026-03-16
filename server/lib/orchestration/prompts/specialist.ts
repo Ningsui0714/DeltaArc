@@ -1,4 +1,5 @@
 import type { SandboxAnalysisRequest } from '../../../../shared/sandbox';
+import { withVisibleAnalysisWarnings } from '../../../../shared/analysisWarnings';
 import type { DeepseekMessage } from '../../deepseekApi';
 import type { SpecialistBlueprint } from '../specialists';
 import type { Dossier } from '../types';
@@ -15,6 +16,8 @@ export function buildSpecialistMessages(
   request: SandboxAnalysisRequest,
   dossier: Dossier,
 ): DeepseekMessage[] {
+  const visibleDossier = withVisibleAnalysisWarnings(dossier);
+
   return [
     {
       role: 'system',
@@ -26,7 +29,7 @@ export function buildSpecialistMessages(
 
 ${formatDataSection('PROJECT', request.project)}
 
-${formatDataSection('DOSSIER', dossier)}
+${formatDataSection('DOSSIER', visibleDossier)}
 
 要求：
 1. stance 只能是 bullish / mixed / bearish。

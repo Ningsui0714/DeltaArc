@@ -7,7 +7,10 @@ import type { ProjectSnapshot } from '../../shared/domain';
 import type { SandboxAnalysisResult } from '../../shared/sandbox';
 import { createJsonMemoryStore } from './sandboxMemoryStore';
 
-function createProject(name: string): ProjectSnapshot {
+function createProject(
+  name: string,
+  overrides: Partial<ProjectSnapshot> = {},
+): ProjectSnapshot {
   return {
     name,
     mode: 'Concept',
@@ -26,6 +29,7 @@ function createProject(name: string): ProjectSnapshot {
     validationGoal: 'Verify the co-op rescue payoff.',
     productionConstraints: 'Two-person team, six weeks.',
     currentStatus: 'Prototype planning',
+    ...overrides,
   };
 }
 
@@ -107,6 +111,68 @@ test('createJsonMemoryStore serializes concurrent writes so both records survive
       new Set(content.map((record) => record.summary)),
       new Set(['Summary A', 'Summary B']),
     );
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('createJsonMemoryStore keeps memories for the same project name even after the project draft changes', async () => {
+  const tempDir = await mkdtemp(path.join(os.tmpdir(), 'wind-tunnel-memory-'));
+  const memoryFilePath = path.join(tempDir, 'sandbox-memory.json');
+  const store = createJsonMemoryStore(memoryFilePath);
+
+  try {
+    await store.persist(
+      createProject('Project Orion', {
+        genre: 'Stealth tactics',
+        referenceGames: ['Invisible, Inc.'],
+      }),
+      createAnalysis('Old Orion summary', 'Old Orion risk'),
+    );
+
+    const relevant = await store.loadRelevant(
+      createProject('Project Orion', {
+        genre: 'Urban mystery',
+        referenceGames: ['Disco Elysium'],
+        targetPlayers: ['Narrative players'],
+      }),
+    );
+
+    assert.equal(relevant.length, 1);
+    assert.equal(relevant[0]?.projectName, 'Project Orion');
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('createJsonMemoryStore ignores unrelated projects that only overlap on one broad reference token', async () => {
+  const tempDir = await mkdtemp(path.join(os.tmpdir(), 'wind-tunnel-memory-'));
+  const memoryFilePath = path.join(tempDir, 'sandbox-memory.json');
+  const store = createJsonMemoryStore(memoryFilePath);
+
+  try {
+    await store.persist(
+      createProject('Mixologist', {
+        genre: 'Narrative bartending',
+        coreFantasy: 'Read emotions and answer them with drinks.',
+        ideaSummary: 'Verify whether AI memory can support long-term emotional continuity.',
+        validationGoal: 'Prove the emotional memory loop before scaling.',
+        targetPlayers: ['Narrative players'],
+      }),
+      createAnalysis('Mixologist summary', 'Mixologist risk'),
+    );
+
+    const relevant = await store.loadRelevant(
+      createProject('City Driver', {
+        genre: 'Urban action RPG',
+        coreFantasy: 'Drive through a supernatural city and solve anomalies.',
+        ideaSummary: 'Verify whether city driving and anomaly quests can support retention.',
+        validationGoal: 'Turn launch heat into durable retention.',
+        targetPlayers: ['Open-world players'],
+      }),
+    );
+
+    assert.equal(relevant.length, 0);
   } finally {
     await rm(tempDir, { recursive: true, force: true });
   }

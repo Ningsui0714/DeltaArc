@@ -31,12 +31,26 @@ type AnalysisRefreshDependencies = {
   navigate: (step: StepId) => void;
 };
 
+type ProjectUpdateDependencies = {
+  workspaceId: string;
+  project: ProjectSnapshot;
+  updateProject: (patch: Partial<ProjectSnapshot>) => void;
+  resetAnalysisState: () => void;
+  resetBaselines: () => void;
+  setActivePhase: Dispatch<SetStateAction<ProcessPhase>>;
+  setActiveOutputStep: Dispatch<SetStateAction<OutputStep>>;
+  clearPersistedWorkspaceState?: (workspaceId: string) => void;
+};
+
 type ProjectImportDependencies = {
+  workspaceId: string;
   language: ImportLanguage;
   isEnglish: boolean;
   replaceProject: (project: ProjectSnapshot) => void;
   replaceEvidenceItems: (items: EvidenceItem[]) => void;
   appendEvidenceItems: (items: EvidenceItem[]) => void;
+  resetAnalysisState: () => void;
+  resetBaselines: () => void;
   setProjectImportFeedback: Dispatch<SetStateAction<ImportFeedback | null>>;
 };
 
@@ -131,6 +145,43 @@ function buildEvidenceImportErrorFeedback(
   };
 }
 
+function clearPersistedWorkspaceState(workspaceId: string) {
+  void clearSandboxWorkspace(workspaceId).catch((caughtError) => {
+    console.warn(
+      '[sandbox] clearing persisted workspace failed',
+      caughtError instanceof Error ? caughtError.message : caughtError,
+    );
+  });
+}
+
+export function shouldResetWorkspaceStateAfterProjectImport(payload: ImportedPayload) {
+  return Boolean(payload.project) || payload.evidenceMode === 'replace';
+}
+
+function areProjectFieldValuesEqual(
+  left: ProjectSnapshot[keyof ProjectSnapshot] | undefined,
+  right: ProjectSnapshot[keyof ProjectSnapshot] | undefined,
+) {
+  if (Array.isArray(left) || Array.isArray(right)) {
+    return JSON.stringify(left ?? []) === JSON.stringify(right ?? []);
+  }
+
+  return left === right;
+}
+
+export function shouldResetWorkspaceStateAfterProjectEdit(
+  project: ProjectSnapshot,
+  patch: Partial<ProjectSnapshot>,
+) {
+  return Object.entries(patch).some(([field, nextValue]) => {
+    const currentValue = project[field as keyof ProjectSnapshot];
+    return !areProjectFieldValuesEqual(
+      currentValue,
+      nextValue as ProjectSnapshot[keyof ProjectSnapshot] | undefined,
+    );
+  });
+}
+
 export function createWorkspaceNavigation(dependencies: NavigationDependencies) {
   function navigate(step: StepId) {
     startTransition(() => {
@@ -183,6 +234,28 @@ export function createRefreshAnalysisAction(
   };
 }
 
+export function createProjectUpdateAction(
+  dependencies: ProjectUpdateDependencies,
+) {
+  return function updateProject(patch: Partial<ProjectSnapshot>) {
+    if (!shouldResetWorkspaceStateAfterProjectEdit(dependencies.project, patch)) {
+      dependencies.updateProject(patch);
+      return;
+    }
+
+    const clearWorkspaceState =
+      dependencies.clearPersistedWorkspaceState ?? clearPersistedWorkspaceState;
+    clearWorkspaceState(dependencies.workspaceId);
+    dependencies.resetAnalysisState();
+    dependencies.resetBaselines();
+    startTransition(() => {
+      dependencies.setActivePhase('intake');
+      dependencies.setActiveOutputStep('report');
+    });
+    dependencies.updateProject(patch);
+  };
+}
+
 export function createProjectImportAction(
   dependencies: ProjectImportDependencies,
 ) {
@@ -199,6 +272,12 @@ export function createProjectImportAction(
         dependencies.replaceEvidenceItems(nextEvidenceItems);
       } else if (payload.evidenceMode === 'append' && nextEvidenceItems.length > 0) {
         dependencies.appendEvidenceItems(nextEvidenceItems);
+      }
+
+      if (shouldResetWorkspaceStateAfterProjectImport(payload)) {
+        clearPersistedWorkspaceState(dependencies.workspaceId);
+        dependencies.resetAnalysisState();
+        dependencies.resetBaselines();
       }
 
       dependencies.setProjectImportFeedback(
@@ -244,12 +323,7 @@ export function createResetWorkspaceAction(
   dependencies: ResetWorkspaceDependencies,
 ) {
   return function resetWorkspace() {
-    void clearSandboxWorkspace(dependencies.workspaceId).catch((caughtError) => {
-      console.warn(
-        '[sandbox] clearing persisted workspace failed',
-        caughtError instanceof Error ? caughtError.message : caughtError,
-      );
-    });
+    clearPersistedWorkspaceState(dependencies.workspaceId);
 
     dependencies.clearEvidence();
     clearStoredEvidence(dependencies.workspaceId);

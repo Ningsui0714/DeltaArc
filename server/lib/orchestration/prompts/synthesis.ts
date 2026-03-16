@@ -1,4 +1,5 @@
 import type { SandboxAnalysisRequest, SandboxAnalysisResult } from '../../../../shared/sandbox';
+import { withVisibleAnalysisWarnings } from '../../../../shared/analysisWarnings';
 import type { DeepseekMessage } from '../../deepseekApi';
 import type { Dossier } from '../types';
 import {
@@ -16,11 +17,14 @@ function buildSharedSynthesisContext(
   dossier: Dossier,
   provisional: SandboxAnalysisResult,
 ) {
+  const visibleDossier = withVisibleAnalysisWarnings(dossier);
+  const visibleProvisional = withVisibleAnalysisWarnings(provisional);
+
   return `${formatDataSection('PROJECT', request.project, { pretty: true })}
 
-${formatDataSection('DOSSIER', dossier, { pretty: true })}
+${formatDataSection('DOSSIER', visibleDossier, { pretty: true })}
 
-${formatDataSection('PROVISIONAL_BASE', provisional, { pretty: true })}`;
+${formatDataSection('PROVISIONAL_BASE', visibleProvisional, { pretty: true })}`;
 }
 
 function getActionBriefFlavorInstruction(flavor: ActionBriefFlavor) {

@@ -42,12 +42,19 @@ export type TimedStageError = {
 export class OrchestrationStageError extends Error {
   stageKey: SandboxAnalysisResumeStageKey;
   stageLabel: string;
+  partialResult: SandboxAnalysisResult | null;
 
-  constructor(stageKey: SandboxAnalysisResumeStageKey, stageLabel: string, message: string) {
+  constructor(
+    stageKey: SandboxAnalysisResumeStageKey,
+    stageLabel: string,
+    message: string,
+    partialResult: SandboxAnalysisResult | null = null,
+  ) {
     super(message);
     this.name = 'OrchestrationStageError';
     this.stageKey = stageKey;
     this.stageLabel = stageLabel;
+    this.partialResult = partialResult;
   }
 }
 
