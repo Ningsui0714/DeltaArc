@@ -17,6 +17,7 @@ app.use(express.json({ limit: '1mb' }));
 app.get('/api/health', (_req, res) => {
   res.json({
     ok: true,
+    host: serverConfig.host,
     port: serverConfig.port,
   });
 });
@@ -42,6 +43,6 @@ if (shouldServeClientDist) {
   });
 }
 
-app.listen(serverConfig.port, () => {
-  console.log(`Sandbox server listening on http://127.0.0.1:${serverConfig.port}`);
+app.listen(serverConfig.port, serverConfig.host, () => {
+  console.log(`Sandbox server listening on http://${serverConfig.host}:${serverConfig.port}`);
 });

@@ -8,6 +8,7 @@ import type {
 type SandboxAnalysisStatus = 'idle' | 'loading' | 'error';
 
 type SandboxAnalysisPollerDependencies = {
+  fetchJob?: typeof getSandboxAnalysisJob;
   getActiveJobId: () => string | null;
   setActiveJobId: (jobId: string | null) => void;
   getActiveJobInputSignature: () => string | null;
@@ -32,9 +33,11 @@ type SandboxAnalysisPollerDependencies = {
 export function createSandboxAnalysisPoller(
   dependencies: SandboxAnalysisPollerDependencies,
 ) {
+  const fetchJob = dependencies.fetchJob ?? getSandboxAnalysisJob;
+
   return async function pollJob(jobId: string, mode: SandboxAnalysisMode) {
     try {
-      const job = await getSandboxAnalysisJob(jobId);
+      const job = await fetchJob(jobId);
 
       if (dependencies.getActiveJobId() !== jobId) {
         return null;
@@ -91,6 +94,7 @@ export function createSandboxAnalysisPoller(
       dependencies.setActiveJobInputSignature(null);
       dependencies.clearPolling();
       dependencies.clearRetryableJob();
+      dependencies.setProgress(null);
       dependencies.setAnalysis(dependencies.resolveFallbackAnalysis(mode));
       dependencies.setStatus('error');
       dependencies.setError(

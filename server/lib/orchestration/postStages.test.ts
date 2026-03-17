@@ -245,6 +245,8 @@ test('buildActionBriefSelectionMessages packages candidates for verifier ranking
 
   assert.match(messages[1]?.content ?? '', /<<<ACTION_BRIEF_CANDIDATES_DATA_START>>>/);
   assert.match(messages[1]?.content ?? '', /selectedCandidateId/);
+  assert.match(messages[1]?.content ?? '', /不要把更保守或更悲观的语气本身当成加分项/);
+  assert.match(messages[1]?.content ?? '', /通用库存句/);
 });
 
 test('buildReverseCheckMessages asks for necessary conditions and constraint-aware shrinkage', () => {

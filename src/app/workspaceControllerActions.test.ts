@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   createProjectUpdateAction,
+  createRefreshAnalysisAction,
+  createWorkspaceStateClearCoordinator,
   shouldResetWorkspaceStateAfterProjectEdit,
   shouldResetWorkspaceStateAfterProjectImport,
 } from './workspaceControllerActions';
@@ -173,4 +175,108 @@ test('project update action skips downstream reset for no-op patches', () => {
   });
 
   assert.deepEqual(calls, ['updateProject']);
+});
+
+test('workspace clear coordinator serializes clears for the same workspace', async () => {
+  const calls: string[] = [];
+  const releases = new Map<number, () => void>();
+  let invocation = 0;
+
+  const { clearPersistedWorkspaceState, waitForPendingWorkspaceStateClear } =
+    createWorkspaceStateClearCoordinator(async () => {
+      const currentInvocation = ++invocation;
+      calls.push(`start:${currentInvocation}`);
+
+      await new Promise<void>((resolve) => {
+        releases.set(currentInvocation, () => {
+          calls.push(`release:${currentInvocation}`);
+          resolve();
+        });
+      });
+
+      calls.push(`end:${currentInvocation}`);
+    });
+
+  const firstClear = clearPersistedWorkspaceState('workspace_fixture');
+  const secondClear = clearPersistedWorkspaceState('workspace_fixture');
+  let waitResolved = false;
+  const waitForClear = waitForPendingWorkspaceStateClear('workspace_fixture').then(() => {
+    waitResolved = true;
+    calls.push('wait:done');
+  });
+
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.deepEqual([...calls], ['start:1']);
+  assert.equal(waitResolved, false);
+
+  releases.get(1)?.();
+  for (let attempt = 0; attempt < 5 && !releases.has(2); attempt += 1) {
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0);
+    });
+  }
+  assert.equal(releases.has(2), true);
+  assert.deepEqual([...calls], ['start:1', 'release:1', 'end:1', 'start:2']);
+  assert.equal(waitResolved, false);
+
+  releases.get(2)?.();
+  await Promise.all([firstClear, secondClear, waitForClear]);
+
+  assert.deepEqual([...calls], [
+    'start:1',
+    'release:1',
+    'end:1',
+    'start:2',
+    'release:2',
+    'end:2',
+    'wait:done',
+  ]);
+});
+
+test('analysis refresh waits for pending workspace clears before starting a new run', async () => {
+  const calls: string[] = [];
+  let releaseClear!: () => void;
+
+  const refreshAnalysis = createRefreshAnalysisAction({
+    workspaceId: 'workspace_fixture',
+    canRunAnalysis: true,
+    setActivePhase: () => {
+      calls.push('setActivePhase');
+    },
+    waitForPendingWorkspaceStateClear: async () => {
+      calls.push('waitForClear');
+      await new Promise<void>((resolve) => {
+        releaseClear = () => {
+          calls.push('releaseClear');
+          resolve();
+        };
+      });
+      calls.push('clearFinished');
+    },
+    runAnalysis: async () => {
+      calls.push('runAnalysis');
+      return { ok: true };
+    },
+    navigate: () => {
+      calls.push('navigate');
+    },
+  });
+
+  const refreshPromise = refreshAnalysis('balanced', 'report');
+  await Promise.resolve();
+
+  assert.deepEqual(calls, ['setActivePhase', 'waitForClear']);
+
+  releaseClear();
+  await refreshPromise;
+
+  assert.deepEqual(calls, [
+    'setActivePhase',
+    'waitForClear',
+    'releaseClear',
+    'clearFinished',
+    'runAnalysis',
+    'navigate',
+  ]);
 });

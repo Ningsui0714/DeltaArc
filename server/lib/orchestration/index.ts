@@ -12,7 +12,7 @@ import {
 } from './checkpoints';
 import { createExecutionPlan } from './executionPlan';
 import { runDossierStage } from './dossierStage';
-import { buildProvisionalFallback } from './fallback';
+import { buildProvisionalSeed } from './fallback';
 import { summarizeMemories } from './memory';
 import type { MemoryStore } from './memoryStore';
 import {
@@ -24,6 +24,7 @@ import {
 } from './orchestrationCore';
 import { runRefineStage, runSynthesisStage } from './postStages';
 import { runSpecialistStages } from './specialistStage';
+import { ensureProjectSpecificSystemVerdict } from './systemVerdict';
 import { dedupeBy } from './utils';
 
 export function createRetryableStageError(
@@ -171,7 +172,7 @@ export async function orchestrateSandboxAnalysis(
       degradedStageKeys.add('dossier');
     }
     const modelSummary = buildModelSummary(pipeline);
-    let provisional = buildProvisionalFallback(
+    let provisional = buildProvisionalSeed(
       request,
       dossierStage.dossier,
       specialistStage.specialistOutputs,
@@ -237,7 +238,10 @@ export async function orchestrateSandboxAnalysis(
       degradedStageKeys.add('refine');
     }
 
-    const finalResult = refineStage.finalResult;
+    const finalResult = ensureProjectSpecificSystemVerdict(
+      dossierStage.dossier,
+      refineStage.finalResult,
+    );
     const finalModelSummary = buildModelSummary(pipeline);
     if (degradedStageKeys.size > 0) {
       stageWarnings.push(

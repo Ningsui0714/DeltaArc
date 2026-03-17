@@ -34,10 +34,10 @@ export const projectEditorHeaderCopy = {
   eyebrow: copy('项目前期输入', 'Project Intake'),
   title: copy('先把判断问题讲清楚，再补细节', 'Start with the decision, then refine it'),
   badge: copy('起跑信息 + 引导补全', 'Starter brief + guided refinement'),
-  noteTitle: copy('现在这套填写逻辑怎么走', 'How this flow works now'),
+  noteTitle: copy('如果已有文档，推荐先文件导入', 'If you already have docs, import first'),
   noteBody: copy(
-    '你不需要一上来就把完整方案全写出来。先补齐起跑信息，再用引导式追问把优势、风险和缺口补清楚。',
-    'You no longer need a full proposal upfront. Fill the starter brief first, then use guided prompts to sharpen strengths, risks, and missing information.',
+    '如果你已经有项目包 JSON、设计文档 Markdown 或需求 TXT，建议先在上方导入，再来这里补充和修正字段。手动填写更适合从空白开始，或对导入结果继续补改。',
+    'If you already have a project JSON bundle, design Markdown, or requirement TXT, import it above first and then refine fields here. Manual editing works best when starting from scratch or polishing imported content.',
   ),
 };
 

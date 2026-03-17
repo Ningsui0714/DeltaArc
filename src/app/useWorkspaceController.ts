@@ -21,6 +21,7 @@ import {
   createRefreshAnalysisAction,
   createResetWorkspaceAction,
   createWorkspaceNavigation,
+  waitForPendingWorkspaceStateClear,
 } from './workspaceControllerActions';
 
 export type WorkspaceController = {
@@ -114,8 +115,10 @@ export function useWorkspaceController(): WorkspaceController {
     setActiveOutputStep,
   });
   const refreshAnalysis = createRefreshAnalysisAction({
+    workspaceId,
     canRunAnalysis,
     setActivePhase,
+    waitForPendingWorkspaceStateClear,
     runAnalysis,
     navigate,
   });

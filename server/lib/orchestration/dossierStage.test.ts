@@ -54,6 +54,7 @@ test('buildDossierGroundingMessages wraps project, evidence, and memory as embed
   assert.match(messages[1]?.content ?? '', /<<<PROJECT_DATA_START>>>/);
   assert.match(messages[1]?.content ?? '', /<<<EVIDENCE_ITEMS_DATA_START>>>/);
   assert.match(messages[1]?.content ?? '', /<<<MEMORY_CONTEXT_DATA_START>>>/);
+  assert.match(messages[1]?.content ?? '', /历史记忆只作为风险、盲点和验证线索/);
 });
 
 test('buildGroundedDossierMessages uses the extracted grounded pack as a first-class input', () => {
@@ -103,6 +104,7 @@ test('buildGroundedDossierMessages uses the extracted grounded pack as a first-c
   assert.match(messages[1]?.content ?? '', /<<<GROUNDED_PACK_DATA_START>>>/);
   assert.match(messages[1]?.content ?? '', /核心循环/);
   assert.match(messages[1]?.content ?? '', /grounded_pack 里的 facts/);
+  assert.match(messages[1]?.content ?? '', /不得直接沿用旧 verdict 或旧结论/);
 });
 
 test('buildGroundedDossierMessages can request a skeptical candidate lens', () => {
@@ -214,6 +216,7 @@ test('buildDossierSelectionMessages packages candidate dossiers for verifier ran
 
   assert.match(messages[1]?.content ?? '', /<<<DOSSIER_CANDIDATES_DATA_START>>>/);
   assert.match(messages[1]?.content ?? '', /selectedCandidateId/);
+  assert.match(messages[1]?.content ?? '', /不要把更保守或更悲观的语气本身当成加分项/);
 });
 
 test('normalizeCandidateSelection falls back to the first candidate when the verifier returns an unknown id', () => {

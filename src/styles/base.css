@@ -1,11 +1,12 @@
 :root {
   --bg-app: #f4efe7;
-  --bg-elevated: rgba(255, 252, 247, 0.92);
-  --bg-panel: rgba(255, 252, 247, 0.96);
-  --bg-panel-soft: #fbf6ef;
+  --bg-elevated: #f8f4ee;
+  --bg-panel: #fcfaf6;
+  --bg-panel-soft: #f7f2ea;
   --bg-panel-deep: rgba(15, 22, 32, 0.92);
   --line-subtle: rgba(35, 43, 53, 0.1);
   --line-strong: rgba(35, 43, 53, 0.18);
+  --line-emphasis: rgba(42, 94, 148, 0.26);
   --text-primary: #18212b;
   --text-secondary: #4f5b67;
   --text-muted: #7b8691;
@@ -16,7 +17,10 @@
   --accent-deep: #e7dfd2;
   --accent-ice: #c6dcff;
   --accent-glow: #86f1d0;
-  --shadow-cut: 0 20px 40px rgba(24, 33, 43, 0.06);
+  --shadow-cut: 0 24px 48px rgba(24, 33, 43, 0.08);
+  --shadow-float: 0 30px 80px rgba(24, 33, 43, 0.12);
+  --glow-info: rgba(42, 94, 148, 0.16);
+  --glow-warm: rgba(191, 93, 53, 0.1);
   --font-sans: "IBM Plex Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   --font-display: "Noto Serif SC", "Songti SC", "STSong", serif;
   --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
@@ -44,12 +48,9 @@ body {
   font-family: var(--font-sans);
   font-size: var(--text-base);
   color: var(--text-primary);
-  background:
-    radial-gradient(circle at top left, rgba(42, 94, 148, 0.11), transparent 28%),
-    radial-gradient(circle at 85% 15%, rgba(134, 241, 208, 0.11), transparent 24%),
-    radial-gradient(circle at bottom right, rgba(191, 93, 53, 0.07), transparent 26%),
-    linear-gradient(180deg, #f7f1e8, #f0ebe1 48%, #e8e1d5);
+  background: linear-gradient(180deg, #f6f1e8, #efe9df 52%, #e8e1d6);
   line-height: 1.65;
+  text-rendering: optimizeLegibility;
 }
 
 button,
@@ -65,6 +66,11 @@ button {
 
 #root {
   min-height: 100vh;
+}
+
+::selection {
+  background: rgba(42, 94, 148, 0.18);
+  color: var(--text-primary);
 }
 
 .eyebrow {

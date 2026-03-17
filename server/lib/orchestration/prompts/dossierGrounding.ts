@@ -42,6 +42,7 @@ ${formatTextSection('MEMORY_CONTEXT', memoryContext)}
 7. 如果历史记忆和当前项目/证据冲突，以当前项目/证据为准，并把冲突写入 warnings。
 8. 不得新增未提供的参考游戏、开发时长、团队规模、商业化方案、平台或玩法机制。
 9. 如果必须做推断，只能写入 unknowns / warnings，不得混入 facts。
+10. 历史记忆只作为风险、盲点和验证线索，不得直接沿用其中旧 verdict 或旧结论。
 
 JSON schema:
 {

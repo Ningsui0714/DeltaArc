@@ -6,6 +6,7 @@ type ProjectFormFieldProps = {
   config: ProjectFieldConfig;
   project: ProjectSnapshot;
   isEnglish: boolean;
+  headerMode?: 'full' | 'hint-only' | 'none';
   onChange: (field: ProjectIntakeFieldId, value: string | string[] | ProjectSnapshot['mode']) => void;
 };
 
@@ -20,14 +21,21 @@ export function ProjectFormField({
   config,
   project,
   isEnglish,
+  headerMode = 'full',
   onChange,
 }: ProjectFormFieldProps) {
   return (
     <label className={`field-group ${config.wide ? 'field-group-wide' : ''}`.trim()}>
-      <span className="field-label-row">
-        <strong>{pickCopy(config.label, isEnglish)}</strong>
-        <small>{pickCopy(config.hint, isEnglish)}</small>
-      </span>
+      {headerMode === 'full' ? (
+        <span className="field-label-row">
+          <strong>{pickCopy(config.label, isEnglish)}</strong>
+          <small>{pickCopy(config.hint, isEnglish)}</small>
+        </span>
+      ) : headerMode === 'hint-only' ? (
+        <span className="field-hint-row">
+          <small>{pickCopy(config.hint, isEnglish)}</small>
+        </span>
+      ) : null}
 
       {config.kind === 'select' ? (
         <select

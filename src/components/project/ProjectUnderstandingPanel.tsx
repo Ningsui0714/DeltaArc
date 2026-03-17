@@ -13,6 +13,24 @@ export function ProjectUnderstandingPanel({
   insights,
   getFieldLabel,
 }: ProjectUnderstandingPanelProps) {
+  const overviewMetrics = [
+    {
+      label: isEnglish ? 'Strong signals' : '明确优势',
+      value: insights.strengths.length,
+      hint: isEnglish ? 'already visible' : '已经看得出来',
+    },
+    {
+      label: isEnglish ? 'Risk signals' : '风险信号',
+      value: insights.risks.length,
+      hint: isEnglish ? 'already exposed' : '已经暴露出来',
+    },
+    {
+      label: isEnglish ? 'Missing signals' : '待补信号',
+      value: insights.missingFieldIds.length,
+      hint: isEnglish ? 'still affecting confidence' : '还会影响判断稳定性',
+    },
+  ];
+
   return (
     <aside className="project-understanding-panel">
       <div className="section-heading">
@@ -28,10 +46,22 @@ export function ProjectUnderstandingPanel({
         <span className="meta-chip">{isEnglish ? 'Updates live' : '实时更新'}</span>
       </div>
 
-      <article className="understanding-spotlight">
-        <span>{isEnglish ? 'Current positioning read' : '当前定位判断'}</span>
-        <strong>{positioningSummary}</strong>
-      </article>
+      <div className="understanding-overview-panel">
+        <article className="understanding-spotlight">
+          <span>{isEnglish ? 'Current positioning read' : '当前定位判断'}</span>
+          <strong>{positioningSummary}</strong>
+        </article>
+
+        <div className="understanding-snapshot-grid">
+          {overviewMetrics.map((metric) => (
+            <article key={metric.label} className="understanding-snapshot-card">
+              <span>{metric.label}</span>
+              <strong>{String(metric.value).padStart(2, '0')}</strong>
+              <p>{metric.hint}</p>
+            </article>
+          ))}
+        </div>
+      </div>
 
       <div className="project-understanding-grid">
         <article className="understanding-card">

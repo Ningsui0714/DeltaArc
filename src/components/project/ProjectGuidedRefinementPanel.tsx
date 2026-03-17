@@ -163,29 +163,36 @@ export function ProjectGuidedRefinementPanel({
                     : `最近一次已写入「${getFieldLabel(lastAppliedPromptId)}」。`
                   : isEnglish
                     ? 'Each answer stays editable in the manual sections below.'
-                    : '每次写入后，下面的手动字段仍然可以继续改。'}
+                  : '每次写入后，下面的手动字段仍然可以继续改。'}
               </small>
             </div>
-          </div>
 
-          <div className="guided-memory-panel">
-            <span>{isEnglish ? 'Captured refinement signals' : '已经沉淀下来的补全结果'}</span>
-            {completedPrompts.length > 0 ? (
-              <ul className="guided-memory-list">
-                {completedPrompts.map((prompt) => (
-                  <li key={prompt.id}>
-                    <strong>{pickCopy(prompt.title, isEnglish)}</strong>
-                    <p>{getProjectFieldValue(project, prompt.id)}</p>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="guided-empty-copy">
-                {isEnglish
-                  ? 'Once you answer a prompt here, it will appear as structured project memory.'
-                  : '你在这里回答过的内容，会作为结构化项目记忆显示在这里。'}
-              </p>
-            )}
+            <div className="guided-memory-inline">
+              <div className="guided-memory-inline-heading">
+                <span>{isEnglish ? 'Captured refinement signals' : '已经沉淀下来的补全结果'}</span>
+                <small>
+                  {isEnglish
+                    ? `${completedPrompts.length}/${prompts.length} captured`
+                    : `${completedPrompts.length}/${prompts.length} 项已沉淀`}
+                </small>
+              </div>
+              {completedPrompts.length > 0 ? (
+                <ul className="guided-memory-list">
+                  {completedPrompts.map((prompt) => (
+                    <li key={prompt.id}>
+                      <strong>{pickCopy(prompt.title, isEnglish)}</strong>
+                      <p>{getProjectFieldValue(project, prompt.id)}</p>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="guided-empty-copy">
+                  {isEnglish
+                    ? 'Once you answer a prompt here, it will appear as structured project memory.'
+                    : '你在这里回答过的内容，会作为结构化项目记忆显示在这里。'}
+                </p>
+              )}
+            </div>
           </div>
         </>
       )}

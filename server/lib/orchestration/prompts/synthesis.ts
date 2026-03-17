@@ -122,9 +122,11 @@ ${buildSharedSynthesisContext(request, dossier, provisional)}
 4. playerAcceptance / confidence / supportRatio 必须使用 0-100 整数。
 5. strategies 至少 3 条，而且要明显不同；优先改写 provisional_base.strategies，而不是完全推翻。
 6. report.actions 至少 4 条，并且都必须贴合当前 productionConstraints，默认应在两周内推进。
-7. 不得新增未提供的参考游戏、开发时长、团队规模、商业化方案、平台或玩法机制。
-8. 如果 dossier 或 provisional_base 与原始项目冲突，以原始项目为准，并在 warnings 中写明冲突。
-9. 如果做推断，必须显式写成“推断：...”或写入 warnings，不得把推断包装成已知事实。
+7. systemVerdict 必须基于 project 和 dossier 重新概括，不要直接复用 provisional_base.systemVerdict 的原句；即使结论仍偏谨慎，也要写出这轮项目特有的机会或约束。
+8. 不得新增未提供的参考游戏、开发时长、团队规模、商业化方案、平台或玩法机制。
+9. 如果 dossier 或 provisional_base 与原始项目冲突，以原始项目为准，并在 warnings 中写明冲突。
+10. 如果做推断，必须显式写成“推断：...”或写入 warnings，不得把推断包装成已知事实。
+11. 不得输出通用库存句，尤其不要直接写“方向暂不宜乐观扩张，先用更小成本验证关键前提。”这类与项目无关的模板 verdict。
 
 JSON schema:
 {
@@ -186,9 +188,11 @@ ${formatDataSection('ACTION_BRIEF_CANDIDATES', candidates, { pretty: true })}
 1. 用中文输出。
 2. 优先选择 evidence 边界更清晰、动作更具体、主风险更真实的候选。
 3. 如果候选动作空泛，或把推断包装成确定事实，要降权。
-4. 不要因为语言更像“报告”就给高分，优先保留能指导下一步的候选。
-5. selectedCandidateId 必须从候选列表中选。
-6. rankings 至少覆盖所有候选，并使用 0-100 整数 overallScore。
+4. 不要把更保守或更悲观的语气本身当成加分项；如果多份候选证据边界同样清晰，优先保留既写清机会也写清约束、且动作最具体的版本。
+5. 不要因为语言更像“报告”就给高分，优先保留能指导下一步的候选。
+6. selectedCandidateId 必须从候选列表中选。
+7. rankings 至少覆盖所有候选，并使用 0-100 整数 overallScore。
+8. 如果某个候选的 systemVerdict 是通用库存句，尤其是“方向暂不宜乐观扩张，先用更小成本验证关键前提。”这类模板话，要显著降权。
 
 JSON schema:
 {

@@ -262,6 +262,7 @@ export function ProjectEditorCard({
                   config={config}
                   project={project}
                   isEnglish={isEnglish}
+                  headerMode="hint-only"
                   onChange={patchProject}
                 />
               </article>

@@ -276,6 +276,14 @@ test('buildActionBriefMessages does not embed internal runtime warnings into the
     messages[1]?.content ?? '',
     /dossier-select JSON required one local repair pass after the initial parse failed\./,
   );
+  assert.match(
+    messages[1]?.content ?? '',
+    /不要直接复用 provisional_base\.systemVerdict 的原句/,
+  );
+  assert.match(
+    messages[1]?.content ?? '',
+    /不要直接写“方向暂不宜乐观扩张，先用更小成本验证关键前提。/,
+  );
 });
 
 test('runSynthesisStage still fails when both synthesis slices fail', async () => {

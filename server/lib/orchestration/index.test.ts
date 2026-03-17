@@ -3,6 +3,7 @@ import test from 'node:test';
 import type { SandboxAnalysisRequest, SandboxAnalysisResult } from '../../../shared/sandbox';
 import { createAnalysisMeta, createFallbackAnalysis } from '../normalizeSandboxResult';
 import type { AnalysisCheckpointState } from './checkpoints';
+import { buildProvisionalSeed } from './fallback';
 import { createRetryableStageError, orchestrateSandboxAnalysis } from './index';
 import { OrchestrationStageError } from './orchestrationCore';
 import type { MemoryStore } from './memoryStore';
@@ -110,6 +111,53 @@ function createSynthesisProvisional(): SandboxAnalysisResult {
     },
   };
 }
+
+test('buildProvisionalSeed keeps the normal path free of pre-generated fallback verdicts', () => {
+  const request = createBaseRequest();
+  const dossier = {
+    systemFrame: 'Co-op rituals can differentiate the mid-game loop.',
+    opportunityThesis: 'There is early evidence that shared tasks create stronger recall.',
+    evidenceLevel: 'medium' as const,
+    playerAcceptance: 68,
+    confidence: 61,
+    supportRatio: 57,
+    scores: {
+      coreFun: 72,
+      learningCost: 48,
+      novelty: 66,
+      acceptanceRisk: 44,
+      prototypeCost: 53,
+    },
+    personas: [],
+    hypotheses: [],
+    evidenceDigest: [],
+    coreTensions: ['clarity vs novelty'],
+    openQuestions: ['Will solo players feel excluded?'],
+    memorySignals: [],
+    warnings: [],
+  };
+  const specialistOutputs = [
+    createSystemsPerspectiveCheckpoint('systems').output,
+    createSystemsPerspectiveCheckpoint('psychology').output,
+    createSystemsPerspectiveCheckpoint('market').output,
+    createSystemsPerspectiveCheckpoint('red_team').output,
+  ];
+
+  const provisional = buildProvisionalSeed(
+    request,
+    dossier,
+    specialistOutputs,
+    ['dossier@test-model', 'systems@test-model', 'psychology@test-model', 'market@test-model', 'red_team@test-model'],
+    'multi-stage: test-model',
+    [],
+  );
+
+  assert.equal(
+    provisional.systemVerdict,
+    '待综合各视角后收束最终结论。',
+  );
+  assert.equal(provisional.meta.status, 'fresh');
+});
 
 test('resume from cached checkpoints keeps degraded status instead of washing it into fresh', async () => {
   let persistCalls = 0;

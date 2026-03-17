@@ -2,7 +2,6 @@ import { startTransition } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import type { SandboxAnalysisMode } from '../../shared/sandbox';
 import type { EvidenceItem, ProjectSnapshot, StepId } from '../types';
-import { clearSandboxWorkspace } from '../api/sandbox';
 import type { ImportFeedback } from '../components/import/FileImportCard';
 import { clearStoredEvidence } from '../hooks/useEvidence';
 import { importStructuredFile } from '../lib/import/importFile';
@@ -14,6 +13,20 @@ import {
   type OutputStep,
   type ProcessPhase,
 } from '../lib/processPhases';
+import {
+  buildEvidenceImportErrorFeedback,
+  buildEvidenceImportFeedback,
+  buildProjectImportErrorFeedback,
+  buildProjectImportFeedback,
+} from './workspaceImportFeedback';
+import {
+  clearPersistedWorkspaceState,
+} from './workspaceStateClearCoordinator';
+export {
+  clearPersistedWorkspaceState,
+  createWorkspaceStateClearCoordinator,
+  waitForPendingWorkspaceStateClear,
+} from './workspaceStateClearCoordinator';
 
 type ImportLanguage = Parameters<typeof importStructuredFile>[1];
 
@@ -25,8 +38,10 @@ type NavigationDependencies = {
 };
 
 type AnalysisRefreshDependencies = {
+  workspaceId: string;
   canRunAnalysis: boolean;
   setActivePhase: Dispatch<SetStateAction<ProcessPhase>>;
+  waitForPendingWorkspaceStateClear?: (workspaceId: string) => Promise<void>;
   runAnalysis: (mode: SandboxAnalysisMode) => Promise<unknown>;
   navigate: (step: StepId) => void;
 };
@@ -39,7 +54,7 @@ type ProjectUpdateDependencies = {
   resetBaselines: () => void;
   setActivePhase: Dispatch<SetStateAction<ProcessPhase>>;
   setActiveOutputStep: Dispatch<SetStateAction<OutputStep>>;
-  clearPersistedWorkspaceState?: (workspaceId: string) => void;
+  clearPersistedWorkspaceState?: (workspaceId: string) => Promise<void> | void;
 };
 
 type ProjectImportDependencies = {
@@ -73,87 +88,6 @@ type ResetWorkspaceDependencies = {
   setActiveInputStep: Dispatch<SetStateAction<InputStep>>;
   setActiveOutputStep: Dispatch<SetStateAction<OutputStep>>;
 };
-
-function buildProjectImportFeedback(
-  payload: ImportedPayload,
-  nextEvidenceItems: EvidenceItem[],
-  isEnglish: boolean,
-): ImportFeedback {
-  const messages = [
-    payload.project ? (isEnglish ? 'Project fields were updated.' : '项目字段已更新。') : '',
-    payload.evidenceMode === 'replace'
-      ? isEnglish
-        ? `Evidence was replaced with ${nextEvidenceItems.length} items.`
-        : `证据已替换为 ${nextEvidenceItems.length} 条。`
-      : payload.evidenceMode === 'append' && nextEvidenceItems.length > 0
-        ? isEnglish
-          ? `${nextEvidenceItems.length} evidence items were appended.`
-          : `已追加 ${nextEvidenceItems.length} 条证据。`
-        : '',
-    ...payload.warnings,
-  ].filter(Boolean);
-
-  return {
-    tone: payload.warnings.length > 0 ? 'warning' : 'success',
-    message: messages.join(' ') || (isEnglish ? 'File imported.' : '文件已导入。'),
-  };
-}
-
-function buildProjectImportErrorFeedback(
-  error: unknown,
-  isEnglish: boolean,
-): ImportFeedback {
-  return {
-    tone: 'error',
-    message:
-      error instanceof Error
-        ? error.message
-        : isEnglish
-          ? 'Project file import failed.'
-          : '项目文件导入失败。',
-  };
-}
-
-function buildEvidenceImportFeedback(
-  payload: ImportedPayload,
-  nextItems: EvidenceItem[],
-  isEnglish: boolean,
-): ImportFeedback {
-  return {
-    tone: payload.warnings.length > 0 ? 'warning' : 'success',
-    message: [
-      isEnglish
-        ? `Imported ${nextItems.length} evidence items.`
-        : `已导入 ${nextItems.length} 条证据。`,
-      ...payload.warnings,
-    ].join(' '),
-  };
-}
-
-function buildEvidenceImportErrorFeedback(
-  error: unknown,
-  isEnglish: boolean,
-): ImportFeedback {
-  return {
-    tone: 'error',
-    message:
-      error instanceof Error
-        ? error.message
-        : isEnglish
-          ? 'Evidence file import failed.'
-          : '证据文件导入失败。',
-  };
-}
-
-function clearPersistedWorkspaceState(workspaceId: string) {
-  void clearSandboxWorkspace(workspaceId).catch((caughtError) => {
-    console.warn(
-      '[sandbox] clearing persisted workspace failed',
-      caughtError instanceof Error ? caughtError.message : caughtError,
-    );
-  });
-}
-
 export function shouldResetWorkspaceStateAfterProjectImport(payload: ImportedPayload) {
   return Boolean(payload.project) || payload.evidenceMode === 'replace';
 }
@@ -226,6 +160,11 @@ export function createRefreshAnalysisAction(
     startTransition(() => {
       dependencies.setActivePhase('analysis');
     });
+
+    await (
+      dependencies.waitForPendingWorkspaceStateClear?.(dependencies.workspaceId) ??
+      Promise.resolve()
+    );
 
     const result = await dependencies.runAnalysis(mode);
     if (nextStep && result) {

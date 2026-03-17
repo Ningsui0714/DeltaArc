@@ -26,7 +26,13 @@ function parseBoolean(value: string | undefined, fallback: boolean) {
   return fallback;
 }
 
+export function parseListenHost(value: string | undefined, fallback: string) {
+  const normalized = value?.trim();
+  return normalized ? normalized : fallback;
+}
+
 export const serverConfig = {
+  host: parseListenHost(process.env.HOST, '127.0.0.1'),
   port: parsePositiveInteger(process.env.PORT, 5001),
   deepseekApiKey: process.env.DEEPSEEK_API_KEY?.trim() ?? '',
   deepseekBaseUrl: (process.env.DEEPSEEK_BASE_URL ?? 'https://api.deepseek.com').replace(/\/$/, ''),

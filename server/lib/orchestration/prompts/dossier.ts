@@ -56,6 +56,7 @@ ${formatTextSection('MEMORY_CONTEXT', memoryContext)}
 10. 不得新增未提供的参考游戏、开发时长、团队规模、商业化方案、平台或玩法机制。
 11. 如果做推断，必须显式写成“推断：...”或放到 hypothesis.gap / openQuestions / warnings。
 12. 如果历史记忆和当前项目快照冲突，以当前项目快照和当前证据为准，并在 warnings 中写明冲突。
+13. 历史记忆只作为风险、盲点和验证线索，不得直接沿用其中旧 verdict 或旧结论。
 
 JSON schema:
 {
@@ -136,6 +137,7 @@ ${formatDataSection('GROUNDED_PACK', groundingPack, { pretty: true })}
 11. 只允许引用项目和 grounded_pack 中明确出现的事实；缺失就写 openQuestions / warnings，不要脑补具体细节。
 12. 不得新增未提供的参考游戏、开发时长、团队规模、商业化方案、平台或玩法机制。
 13. 如果做推断，必须显式写成“推断：...”或放到 hypothesis.gap / openQuestions / warnings。
+14. 即使 grounded_pack 里含有历史记忆信号，也只能把它们当作风险、盲点和验证线索，不得直接沿用旧 verdict 或旧结论。
 
 JSON schema:
 {
@@ -212,9 +214,10 @@ ${formatDataSection('DOSSIER_CANDIDATES', candidates, { pretty: true })}
 1. 用中文输出。
 2. 优先选择事实边界更稳、约束意识更强、下一步更可执行的候选。
 3. 如果候选把推断写成事实，或明显忽略 constraints / unknowns，要降权。
-4. 不要因为措辞更华丽就给高分；优先保留证据边界清晰的候选。
-5. selectedCandidateId 必须从候选列表中选。
-6. rankings 至少覆盖所有候选，并使用 0-100 整数 overallScore。
+4. 不要把更保守或更悲观的语气本身当成加分项；如果多份候选证据边界相近，优先保留把机会、约束和下一步一起说清楚的版本。
+5. 不要因为措辞更华丽就给高分；优先保留证据边界清晰的候选。
+6. selectedCandidateId 必须从候选列表中选。
+7. rankings 至少覆盖所有候选，并使用 0-100 整数 overallScore。
 
 JSON schema:
 {
