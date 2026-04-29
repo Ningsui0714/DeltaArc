@@ -4,6 +4,21 @@
 
 > 面向普通 KOC 的社媒 AI Agent。上传待发布内容后，AI 预演平台分发、评论区反应、涨粉机会和发布风险，并给出选题建议、发布策略、互动优化和账号成长动作。
 
+## 界面预览
+
+主界面以“输入素材 - 发布前预演 - 增长控制台”三栏组织：左侧提交待发布内容，中间模拟小红书发布态和评论区反馈，右侧汇总互动预测、增长链路、发布策略和风险护栏。
+
+<p>
+  <img src="./docs/assets/readme/koc-growth-lab-overview.png" alt="KOC Growth Lab 发布前预演总览" width="100%" />
+</p>
+
+发布前预演会把评论反馈、导流风险、平台规则风险和复核建议放在同一条链路里，帮助 KOC 在真正发布前发现涨粉机会和潜在翻车点。
+
+<p>
+  <img src="./docs/assets/readme/koc-growth-lab-risk-guardrail.png" alt="KOC Growth Lab 评论反馈与风险护栏" width="49%" />
+  <img src="./docs/assets/readme/koc-growth-lab-audience-quality.png" alt="KOC Growth Lab 人群分层与质量检查" width="49%" />
+</p>
+
 ## 现在它是什么
 
 DeltaArc 当前主产品已经收敛为 **KOC Growth Lab**。它服务普通 KOC、校园创作者和小团队运营，让他们在真正发布前先看见内容可能吸引谁、被怎样误解、评论区会出现什么问题，以及下一条内容该怎么接。
