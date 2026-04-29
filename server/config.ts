@@ -31,9 +31,25 @@ export function parseListenHost(value: string | undefined, fallback: string) {
   return normalized ? normalized : fallback;
 }
 
+export function resolveDoubaoApiKey(env: NodeJS.ProcessEnv = process.env) {
+  return (env.DOUBAO_API_KEY?.trim() || env.ARK_API_KEY?.trim() || '');
+}
+
 export const serverConfig = {
   host: parseListenHost(process.env.HOST, '127.0.0.1'),
   port: parsePositiveInteger(process.env.PORT, 5001),
+  preflightProvider:
+    process.env.PREFLIGHT_PROVIDER?.trim().toLowerCase() === 'mock' ? 'mock' : 'doubao',
+  doubaoApiKey: resolveDoubaoApiKey(),
+  doubaoBaseUrl: (process.env.DOUBAO_BASE_URL ?? 'https://ark.cn-beijing.volces.com/api/v3').replace(
+    /\/$/,
+    '',
+  ),
+  doubaoTextEndpointId: process.env.DOUBAO_TEXT_ENDPOINT_ID?.trim() ?? '',
+  doubaoVisionEndpointId: process.env.DOUBAO_VISION_ENDPOINT_ID?.trim() ?? '',
+  doubaoTextModel: process.env.DOUBAO_TEXT_MODEL ?? 'doubao-seed-2-0-lite-260215',
+  doubaoVisionModel: process.env.DOUBAO_VISION_MODEL ?? 'doubao-seed-2-0-lite-260215',
+  doubaoTimeoutMs: parsePositiveInteger(process.env.DOUBAO_TIMEOUT_MS, 150000),
   deepseekApiKey: process.env.DEEPSEEK_API_KEY?.trim() ?? '',
   deepseekBaseUrl: (process.env.DEEPSEEK_BASE_URL ?? 'https://api.deepseek.com').replace(/\/$/, ''),
   balancedModel: process.env.DEEPSEEK_CHAT_MODEL ?? 'deepseek-chat',

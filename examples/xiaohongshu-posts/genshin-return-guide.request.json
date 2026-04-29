@@ -1,0 +1,24 @@
+{
+  "workspaceId": "xhs-genshin-return-guide",
+  "platform": "xiaohongshu",
+  "goal": "comment",
+  "mode": "quick",
+  "contentDraft": {
+    "title": "原神老玩家回坑前：先用 5 分钟理清这轮版本重点",
+    "body": "这条不是强行劝回，而是给已经退坑一阵子的玩家一个低压力入口：先看新角色、限时活动、赛季内容、跨平台迁移和素材清单，再决定今天要不要上线。发布前重点检查标题会不会太像营销号，以及是否把已结束活动说成正在进行。",
+    "script": "开头 3 秒：从风景和回坑清单进入，不喊口号。中段：按角色、活动、奖励、平台迁移和回坑成本拆成 5 张卡。结尾：评论区说你卡在哪一步，是角色、剧情、肝度还是平台迁移。"
+  },
+  "mediaAssets": [
+    {
+      "id": "xhs-genshin-return-cover",
+      "kind": "image",
+      "name": "xhs-genshin-return-guide.jpg",
+      "mimeType": "image/jpeg",
+      "imagePath": "images/xhs-genshin-return-guide.jpg"
+    }
+  ],
+  "accountContext": "长线游戏攻略与版本复盘账号，用户信任来自时间线核对、清单式总结和不夸大收益。内容以公开信息和个人体验为基础。",
+  "targetAudience": "原神老玩家、轻度回坑用户、跨平台迁移用户、关注版本活动但不想重新查大量公告的人。",
+  "desiredAction": "评论自己的回坑卡点，收藏清单，关注后续按日期更新的活动提醒。",
+  "brandGuardrails": "发布前必须核对当前日期和官方公告；AI 图只用于内部预演，正式发布换授权素材；不暗示官方合作，不承诺抽卡收益，不把过期活动写成进行中。"
+}

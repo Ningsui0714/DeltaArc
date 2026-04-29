@@ -1,0 +1,24 @@
+{
+  "workspaceId": "xhs-qingyu-coffee-blind-test",
+  "platform": "xiaohongshu",
+  "goal": "store_visit",
+  "mode": "quick",
+  "contentDraft": {
+    "title": "室友盲测：这杯校园咖啡到底值不值得冲？",
+    "body": "把青屿春季新品藏进三杯咖啡里，让 4 个室友只凭第一口投票。有人说像下课后的第一口甜，有人觉得奶味太重。想用这条测一下：真实反应 + 到店暗号，能不能比直接介绍口味更容易被收藏和带朋友去试。",
+    "script": "开头 2 秒：三杯咖啡排开，室友只看到颜色不看杯套。中段：每个人喝第一口后投票，保留真实吐槽。结尾：公布新品和到店暗号，引导评论区提名下一轮盲测员。"
+  },
+  "mediaAssets": [
+    {
+      "id": "xhs-qingyu-coffee-cover",
+      "kind": "image",
+      "name": "xhs-qingyu-coffee-blind-test.jpg",
+      "mimeType": "image/jpeg",
+      "imagePath": "images/xhs-qingyu-coffee-blind-test.jpg"
+    }
+  ],
+  "accountContext": "校园生活方式账号，平时发宿舍日常、校内探店和低预算快乐。粉丝对真实反应、室友互动、同城到店信息更敏感。",
+  "targetAudience": "在校学生、宿舍社交人群、喜欢尝新品但怕踩雷的人，以及会被室友投票形式吸引的同城用户。",
+  "desiredAction": "收藏门店位置，到店报暗号，评论区提名下一位盲测员，并带朋友一起试喝。",
+  "brandGuardrails": "不能承诺功效，不能贬低竞品，不能诱导刷量；标清试饮样本小、个人口味差异大，语气要像同学分享而不是硬广。"
+}

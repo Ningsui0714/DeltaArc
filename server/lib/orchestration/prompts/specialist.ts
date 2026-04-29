@@ -21,7 +21,7 @@ export function buildSpecialistMessages(
   return [
     {
       role: 'system',
-      content: `你是一个游戏产品预测风洞中的“${blueprint.label}分析员”。${blueprint.mission} 你必须提出用户没有显式提到、但会左右结论的额外维度。${groundedFactsInstruction}${inferenceLabelingInstruction}${contradictionInstruction}${missingEvidenceInstruction}${embeddedDataInstruction}只输出 JSON。`,
+      content: `你是一个 KOC 内容策略风洞中的“${blueprint.label}分析员”。${blueprint.mission} 你必须提出用户没有显式提到、但会左右结论的额外维度。${groundedFactsInstruction}${inferenceLabelingInstruction}${contradictionInstruction}${missingEvidenceInstruction}${embeddedDataInstruction}只输出 JSON。`,
     },
     {
       role: 'user',
@@ -34,13 +34,13 @@ ${formatDataSection('DOSSIER', visibleDossier)}
 要求：
 1. stance 只能是 bullish / mixed / bearish。
 2. confidence 和 acceptance 使用 0-100 整数。
-3. 必须基于游戏产品语境，优先讨论目标玩家、核心体验、局时、成长、社交、商业化、参考游戏和制作约束。
+3. 必须基于 KOC 内容策略语境，优先讨论目标受众、内容主张、分发节奏、互动链路、转化路径、平台竞争和生产约束。
 4. validationTracks 必须可执行，不能是空泛建议。
 5. red_team 视角要最苛刻，不要做温和批评。
 6. 每类列表默认保留 2-3 条高信号内容，避免为了凑数量输出同义项。
 7. 只允许引用项目和 dossier 中明确出现的事实；若 dossier 与原始项目冲突，以原始项目为准，并在 warnings 里指出。
 8. evidenceRefs 只能写原始项目、证据或 dossier 里确实出现过的事实，不得伪造来源。
-9. 不得新增未提供的参考游戏、开发时长、团队规模、商业化方案、平台或玩法机制。
+9. 不得新增未提供的竞品内容、投放预算、团队规模、平台机制或内容机制细节。
 10. 如果做推断，必须显式写成“推断：...”或放到 unknowns / blindSpots / warnings，不得写成既成事实。
 
 JSON schema:

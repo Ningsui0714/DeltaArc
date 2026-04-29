@@ -146,7 +146,7 @@ function buildRuntimeItems(
           lane: 'runtime',
           state: 'pending',
           eyebrow: isEnglish ? 'Run State' : '运行状态',
-          title: isEnglish ? 'Waiting for the formal forecast run' : '等待正式推理启动',
+          title: isEnglish ? 'Waiting for the formal diagnosis to start' : '等待正式诊断启动',
           summary: isEnglish ? 'Not started yet.' : '尚未启动。',
           caption: isEnglish ? 'Not started' : '尚未启动',
           badge: isEnglish ? 'Waiting' : '等待中',
@@ -176,15 +176,15 @@ function buildRuntimeItems(
         id: 'runtime-complete',
         lane: 'runtime',
         state: 'completed',
-        eyebrow: isEnglish ? 'Formal Run' : '正式推理',
+        eyebrow: isEnglish ? 'Formal Diagnosis' : '正式诊断',
         title: trimCopy(
           analysis.report.headline || analysis.systemVerdict,
-          isEnglish ? 'Formal forecast has been locked.' : '正式结果已经锁定',
+          isEnglish ? 'Formal strategy result has been locked.' : '正式策略结果已经锁定',
         ),
         summary: isAnalysisFresh
           ? trimCopy(
-              analysis.summary || analysis.report.summary,
-              isEnglish ? 'Formal result ready.' : '正式结果已就绪。',
+            analysis.summary || analysis.report.summary,
+              isEnglish ? 'Formal strategy result ready.' : '正式策略结果已就绪。',
             )
           : isAnalysisDegraded
             ? isEnglish
@@ -196,14 +196,14 @@ function buildRuntimeItems(
                 : '运行完成后输入已变化，这份结果可看但不再是最新。'
               : isEnglish
                 ? 'Formal result is available.'
-                : '正式结果可查看。',
+                : '正式策略结果可查看。',
         caption: lastCompletedAt
           ? isEnglish
             ? `Completed at ${formatClock(lastCompletedAt, language)}`
             : `完成于 ${formatClock(lastCompletedAt, language)}`
           : isEnglish
             ? 'Latest formal output'
-            : '最新正式结果',
+            : '最新正式策略结果',
         badge: runtimeBadge,
         bullets: [
           analysis.model,
@@ -309,7 +309,7 @@ export function ForecastTimelinePanel({
       state: project.ideaSummary.trim().length > 0 ? 'completed' : 'pending',
       eyebrow: isEnglish ? 'Project Input' : '项目输入',
       title: trimCopy(project.name, isEnglish ? 'Untitled Project' : '未命名项目'),
-      summary: trimCopy(project.ideaSummary, isEnglish ? 'Add the prediction question.' : '请补充预测问题。'),
+      summary: trimCopy(project.ideaSummary, isEnglish ? 'Add the strategy question.' : '请补充策略问题。'),
       caption: `${project.mode}${project.genre ? ` / ${project.genre}` : ''}`,
       badge: isEnglish ? 'Input' : '输入',
       bullets: [
@@ -385,7 +385,7 @@ export function ForecastTimelinePanel({
       <div className="timeline-panel-header">
         <div>
           <p className="eyebrow">{isEnglish ? 'Timeline Window' : '时间线窗口'}</p>
-          <h2>{isEnglish ? 'Right-Side Forecast Stream' : '右侧推演流'}</h2>
+          <h2>{isEnglish ? 'Right-Side Strategy Stream' : '右侧策略流'}</h2>
         </div>
         <div className="chip-row">
           <span className="meta-chip">
@@ -393,7 +393,7 @@ export function ForecastTimelinePanel({
               ? isAnalysisFresh
                 ? isEnglish
                   ? 'Fresh formal output'
-                  : '最新正式结果'
+                  : '最新正式策略结果'
                 : isAnalysisDegraded
                   ? isEnglish
                     ? 'Degraded output'
@@ -407,7 +407,7 @@ export function ForecastTimelinePanel({
                       : '可查看结果'
               : isEnglish
                 ? 'Waiting for output'
-                : '等待正式结果'}
+                : '等待正式策略结果'}
           </span>
           <span className="meta-chip">
             {progressStats

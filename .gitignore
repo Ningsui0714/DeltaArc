@@ -5,6 +5,7 @@ node_modules/
 dist/
 dist-server/
 coverage/
+harness/output/
 *.tsbuildinfo
 vite.config.js
 vite.config.d.ts
@@ -23,6 +24,7 @@ pnpm-debug.log*
 !.env.example
 server/data/sandbox-memory.json
 server/data/projects/
+.codex-runtime/
 .codex-*.log
 .codex-*.err
 .codex-*.out

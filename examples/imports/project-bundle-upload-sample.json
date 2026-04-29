@@ -1,0 +1,51 @@
+{
+  "project": {
+    "name": "青屿咖啡春季新品种草",
+    "mode": "Validation",
+    "genre": "campus-koc",
+    "platforms": ["小红书"],
+    "targetPlayers": ["校园学生", "宿舍社交人群", "同城探店用户", "轻分享 KOC"],
+    "coreFantasy": "刷到一条像同学分享的小红书笔记，就愿意拉室友一起去试一杯新品。",
+    "ideaSummary": "把新品卖点改成“室友盲测 + 第一口投票 + 到店暗号”的小红书发布样例，验证真实反应是否比功能介绍更能带动收藏、评论和到店。",
+    "coreLoop": "刷到封面 -> 看第一口反应 -> 评论区站队 -> 收藏门店/暗号 -> 拉朋友到店 -> 二次发布 UGC",
+    "sessionLength": "单条小红书笔记 20-40 秒，测试窗口为新品上线后 14 天。",
+    "differentiators": "不靠硬广口播，而是把新品体验做成室友可以参与、用户可以复述的盲测内容。",
+    "progressionHook": "用户先看本轮盲测，再持续关注不同宿舍组合、口味站队和下一轮提名。",
+    "socialHook": "评论区鼓励提名盲测员、补充第一口反应、投票选择下一杯。",
+    "monetization": "优先看到店暗号核销、收藏率、评论提名和自发打卡，不把短期 GMV 当唯一目标。",
+    "referenceGames": ["校园探店小红书账号", "宿舍生活博主", "同城咖啡新品案例"],
+    "validationGoal": "确认“小红书室友盲测”是否比“新品功能介绍”更能提升到店与复述率。",
+    "productionConstraints": "1 名运营 + 1 名兼职拍摄，单周最多产出 6 条可用内容，预算主要用于试饮和校园 KOC 置换。",
+    "currentStatus": "当前内容已经有卖点，但发布前仍担心封面不像真实小红书、暗号转化承接不够明确。"
+  },
+  "xiaohongshuPost": {
+    "fixtureId": "xhs-qingyu-coffee-blind-test",
+    "coverImagePath": "../xiaohongshu-posts/images/xhs-qingyu-coffee-blind-test.jpg",
+    "title": "室友盲测：这杯校园咖啡到底值不值得冲？",
+    "desiredAction": "收藏门店位置，到店报暗号，评论区提名下一位盲测员。",
+    "guardrails": "不能承诺功效，不能贬低竞品，必须标注个人口味差异和小样本限制。"
+  },
+  "evidenceItems": [
+    {
+      "type": "note",
+      "title": "评论摘录",
+      "source": "小红书评论区归纳",
+      "trust": "medium",
+      "summary": "用户愿意转发“室友一起试喝”的内容，但对纯口味参数介绍停留时间明显更短。"
+    },
+    {
+      "type": "interview",
+      "title": "KOC 访谈",
+      "source": "4 位校园达人回访",
+      "trust": "high",
+      "summary": "达人更愿意拍“室友真实反应”和“宿舍站队”，不想做生硬口播。"
+    },
+    {
+      "type": "metric_snapshot",
+      "title": "试投数据快照",
+      "source": "视频号与小红书首轮内容归纳",
+      "trust": "medium",
+      "summary": "功能介绍内容完播尚可，但评论、转发和到店核销都弱于反应类内容。"
+    }
+  ]
+}

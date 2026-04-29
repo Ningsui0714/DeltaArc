@@ -54,14 +54,14 @@ export function ImpactScanPanel({
       <section className="panel empty-state-panel sandbox-result-panel">
         <div className="panel-heading">
           <div>
-            <p className="eyebrow">{isEnglish ? 'Scan Result' : '推演结果'}</p>
-            <h3>{isEnglish ? 'The result will land here next' : '下一步的推演结果会落在这里'}</h3>
+            <p className="eyebrow">{isEnglish ? 'Experiment Result' : '变量实验结果'}</p>
+            <h3>{isEnglish ? 'The next result will land here' : '下一次实验结果会展示在这里'}</h3>
           </div>
         </div>
         <p>
           {isEnglish
-            ? `Once ${variable.name || 'the variable'} is submitted, this area will show the direct effects, affected groups, guardrails, and validation steps against baseline ${baseline.id}.`
-            : `当 ${variable.name || '变量'} 提交后，这里会基于基线 ${baseline.id} 展示直接影响、受影响人群、护栏和验证步骤。`}
+            ? `After submitting ${variable.name || 'the variable'}, this area will show direct effects, affected audiences, guardrails, and validation plan based on baseline ${baseline.id}.`
+            : `当 ${variable.name || '该变量'} 提交后，这里会基于策略基线 ${baseline.id} 展示直接影响、受影响人群、guardrail 与 validation plan。`}
         </p>
       </section>
     );

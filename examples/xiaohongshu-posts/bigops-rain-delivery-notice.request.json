@@ -1,0 +1,24 @@
+{
+  "workspaceId": "xhs-bigops-rain-delivery-notice",
+  "platform": "xiaohongshu",
+  "goal": "awareness",
+  "mode": "quick",
+  "contentDraft": {
+    "title": "雨天高峰怎么发通知，才不像甩锅给用户？",
+    "body": "这条模拟本地生活/即时配送平台的雨天高峰运营笔记。核心不是“订单多所以会慢”，而是把用户补偿、商家备餐、骑手安全和预计送达说清楚。想测试封面里的路线图、补偿方案和安全提醒，会不会让评论区从抱怨变成理解和建议。",
+    "script": "开头 3 秒：雨窗和高峰通知大字。中段：按用户、商家、骑手、客服四个视角拆通知内容。结尾：评论区提问，雨天通知里最想先看到哪一句话。"
+  },
+  "mediaAssets": [
+    {
+      "id": "xhs-bigops-rain-delivery-cover",
+      "kind": "image",
+      "name": "xhs-bigops-rain-delivery-notice.jpg",
+      "mimeType": "image/jpeg",
+      "imagePath": "images/xhs-bigops-rain-delivery-notice.jpg"
+    }
+  ],
+  "accountContext": "品牌中立的城市履约运营账号，拆解本地生活高峰调度、通知策略、服务体验和舆情预案。",
+  "targetAudience": "本地生活运营、客服运营、商家运营、城市履约团队、对平台服务体验感兴趣的用户。",
+  "desiredAction": "希望用户评论自己能接受的雨天通知话术，收藏高峰预案清单，并关注后续商家备餐节奏拆解。",
+  "brandGuardrails": "不展示真实地址、骑手个人信息或订单数据；不承诺一定准时；不把责任推给用户或骑手；正式发布必须核对平台规则和天气应急口径。"
+}

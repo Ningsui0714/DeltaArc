@@ -232,35 +232,35 @@ export function buildPredictionGraphViewModel(params: {
 
   const connectedLabel = isAnalysisFresh
     ? isEnglish
-      ? 'Fresh formal output'
-      : '最新正式结果'
+      ? 'Latest strategy output'
+      : '最新策略结果'
     : isAnalysisDegraded
       ? isEnglish
-        ? 'Degraded formal output'
-        : '降级正式结果'
+        ? 'Degraded strategy output'
+        : '降级策略结果'
       : isAnalysisStale
         ? isEnglish
-          ? 'Stale formal output'
-          : '过期正式结果'
+          ? 'Stale strategy output'
+          : '过期策略结果'
         : isEnglish
-          ? 'Viewable formal output'
-          : '可查看正式结果';
+          ? 'Viewable strategy output'
+          : '可查看策略结果';
   const connectedSummary = isAnalysisFresh
     ? trimCopy(
         analysis.report.summary || analysis.summary,
-        isEnglish ? 'Formal output connected.' : '正式结果已接入。',
+        isEnglish ? 'Strategy output connected.' : '策略结果已接入。',
       )
     : isAnalysisDegraded
       ? isEnglish
         ? 'Fallback was used in part of the run. Review with caution.'
-        : '结果包含回退处理，请谨慎使用。'
+        : '本次结果包含回退处理，请谨慎使用。'
       : isAnalysisStale
         ? isEnglish
           ? 'Inputs changed after this run. Output is viewable but not fresh.'
           : '输入已变化，结果可查看但不再是最新。'
         : isEnglish
-          ? 'Formal output available.'
-          : '正式结果可查看。';
+          ? 'Strategy output available.'
+          : '策略结果可查看。';
 
   return {
     focusZone,
@@ -298,32 +298,32 @@ export function buildPredictionGraphViewModel(params: {
       : isProgressActive
         ? isEnglish
           ? 'Live run in progress'
-          : '实时运行中'
+          : '实时任务进行中'
         : hasProgressError
           ? progress?.retryable
             ? isEnglish
               ? 'Run failed, resume available'
-              : '运行失败，可继续重试'
+              : '运行失败，可续跑'
             : isEnglish
               ? 'Run failed'
               : '运行失败'
-      : isEnglish
-          ? 'Waiting for formal run'
-          : '等待正式推理',
+          : isEnglish
+            ? 'Waiting for strategy run'
+            : '等待策略运行',
     graphHeadline: isProgressActive || hasProgressError
-      ? progress?.currentStageLabel ?? (isEnglish ? 'Formal run state' : '正式推理状态')
+      ? progress?.currentStageLabel ?? (isEnglish ? 'Strategy run state' : '策略运行状态')
       : hasViewableAnalysis
         ? connectedLabel
         : isEnglish
-          ? 'Prediction graph waiting to start'
-          : '预测图谱待启动',
+          ? 'Strategy graph waiting to start'
+          : '策略图谱待启动',
     graphSummary: isProgressActive || hasProgressError
       ? progress?.message ?? (isEnglish ? 'Run status unavailable.' : '运行状态暂不可用。')
       : hasViewableAnalysis
         ? connectedSummary
         : isEnglish
-          ? 'Waiting for the formal run.'
-          : '等待正式推理。',
+          ? 'Waiting for strategy run.'
+          : '等待策略运行。',
     inputsStat: evidenceItems.length > 0 ? (isEnglish ? `${evidenceItems.length} signals` : `${evidenceItems.length} 条信号`) : isEnglish ? 'Waiting for inputs' : '等待输入',
     agentsStat: progressStats
       ? isEnglish
@@ -339,23 +339,23 @@ export function buildPredictionGraphViewModel(params: {
     timelineStat: hasViewableAnalysis
       ? isEnglish
         ? `${analysis.futureTimeline.length} beats`
-        : `${analysis.futureTimeline.length} 个节点`
+        : `${analysis.futureTimeline.length} 个扩散节点`
       : isEnglish
         ? 'Locked'
         : '尚未解锁',
     projectModeLabel: formatProjectMode(project.mode, language),
     projectCard: {
       status: projectStatus,
-      title: trimCopy(project.name, isEnglish ? 'Untitled Project' : '未命名项目'),
+      title: trimCopy(project.name, isEnglish ? 'Untitled Task' : '未命名传播任务'),
       summary: shorten(
         trimCopy(
           project.ideaSummary,
           isEnglish
-            ? 'Add the prediction question.'
-            : '请补充预测问题。',
+            ? 'Add the strategy question.'
+            : '请补充本次传播任务的问题定义。',
         ),
       ),
-      metrics: [project.genre, project.platforms[0], project.validationGoal ? (isEnglish ? 'Validation goal set' : '已有验证目标') : ''].filter(
+      metrics: [project.genre, project.platforms[0], project.validationGoal ? (isEnglish ? 'Validation goal set' : '已设置验证目标') : ''].filter(
         (value): value is string => Boolean(value),
       ),
     },
@@ -364,10 +364,10 @@ export function buildPredictionGraphViewModel(params: {
       title: evidenceItems.length > 0
         ? isEnglish
           ? `${evidenceItems.length} signals loaded`
-          : `${evidenceItems.length} 条信号已装载`
+          : `${evidenceItems.length} 条信号已加载`
         : isEnglish
-          ? 'Evidence pack is still empty'
-          : '证据包还是空的',
+          ? 'Evidence set is still empty'
+          : '证据集仍为空',
       summary:
         evidenceItems.length > 0
           ? shorten(
@@ -383,37 +383,37 @@ export function buildPredictionGraphViewModel(params: {
     },
     dossierCard: {
       status: resolveStageStatus(dossierStage, hasViewableAnalysis),
-      title: dossierStage?.preview?.headline || (isEnglish ? 'Unified Forecast Brief' : '统一预测简报'),
+      title: dossierStage?.preview?.headline || (isEnglish ? 'Unified Strategy Brief' : '统一策略摘要'),
       summary: shorten(
         dossierStage?.preview?.summary ||
           dossierStage?.detail ||
-          (isEnglish ? 'Shared brief ready for agent dispatch.' : '已整理为共享简报。'),
+          (isEnglish ? 'Shared brief ready for agent dispatch.' : '共享摘要已准备，可派发到各 Agent。'),
       ),
       metrics: [],
     },
-    dossierRole: isEnglish ? 'Shared Brief' : '共享简报',
+    dossierRole: isEnglish ? 'Shared Brief' : '共享摘要',
     liveRun: {
       isActive: isProgressActive || hasProgressError,
       percent: progressStats?.percent ?? 0,
-      label: progress?.currentStageLabel ?? (isEnglish ? 'Waiting for formal run' : '等待正式推理'),
-      message: progress?.message ?? (isEnglish ? 'Run not started yet.' : '尚未启动。'),
+      label: progress?.currentStageLabel ?? (isEnglish ? 'Waiting for strategy run' : '等待策略运行'),
+      message: progress?.message ?? (isEnglish ? 'Run not started yet.' : '尚未启动运行。'),
     },
     agentCards,
     synthesisCard: {
       status: resolveStageStatus(synthesisStage, hasViewableAnalysis),
-      title: synthesisStage?.preview?.headline || (isEnglish ? 'Future Timeline Simulation' : '未来时间线模拟'),
+      title: synthesisStage?.preview?.headline || (isEnglish ? 'Diffusion Evolution' : '扩散演化'),
       summary: shorten(
         synthesisStage?.preview?.summary ||
-          (isEnglish ? 'Future beats merged here.' : '这里汇总未来节点。'),
+          (isEnglish ? 'Evolution signals are merged here.' : '扩散演化信号会在这里汇总。'),
       ),
       metrics: [],
     },
     refineCard: {
       status: resolveStageStatus(refineStage, hasViewableAnalysis),
-      title: refineStage?.preview?.headline || (isEnglish ? 'Report Structure Cleanup' : '报告结构整理'),
+      title: refineStage?.preview?.headline || (isEnglish ? 'Strategy Report Structuring' : '策略报告结构化'),
       summary: shorten(
         refineStage?.preview?.summary ||
-          (isEnglish ? 'Final report cleanup.' : '结果收束整理。'),
+          (isEnglish ? 'Final strategy report cleanup.' : '最终策略报告收敛整理。'),
       ),
       metrics: [],
     },
@@ -422,18 +422,18 @@ export function buildPredictionGraphViewModel(params: {
       title: hasViewableAnalysis
         ? trimCopy(
             analysis.report.headline || analysis.systemVerdict,
-            isEnglish ? 'Formal forecast output has been generated.' : '正式结果已经生成。',
+            isEnglish ? 'Strategy report generated.' : '策略报告已生成。',
           )
         : latestPreviewStage?.preview?.headline ||
-          (isEnglish ? 'Timeline locked.' : '时间线未解锁。'),
+          (isEnglish ? 'Timeline locked.' : '扩散演化尚未解锁。'),
       summary: hasViewableAnalysis
         ? shorten(connectedSummary)
         : isEnglish
           ? 'Waiting for run completion.'
           : '等待运行完成。',
       metrics: [
-        hasViewableAnalysis ? (isEnglish ? `${analysis.futureTimeline.length} timeline beats` : `${analysis.futureTimeline.length} 个时间节点`) : '',
-        hasViewableAnalysis ? (isEnglish ? `${analysis.communityRhythms.length} community rhythms` : `${analysis.communityRhythms.length} 个社区节奏`) : '',
+        hasViewableAnalysis ? (isEnglish ? `${analysis.futureTimeline.length} evolution beats` : `${analysis.futureTimeline.length} 个扩散节点`) : '',
+        hasViewableAnalysis ? (isEnglish ? `${analysis.communityRhythms.length} community rhythms` : `${analysis.communityRhythms.length} 个社群节奏`) : '',
         latestPreviewStage?.model ?? '',
       ].filter((value): value is string => Boolean(value)),
     },
@@ -444,12 +444,12 @@ function formatProjectMode(mode: ProjectSnapshot['mode'], language: UiLanguage =
   const isEnglish = isEnglishUi(language);
 
   if (mode === 'Concept') {
-    return isEnglish ? 'Concept Stage' : '概念阶段';
+    return isEnglish ? 'Planning' : '策划中';
   }
 
   if (mode === 'Validation') {
-    return isEnglish ? 'Validation Stage' : '验证阶段';
+    return isEnglish ? 'Trial Launch' : '试投中';
   }
 
-  return isEnglish ? 'Live Stage' : '上线阶段';
+  return isEnglish ? 'Active Operation' : '在运营';
 }

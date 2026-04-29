@@ -31,11 +31,11 @@ export function buildDossierMessages(
     {
       role: 'system',
       content:
-        `你是一个服务于游戏产品预测风洞的“证据蒸馏器”。你先抽取结构，再形成判断；你必须主动补足用户没有提出但会影响成败的维度。${groundedFactsInstruction}${inferenceLabelingInstruction}${contradictionInstruction}${missingEvidenceInstruction}${embeddedDataInstruction}请只输出 JSON，不要输出解释文字。`,
+        `你是一个服务于 KOC 内容策略风洞的“证据蒸馏器”。你先抽取结构，再形成判断；你必须主动补足用户没有提出但会影响成败的维度。${groundedFactsInstruction}${inferenceLabelingInstruction}${contradictionInstruction}${missingEvidenceInstruction}${embeddedDataInstruction}请只输出 JSON，不要输出解释文字。`,
     },
     {
       role: 'user',
-      content: `请基于以下项目快照、证据和历史记忆，输出一个用于后续多视角推演的游戏产品 dossier。
+      content: `请基于以下项目快照、证据和历史记忆，输出一个用于后续多视角推演的 KOC 内容策略 dossier。
 
 ${formatDataSection('PROJECT', request.project)}
 
@@ -46,14 +46,14 @@ ${formatTextSection('MEMORY_CONTEXT', memoryContext)}
 输出要求：
 1. 用中文。
 2. 不要直接只给结论，先抽出 tensions / gaps / signals。
-3. 必须覆盖核心体验承诺、目标玩家分层、局时节奏、成长驱动、社交驱动、商业化、参考游戏、制作约束这些维度。
-4. 要覆盖玩法、玩家心理、留存增长、市场、制作落地这些维度。
+3. 必须覆盖内容主张、目标受众分层、分发节奏、互动驱动、转化路径、平台竞争、内容生产约束这些维度。
+4. 要覆盖内容机制、受众心理、增长转化、平台竞争、生产执行、反方审查这些维度。
 5. confidence / supportRatio / playerAcceptance / scores 全部使用 0-100 整数。
 6. hypothesis 的 confidence 使用 0-100 整数。
 7. personas / hypotheses / evidenceDigest / memorySignals 默认各保留 2-4 条，只保留最高信号内容。
 8. coreTensions / openQuestions 默认各保留 3-5 条，避免堆砌同义项。
 9. 只允许引用项目、证据、历史记忆里明确出现的事实；缺失就写 openQuestions / warnings，不要脑补具体细节。
-10. 不得新增未提供的参考游戏、开发时长、团队规模、商业化方案、平台或玩法机制。
+10. 不得新增未提供的竞品内容、投放预算、团队规模、平台机制或内容机制细节。
 11. 如果做推断，必须显式写成“推断：...”或放到 hypothesis.gap / openQuestions / warnings。
 12. 如果历史记忆和当前项目快照冲突，以当前项目快照和当前证据为准，并在 warnings 中写明冲突。
 13. 历史记忆只作为风险、盲点和验证线索，不得直接沿用其中旧 verdict 或旧结论。
@@ -113,11 +113,11 @@ export function buildGroundedDossierMessages(
     {
       role: 'system',
       content:
-        `你是一个服务于游戏产品预测风洞的“证据蒸馏器”。你会在已抽取好的 grounded pack 基础上形成 dossier。${getDossierFlavorInstruction(flavor)}${groundedFactsInstruction}${inferenceLabelingInstruction}${contradictionInstruction}${missingEvidenceInstruction}${embeddedDataInstruction}请只输出 JSON，不要输出解释文字。`,
+        `你是一个服务于 KOC 内容策略风洞的“证据蒸馏器”。你会在已抽取好的 grounded pack 基础上形成 dossier。${getDossierFlavorInstruction(flavor)}${groundedFactsInstruction}${inferenceLabelingInstruction}${contradictionInstruction}${missingEvidenceInstruction}${embeddedDataInstruction}请只输出 JSON，不要输出解释文字。`,
     },
     {
       role: 'user',
-      content: `请基于项目快照和 grounded pack，输出一个用于后续多视角推演的游戏产品 dossier。
+      content: `请基于项目快照和 grounded pack，输出一个用于后续多视角推演的 KOC 内容策略 dossier。
 
 ${formatDataSection('PROJECT', request.project, { pretty: true })}
 
@@ -128,14 +128,14 @@ ${formatDataSection('GROUNDED_PACK', groundingPack, { pretty: true })}
 2. 当前候选风格是 ${flavor}，要在保持 grounded_pack 事实边界的前提下体现该风格。
 3. grounded_pack 里的 facts / tensions / audiences / constraints / unknowns 是优先事实底稿；不要忽略它们重新发散。
 4. 不要直接只给结论，先吸收 tensions / unknowns / facts 再形成判断。
-5. 必须覆盖核心体验承诺、目标玩家分层、局时节奏、成长驱动、社交驱动、商业化、参考游戏、制作约束这些维度。
-6. 要覆盖玩法、玩家心理、留存增长、市场、制作落地这些维度。
+5. 必须覆盖内容主张、目标受众分层、分发节奏、互动驱动、转化路径、平台竞争、内容生产约束这些维度。
+6. 要覆盖内容机制、受众心理、增长转化、平台竞争、生产执行、反方审查这些维度。
 7. confidence / supportRatio / playerAcceptance / scores 全部使用 0-100 整数。
 8. hypothesis 的 confidence 使用 0-100 整数。
 9. personas / hypotheses / evidenceDigest / memorySignals 默认各保留 2-4 条，只保留最高信号内容。
 10. coreTensions / openQuestions 默认各保留 3-5 条，避免堆砌同义项。
 11. 只允许引用项目和 grounded_pack 中明确出现的事实；缺失就写 openQuestions / warnings，不要脑补具体细节。
-12. 不得新增未提供的参考游戏、开发时长、团队规模、商业化方案、平台或玩法机制。
+12. 不得新增未提供的竞品内容、投放预算、团队规模、平台机制或内容机制细节。
 13. 如果做推断，必须显式写成“推断：...”或放到 hypothesis.gap / openQuestions / warnings。
 14. 即使 grounded_pack 里含有历史记忆信号，也只能把它们当作风险、盲点和验证线索，不得直接沿用旧 verdict 或旧结论。
 

@@ -50,12 +50,12 @@ export function ImpactScanProgressSection({
     <section className="panel staged-panel">
       <div className="panel-heading">
         <div>
-          <p className="eyebrow">{isEnglish ? 'Scan Progress' : '推演进度'}</p>
+          <p className="eyebrow">{isEnglish ? 'Experiment Progress' : '实验进度'}</p>
           <h3>
             {result
               ? isEnglish
                 ? 'The variable result is ready'
-                : '变量推演结果已经就绪'
+                : '变量实验结果已经就绪'
               : isHydratingHistory
                 ? isEnglish
                   ? 'Loading recent saved results'
@@ -63,10 +63,10 @@ export function ImpactScanProgressSection({
                 : status === 'loading'
                   ? isEnglish
                     ? currentStage?.label ?? 'The scan is running'
-                    : currentStage?.label ?? '推演正在运行'
+                    : currentStage?.label ?? '实验正在运行'
                   : isEnglish
                     ? 'The scan needs attention'
-                    : '这轮推演需要处理'}
+                    : '这轮实验需要处理'}
           </h3>
         </div>
         <span className="panel-badge">

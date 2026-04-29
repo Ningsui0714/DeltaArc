@@ -1,7 +1,7 @@
 import type { OverviewPageViewModel, OverviewPageViewModelInput } from './overviewPageTypes';
 
 function getQuickScanLabel(language: OverviewPageViewModelInput['language']) {
-  return language === 'en' ? 'Quick Scan' : '快速扫描';
+  return language === 'en' ? 'Quick Diagnosis' : '快速诊断';
 }
 
 export function buildOverviewHeroViewModel(
@@ -12,35 +12,35 @@ export function buildOverviewHeroViewModel(
   const displayIdeaSummary =
     input.project.ideaSummary ||
     (isEnglish
-      ? 'Start from a blank project and define what this round is trying to validate.'
-      : '从空白项目开始，先定义这次要验证什么。');
+      ? 'Start from a blank brief and define the campaign goal for this round.'
+      : '从空白 brief 开始，先定义这轮传播到底要验证什么。');
   const displayCoreLoop =
     input.project.coreLoop ||
     (isEnglish
-      ? 'Write the core loop first, for example: explore -> fight -> collect -> grow.'
-      : '先写核心循环，例如：探索 -> 战斗 -> 收集 -> 成长。');
+      ? 'Write the content growth loop first, for example: publish -> interact -> save -> revisit.'
+      : '先写内容增长回路，例如：看到内容 -> 点进评论 -> 收藏转发 -> 线下到店。');
   const displayCoreFantasy =
     input.project.coreFantasy ||
     (isEnglish
-      ? 'Explain why players stay and what they should feel.'
-      : '先写玩家为什么愿意留下来，以及想感受到什么。');
+      ? 'Explain the account promise or content feeling people should remember.'
+      : '先写账号/内容到底要让人记住什么，以及为什么愿意继续关注。');
   const displayValidationGoal =
     input.project.validationGoal ||
     (isEnglish
-      ? 'Turn this round into one sentence with a clear success or failure bar.'
+      ? 'Turn this round into one sentence with a clear decision bar.'
       : '先把这轮验证目标写成一句可判断输赢的话。');
   const displayCurrentStatus =
     input.project.currentStatus ||
     (isEnglish
-      ? 'Write the main concern right now, such as onboarding cost, differentiation, or retention risk.'
-      : '先写你现在最担心的问题，例如上手成本、差异化或留存风险。');
+      ? 'Write the main concern right now, such as weak differentiation, unclear CTA, or thin evidence.'
+      : '先写你现在最担心的问题，例如内容不够差异化、互动点不够强，或证据还不够。');
 
   return {
-    eyebrow: isEnglish ? 'Mission Brief' : '任务简报',
+    eyebrow: isEnglish ? 'Campaign Brief' : '传播简报',
     title: displayIdeaSummary,
     copy: isEnglish
-      ? `This stage is only for project setup, evidence loading, and import feedback. When the minimum gate is ready, move to the Inference Desk for ${getQuickScanLabel(input.language)}.`
-      : '这一阶段只负责项目设定、证据装载和导入反馈。最小门槛达标后，再进入推理台开始快速扫描。',
+      ? `This stage is only for campaign setup, evidence loading, and import feedback. When the minimum gate is ready, move to the Diagnosis Desk for ${getQuickScanLabel(input.language)}.`
+      : '这一阶段只负责传播任务设定、证据装载和导入反馈。最小门槛达标后，再进入诊断台开始快速诊断。',
     signalItems: [
       {
         label: isEnglish ? 'Core Fields' : '关键字段',
@@ -51,19 +51,19 @@ export function buildOverviewHeroViewModel(
         value: isEnglish ? `${input.evidenceCount}` : `${input.evidenceCount} 条`,
       },
       {
-        label: isEnglish ? 'Core Loop' : '核心循环',
+        label: isEnglish ? 'Growth Loop' : '增长回路',
         value: displayCoreLoop,
       },
       {
-        label: isEnglish ? 'Core Fantasy' : '核心体验',
+        label: isEnglish ? 'Content Promise' : '内容承诺',
         value: displayCoreFantasy,
       },
       {
-        label: isEnglish ? 'Validation Goal' : '验证目标',
+        label: isEnglish ? 'Decision Goal' : '验证目标',
         value: displayValidationGoal,
       },
       {
-        label: isEnglish ? 'Current Concern' : '当前状态',
+        label: isEnglish ? 'Main Concern' : '当前担心点',
         value: displayCurrentStatus,
       },
     ],
@@ -76,13 +76,13 @@ export function buildOverviewImportCardViewModel(
   const isEnglish = language === 'en';
 
   return {
-    title: isEnglish ? 'Import Project File' : '导入项目文件',
+    title: isEnglish ? 'Import Brief File' : '导入 brief 文件',
     description: isEnglish
-      ? 'If you already have a project JSON bundle, design Markdown, or requirement TXT, import it here first. Recognized project fields fill automatically, and the body is also converted into evidence cards.'
-      : '如果你已经有项目包 JSON、设计文档 Markdown 或需求 TXT，建议先在这里导入。命中项目字段时会自动回填；正文也会同步沉淀成证据卡。',
+      ? 'If you already have a brief JSON bundle, campaign Markdown, or requirement TXT, import it here first. Recognized fields fill automatically, and the body is also converted into evidence cards.'
+      : '如果你已经有 brief JSON、投放方案 Markdown 或需求 TXT，建议先在这里导入。命中字段时会自动回填；正文也会同步沉淀成证据卡。',
     hint: isEnglish
-      ? 'Recommended before manual editing: project JSON bundle / design Markdown / requirement TXT'
-      : '推荐先导入再手填：项目包 JSON / 设计文档 Markdown / 需求说明 TXT',
-    buttonLabel: isEnglish ? 'Choose Project File' : '选择项目文件',
+      ? 'Recommended before manual editing: brief JSON / campaign Markdown / requirement TXT'
+      : '推荐先导入再手填：brief JSON / 投放方案 Markdown / 需求说明 TXT',
+    buttonLabel: isEnglish ? 'Choose Brief File' : '选择 brief 文件',
   };
 }

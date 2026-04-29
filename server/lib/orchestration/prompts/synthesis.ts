@@ -123,7 +123,7 @@ ${buildSharedSynthesisContext(request, dossier, provisional)}
 5. strategies 至少 3 条，而且要明显不同；优先改写 provisional_base.strategies，而不是完全推翻。
 6. report.actions 至少 4 条，并且都必须贴合当前 productionConstraints，默认应在两周内推进。
 7. systemVerdict 必须基于 project 和 dossier 重新概括，不要直接复用 provisional_base.systemVerdict 的原句；即使结论仍偏谨慎，也要写出这轮项目特有的机会或约束。
-8. 不得新增未提供的参考游戏、开发时长、团队规模、商业化方案、平台或玩法机制。
+8. 不得新增未提供的竞品内容、投放预算、团队规模、平台机制或内容机制细节。
 9. 如果 dossier 或 provisional_base 与原始项目冲突，以原始项目为准，并在 warnings 中写明冲突。
 10. 如果做推断，必须显式写成“推断：...”或写入 warnings，不得把推断包装成已知事实。
 11. 不得输出通用库存句，尤其不要直接写“方向暂不宜乐观扩张，先用更小成本验证关键前提。”这类与项目无关的模板 verdict。
@@ -234,7 +234,7 @@ ${buildSharedSynthesisContext(request, dossier, provisional)}
 4. 如果发现结论写得过满，可以收缩 summary / systemVerdict / primaryRisk / nextStep / report，但不要改写别的字段。
 5. 如果当前结论已经合理，也要把脆弱点写进 warnings，而不是默认一切稳固。
 6. report.actions 可以调整顺序或措辞，但应保持 4 条以内高信号动作，不要发散成新计划。
-7. 不得新增未提供的参考游戏、开发时长、团队规模、商业化方案、平台或玩法机制。
+7. 不得新增未提供的竞品内容、投放预算、团队规模、平台机制或内容机制细节。
 8. 如果某个必要条件没有被充分支持，必须在 warnings 中显式指出。
 
 JSON schema:

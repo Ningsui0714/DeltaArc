@@ -53,8 +53,8 @@ export function WorkspaceHeaderPhaseContent({
           <span className="meta-chip">{isEnglish ? 'Inside Step 4' : '第 4 步内视图'}</span>
           <p>
             {isEnglish
-              ? 'These tabs are parallel result views produced by the formal run, not extra workflow stages. Current Judgment, Future Evolution, and Forecast Report are peers here.'
-              : '下面这些标签是正式推演产出的并列结果视图，不是额外的新流程。当前判断、未来演化、预测报告在这里是并列关系。'}
+              ? 'These tabs are parallel strategy views produced by the formal diagnosis, not extra workflow stages. Current Diagnosis, Spread Outlook, and Strategy Report are peers here.'
+              : '下面这些标签是正式诊断产出的并列策略视图，不是额外的新流程。当前诊断、扩散演化、策略报告在这里是并列关系。'}
           </p>
         </div>
         <PhaseTabs
@@ -79,8 +79,8 @@ export function WorkspaceHeaderPhaseContent({
         <span className="meta-chip">{isEnglish ? 'Step 5' : '第 5 步'}</span>
         <p>
           {isEnglish
-            ? 'Variable Sandbox is a core workflow of its own. It starts from the formal result, freezes a baseline, then lets you inject and observe one new variable.'
-            : '变量推演是一条独立的核心流程。它从正式结果出发，先冻结基线，再让你注入并观察一个新变量。'}
+            ? 'Variable Lab is a core workflow of its own. It starts from the formal strategy result, freezes a baseline, then lets you inject and observe one new content variable.'
+            : '变量实验是一条独立的核心流程。它从正式策略结果出发，先冻结基线，再让你注入并观察一个新的内容变量。'}
         </p>
       </div>
     );
@@ -90,12 +90,12 @@ export function WorkspaceHeaderPhaseContent({
     return (
       <div className="workspace-phase-banner">
         <span className="meta-chip">
-          {progressLabel ?? (isEnglish ? 'Desk standing by' : '推理台待命')}
+          {progressLabel ?? (isEnglish ? 'Desk standing by' : '诊断台待命')}
         </span>
         <p>
           {isEnglish
-            ? 'This step only handles the formal run itself. Once it finishes, Step 4 shows the formal results and Step 5 opens the variable sandbox.'
-            : '第 3 步只负责把正式推演跑完。跑完之后，第 4 步会展示正式结果，第 5 步则进入变量推演。'}
+            ? 'This step only handles the formal diagnosis itself. Once it finishes, Step 4 shows the strategy results and Step 5 opens the variable lab.'
+            : '第 3 步只负责把正式诊断跑完。跑完之后，第 4 步会展示策略结果，第 5 步则进入变量实验。'}
         </p>
       </div>
     );

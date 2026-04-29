@@ -52,9 +52,9 @@ export function WorkspaceHeader(props: WorkspaceHeaderProps) {
     <header className="workspace-header">
       <div className="workspace-command-deck process-command-deck">
         <div className="workspace-brand">
-          <div className="workspace-brand-mark">{isEnglish ? 'DA' : '观'}</div>
+          <div className="workspace-brand-mark">{isEnglish ? 'DA' : '风'}</div>
           <div className="workspace-brand-copy">
-            <p className="eyebrow">{isEnglish ? 'DeltaArc' : '观变'}</p>
+            <p className="eyebrow">{isEnglish ? 'DeltaArc' : '内容风洞'}</p>
             <h1>{viewModel.projectTitle}</h1>
             <p>{viewModel.headline}</p>
           </div>

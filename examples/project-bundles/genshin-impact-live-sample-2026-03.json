@@ -16,7 +16,14 @@
     "referenceGames": ["塞尔达传说：旷野之息", "Fate/Grand Order", "崩坏：星穹铁道"],
     "validationGoal": "重点判断：1) 新角色与返场能否继续带动回流；2) 怀旧型 Mondstadt 活动是否有效激活老玩家情绪；3) Miliastra Wonderland 赛季化更新能否补足版本中段留存；4) PS4 内容终止对口碑与迁移成本的影响是否可控。",
     "productionConstraints": "多平台长线 Live 服务，内容体量极大；截至 2026-03-16，PS4 版已进入停更倒计时，版本运营需要兼顾新内容生产、老玩家迁移与跨平台体验一致性。",
-    "currentStatus": "基于 2026-03-16 前可验证公开信息，原神正处于 Luna V 周期：当前公开卖点包含 Varka、Cloudglow 与 Mondstadt 回归活动，Cloudglow Season 持续到 2026-04-07，PS4 新内容支持将在 2026-04-08 结束。"
+    "currentStatus": "基于 2026-03-16 前可验证公开信息生成运营样例；如果在 2026-04-28 发布，必须重新核对所有活动日期，避免把已结束活动写成正在进行。"
+  },
+  "xiaohongshuPost": {
+    "fixtureId": "xhs-genshin-return-guide",
+    "coverImagePath": "../xiaohongshu-posts/images/xhs-genshin-return-guide.jpg",
+    "title": "原神老玩家回坑前：先用 5 分钟理清这轮版本重点",
+    "desiredAction": "评论回坑卡点，收藏清单，关注后续按日期更新的活动提醒。",
+    "guardrails": "发布前必须核对当前日期和官方公告；AI 图只用于内部预演，正式发布换授权素材。"
   },
   "evidenceItems": [
     {

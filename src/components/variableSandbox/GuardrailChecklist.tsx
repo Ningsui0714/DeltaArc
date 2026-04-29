@@ -16,8 +16,8 @@ export function GuardrailChecklist({ guardrails }: GuardrailChecklistProps) {
     <section className="panel inner-panel">
       <div className="panel-heading">
         <div>
-          <p className="eyebrow">{isEnglish ? 'Guardrails' : '护栏'}</p>
-          <h4>{isEnglish ? 'Minimum guardrails before implementation' : '进入实现前的最小护栏'}</h4>
+          <p className="eyebrow">{isEnglish ? 'Guardrails' : 'guardrail 清单'}</p>
+          <h4>{isEnglish ? 'Minimum guardrails before launch' : '进入执行前的最小 guardrail'}</h4>
         </div>
       </div>
 

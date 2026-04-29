@@ -8,7 +8,7 @@ export function createDossierFallback(
   reason = 'The remote dossier stage failed.',
 ): Dossier {
   const evidenceLevel = summarizeEvidenceLevel(request);
-  const primaryAudience = request.project.targetPlayers[0] ?? 'the target audience';
+  const primaryAudience = request.project.targetPlayers[0] ?? '核心受众';
   const evidenceDigest = request.evidenceItems.slice(0, 3).map((item) => ({
     title: item.title,
     signal: `${item.type} from ${item.source} (${item.trust} trust, ${item.createdAt || 'unknown date'})`,
@@ -19,8 +19,8 @@ export function createDossierFallback(
   const supportRatio = evidenceLevel === 'high' ? 62 : evidenceLevel === 'medium' ? 56 : 49;
 
   return {
-    systemFrame: `${request.project.name} is in ${request.project.mode} mode and is currently trying to validate ${request.project.validationGoal}.`,
-    opportunityThesis: `The strongest near-term bet is to make ${request.project.coreFantasy || request.project.ideaSummary} feel immediately legible for ${primaryAudience}.`,
+    systemFrame: `${request.project.name} 当前处于 ${request.project.mode} 阶段，正在验证“${request.project.validationGoal}”这条 KOC 内容策略前提。`,
+    opportunityThesis: `近期最有价值的押注，是让“${request.project.coreFantasy || request.project.ideaSummary}”被 ${primaryAudience} 快速理解、快速互动并可复述传播。`,
     evidenceLevel,
     playerAcceptance,
     confidence,
@@ -34,29 +34,29 @@ export function createDossierFallback(
     },
     personas: request.project.targetPlayers.slice(0, 3).map((player, index) => ({
       name: player || `Persona ${index + 1}`,
-      motive: `Wants ${request.project.coreFantasy || 'a clear promise'} without extra setup friction.`,
+      motive: `希望低门槛理解并快速获得“${request.project.coreFantasy || '清晰内容价值'}”回报。`,
       accepts: request.project.coreLoop || request.project.ideaSummary,
       rejects:
         request.project.progressionHook ||
         request.project.productionConstraints ||
-        'Loose scope and unclear payoff.',
-      verdict: `Worth testing if the first-session payoff is obvious for ${player || 'this audience'}.`,
+        '范围松散、价值不明确、产出节奏不可控。',
+      verdict: `若首轮触达到互动转化的回报足够清晰，值得继续验证 ${player || '该受众层'}。`,
     })),
     hypotheses: [
       {
-        title: 'Core fantasy can carry the first session',
+        title: '核心内容主张能驱动首轮互动',
         evidence:
-          evidenceDigest[0]?.implication ?? 'No imported evidence yet; this is inferred from the project snapshot.',
+          evidenceDigest[0]?.implication ?? '暂无外部证据，当前仅基于项目快照做推断。',
         confidence,
-        gap: `Need a focused test that proves whether players respond to ${request.project.validationGoal}.`,
+        gap: `需要一次聚焦验证，证明目标受众是否会对“${request.project.validationGoal}”做出真实互动。`,
       },
       {
-        title: 'Scope discipline is as important as novelty',
+        title: '生产范围纪律与创意新鲜度同等重要',
         evidence:
           request.project.productionConstraints ||
-          'Production constraints were not detailed, so scope risk remains under-specified.',
+          '生产约束未被明确，范围失控风险仍偏高。',
         confidence: Math.max(35, confidence - 12),
-        gap: 'Need a prototype slice that confirms the differentiator survives under current production limits.',
+        gap: '需要一个最小内容样本，验证差异化主张在当前产能约束下仍可成立。',
       },
     ],
     evidenceDigest:
@@ -67,7 +67,7 @@ export function createDossierFallback(
               title: 'Project snapshot',
               signal: 'No evidence items were imported for this run.',
               implication:
-                'The quick scan is continuing from the project fields only, so conclusions should stay provisional.',
+                '当前仅基于项目字段做快速推演，结论应保持暂定。',
             },
           ],
     coreTensions: uniqueStrings(
@@ -79,7 +79,7 @@ export function createDossierFallback(
           ? `Differentiation has to stay visible without bloating onboarding: ${request.project.differentiators}`
           : undefined,
         request.project.monetization
-          ? `Monetization should not outrun trust in the first retained session: ${request.project.monetization}`
+          ? `转化动作不应快于受众信任建立：${request.project.monetization}`
           : undefined,
       ],
       4,
@@ -87,16 +87,16 @@ export function createDossierFallback(
     openQuestions: uniqueStrings(
       [
         request.project.validationGoal
-          ? `Can the next test directly prove: ${request.project.validationGoal}`
+          ? `下一轮验证能否直接证明：${request.project.validationGoal}`
           : undefined,
         request.project.targetPlayers[0]
-          ? `What makes ${request.project.targetPlayers[0]} stay after the first session?`
+          ? `${request.project.targetPlayers[0]} 在首轮接触后持续互动的关键驱动是什么？`
           : undefined,
         request.project.productionConstraints
-          ? `Which scope cut best protects the core loop under this constraint: ${request.project.productionConstraints}?`
+          ? `在“${request.project.productionConstraints}”约束下，哪种范围收缩最能保护核心内容机制？`
           : undefined,
         request.project.referenceGames[0]
-          ? `Which expectation borrowed from ${request.project.referenceGames[0]} should be matched, and which should be rejected?`
+          ? `借鉴 ${request.project.referenceGames[0]} 时，哪些受众预期应对齐，哪些应主动放弃？`
           : undefined,
       ],
       5,
@@ -104,9 +104,9 @@ export function createDossierFallback(
     memorySignals,
     warnings: uniqueStrings(
       [
-        'Dossier stage fell back to a local summary built from the current project snapshot.',
+        'Dossier 阶段已回退为基于当前项目快照的本地摘要。',
         reason,
-        request.evidenceItems.length === 0 ? 'No evidence items were imported for this run.' : undefined,
+        request.evidenceItems.length === 0 ? '本轮未导入外部证据条目。' : undefined,
       ],
       4,
     ),

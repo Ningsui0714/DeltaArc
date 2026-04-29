@@ -33,16 +33,16 @@ const zhInternalTermReplacements = [
   ['primaryRisk', '核心风险'],
   ['validationTracks', '验证路径'],
   ['decisionLenses', '决策视角'],
-  ['playerAcceptance', '玩家接受度'],
+  ['playerAcceptance', '受众接受度'],
   ['supportRatio', '支持比例'],
   ['confidence', '置信度'],
   ['evidenceLevel', '证据等级'],
   ['learningCost', '学习成本'],
   ['acceptanceRisk', '接受风险'],
   ['prototypeCost', '原型成本'],
-  ['coreFun', '核心乐趣'],
+  ['coreFun', '内容吸引力'],
   ['novelty', '新鲜感'],
-  ['personas', '玩家画像'],
+  ['personas', '受众画像'],
   ['hypotheses', '假设'],
   ['unknowns', '未知项'],
   ['audiences', '目标受众'],
@@ -310,7 +310,7 @@ export function AnalysisQualityPanel({
       : '第一阶段现在会显式展示：选中了哪个候选、为什么赢，以及哪些必要条件仍然在卡住最终判断。'
     : mode === 'reasoning'
       ? isEnglish
-        ? 'This visible result was generated before verifier traces were exposed in the UI. Run Deep Dive again to see candidate selection and reverse-check output.'
+        ? 'This visible result was generated before verifier traces were exposed in the UI. Run Deep Simulation again to see candidate selection and reverse-check output.'
         : '这份可见结果生成于校验轨迹接入界面之前。重新跑一次深度推演，就能看到候选筛选和反证核验输出。'
       : isEnglish
         ? 'This visible result does not include verifier traces yet. Run a fresh analysis to expose the new first-stage gating details.'
@@ -339,7 +339,7 @@ export function AnalysisQualityPanel({
                 : '深度推演'
               : isEnglish
                 ? 'Quick mode'
-                : '快速扫描'}
+                : '快速诊断'}
           </span>
           {meta.dossierSelection ? (
             <span className="meta-chip">

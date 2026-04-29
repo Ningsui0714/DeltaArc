@@ -149,7 +149,7 @@ test('createVariableSandboxPageViewModel shows stale guidance before the first b
   );
   assert.equal(
     viewModel.flow.items[0]?.detail,
-    '当前可见结果已经过期，先重跑正式推演，再冻结新的基线。',
+    '当前可见结果已经过期，先重跑正式诊断，再冻结新的策略基线。',
   );
   assert.equal(
     viewModel.baseline.bullets[0],
@@ -174,7 +174,7 @@ test('createVariableSandboxPageViewModel marks the idea ready and surfaces the r
   });
 
   assert.equal(viewModel.flow.items[1]?.state, 'done');
-  assert.equal(viewModel.flow.items[1]?.detail, 'Idea ready: Timed co-op gate');
+  assert.equal(viewModel.flow.items[1]?.detail, 'Variable ready: Timed co-op gate');
   assert.equal(viewModel.flow.items[2]?.detail, '影响扫描');
   assert.equal(viewModel.baseline.freezeButtonLabel, 'Freezing Baseline');
   assert.equal(

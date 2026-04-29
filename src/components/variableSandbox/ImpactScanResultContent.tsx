@@ -30,7 +30,7 @@ export function ImpactScanResultContent({
           tone={result.evidenceLevel === 'high' ? 'good' : 'info'}
         />
         <MetricCard
-          label={isEnglish ? 'Impacted Targets' : '影响目标'}
+          label={isEnglish ? 'Impacted Targets' : '影响目标数'}
           value={`${result.impactScan.length}`}
           tone="info"
         />
@@ -39,12 +39,12 @@ export function ImpactScanResultContent({
       <section className="panel split-panel">
         <div>
           <p className="eyebrow">{isEnglish ? 'Summary' : '摘要'}</p>
-          <h4>{isEnglish ? 'What changes first' : '首先变化的是什么'}</h4>
+          <h4>{isEnglish ? 'What changes first' : '首先发生什么变化'}</h4>
           <p>{result.summary}</p>
         </div>
         <div>
-          <p className="eyebrow">{isEnglish ? 'Baseline Read' : '基线解读'}</p>
-          <h4>{isEnglish ? 'What the frozen truth source still says' : '冻结真相源当前仍在表达什么'}</h4>
+          <p className="eyebrow">{isEnglish ? 'Baseline Read' : '策略基线解读'}</p>
+          <h4>{isEnglish ? 'What the frozen baseline still says' : '冻结基线当前给出的判断'}</h4>
           <p>{result.baselineRead.summary}</p>
           <ul className="bullet-list">
             <li>
@@ -65,7 +65,7 @@ export function ImpactScanResultContent({
         <div className="panel-heading">
           <div>
             <p className="eyebrow">{isEnglish ? 'Direct Effects' : '直接影响'}</p>
-            <h3>{isEnglish ? 'The first-order change map' : '第一层变化地图'}</h3>
+            <h3>{isEnglish ? 'First-order impact map' : '一阶影响地图'}</h3>
           </div>
         </div>
         <div className="stack-list">
@@ -89,8 +89,8 @@ export function ImpactScanResultContent({
         <section className="panel inner-panel">
           <div className="panel-heading">
             <div>
-              <p className="eyebrow">{isEnglish ? 'Affected Personas' : '受影响人群'}</p>
-              <h4>{isEnglish ? 'Who reacts first' : '最先被影响的是谁'}</h4>
+              <p className="eyebrow">{isEnglish ? 'Affected Audiences' : '受影响人群'}</p>
+              <h4>{isEnglish ? 'Who reacts first' : '谁会最先反应'}</h4>
             </div>
           </div>
           <div className="stack-list">
@@ -119,7 +119,7 @@ export function ImpactScanResultContent({
         <section className="panel inner-panel">
           <div className="panel-heading">
             <div>
-              <p className="eyebrow">{isEnglish ? 'Validation Plan' : '验证计划'}</p>
+              <p className="eyebrow">{isEnglish ? 'Validation Plan' : 'validation plan'}</p>
               <h4>{isEnglish ? 'Minimum next experiments' : '最小下一步实验'}</h4>
             </div>
           </div>
@@ -149,7 +149,7 @@ export function ImpactScanResultContent({
           <div className="panel-heading">
             <div>
               <p className="eyebrow">{isEnglish ? 'Assumptions' : '假设与提醒'}</p>
-              <h4>{isEnglish ? 'Things that still need proving' : '还需要被证明的地方'}</h4>
+              <h4>{isEnglish ? 'Things that still need proving' : '仍需要证实的点'}</h4>
             </div>
           </div>
           <ul className="bullet-list">

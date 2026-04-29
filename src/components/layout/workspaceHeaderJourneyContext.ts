@@ -43,20 +43,20 @@ function getCurrentViewLabel(params: WorkspaceHeaderJourneyParams) {
 
   if (activePhase === 'output' && outputStep !== 'sandbox') {
     if (outputStep === 'report') {
-      return isEnglish ? 'Forecast Report' : '预测报告';
+      return isEnglish ? 'Strategy Report' : '策略报告';
     }
 
     if (outputStep === 'modeling') {
-      return isEnglish ? 'Current Judgment' : '当前判断';
+      return isEnglish ? 'Current Diagnosis' : '当前诊断';
     }
 
-    return isEnglish ? 'Future Evolution' : '未来演化';
+    return isEnglish ? 'Spread Outlook' : '扩散演化';
   }
 
   return inputStep === 'overview'
     ? isEnglish
-      ? 'Project Setup'
-      : '项目设定'
+      ? 'Campaign Brief'
+      : '传播任务'
     : isEnglish
       ? 'Evidence Signals'
       : '证据信号';

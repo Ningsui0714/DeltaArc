@@ -1,8 +1,9 @@
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import express from 'express';
-import { sandboxRouter } from './routes/sandbox';
 import { serverConfig } from './config';
+import { preflightSimulationRouter } from './routes/preflightSimulations';
+import { sandboxRouter } from './routes/sandbox';
 
 const app = express();
 const clientDistPath = path.resolve(process.cwd(), 'dist');
@@ -12,7 +13,7 @@ const shouldServeClientDist =
   existsSync(clientDistPath) &&
   (isProductionStartScript || /(?:^|[\\/])dist-server(?:[\\/]|$)/.test(runtimeEntryPath));
 
-app.use(express.json({ limit: '1mb' }));
+app.use(express.json({ limit: '12mb' }));
 
 app.get('/api/health', (_req, res) => {
   res.json({
@@ -23,6 +24,7 @@ app.get('/api/health', (_req, res) => {
 });
 
 app.use('/api/sandbox', sandboxRouter);
+app.use('/api/preflight-simulations', preflightSimulationRouter);
 
 if (shouldServeClientDist) {
   app.use(express.static(clientDistPath));
@@ -39,10 +41,10 @@ if (shouldServeClientDist) {
     res
       .status(200)
       .type('text/plain; charset=utf-8')
-      .send('开发模式下这里仅提供 API。最新前端请打开 http://127.0.0.1:3000 。');
+      .send('开发模式下这里只提供 API。请打开 http://127.0.0.1:3000 使用发布前试映场。');
   });
 }
 
 app.listen(serverConfig.port, serverConfig.host, () => {
-  console.log(`Sandbox server listening on http://${serverConfig.host}:${serverConfig.port}`);
+  console.log(`DeltaArc server listening on http://${serverConfig.host}:${serverConfig.port}`);
 });

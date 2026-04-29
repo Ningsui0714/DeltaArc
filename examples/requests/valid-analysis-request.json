@@ -1,39 +1,39 @@
 {
-  "workspaceId": "workspace_yuanaan_001",
+  "workspaceId": "workspace_qingyu_001",
   "mode": "balanced",
   "project": {
-    "name": "代号：远岸旅团",
+    "name": "青屿咖啡春季新品种草",
     "mode": "Concept",
-    "genre": "合作生存建造",
-    "platforms": ["PC", "Steam Deck"],
-    "targetPlayers": ["轻中度合作生存玩家", "双人开黑玩家", "内容传播型玩家"],
-    "coreFantasy": "和朋友在连续失控的营地危机里临场补位，把一场快要崩盘的局面救回来。",
-    "ideaSummary": "验证双人协作机关是否能提升中期留存，并形成高传播性的合作瞬间。",
-    "coreLoop": "探索 -> 收集 -> 建造 -> 协作机关 -> 防守",
-    "sessionLength": "15-20 分钟一局，失败后应支持快速重开。",
-    "differentiators": "把合作机关做成高频高压的救场时刻，而不是低频脚本化谜题。",
-    "progressionHook": "局内逐步解锁机关组合，局外解锁营地支援和角色分工强化。",
-    "socialHook": "双人同步操作和临场沟通直接决定营地是否守住，但允许弱配合下继续补位。",
-    "monetization": "当前阶段先不验证付费，只关注玩法成立；后续再看装扮和赛季化内容。",
-    "referenceGames": ["双人成行", "饥荒联机版", "Deep Rock Galactic"],
-    "validationGoal": "确认首局 10 分钟内是否能稳定出现值得复述的协作高光。",
-    "productionConstraints": "2 人团队，2 周内只能做一个高密度短局原型，不能铺完整主线内容。",
-    "currentStatus": "担心学习成本和失败惩罚会掩盖合作乐趣。"
+    "genre": "campus-koc",
+    "platforms": ["小红书", "视频号"],
+    "targetPlayers": ["校园女生", "宿舍社交人群", "轻分享 KOC"],
+    "coreFantasy": "让新品第一口就值得拉室友一起试，再顺手拍成一条可复述的校园内容。",
+    "ideaSummary": "两周内验证哪种 KOC 内容角度更能带动新品到店和自发 UGC。",
+    "coreLoop": "刷到内容 -> 拉朋友到店试喝 -> 现场拍摄反应 -> 评论区站队 -> 二次扩散",
+    "sessionLength": "单条内容 20-40 秒，集中测试窗口为新品上线后 14 天。",
+    "differentiators": "把新品体验做成可拉室友参与的“第一口反应内容”，而不是单纯功能介绍。",
+    "progressionHook": "用户先看第一口反应，再持续关注不同宿舍组合、口味站队和复购反馈。",
+    "socialHook": "评论区鼓励带室友打分、站队和补充自己的第一口反应。",
+    "monetization": "优先看新品券核销、到店转化和 UGC 量级，不把短期 GMV 当唯一目标。",
+    "referenceGames": ["校园新品测评账号", "宿舍探店博主", "同城轻生活品牌案例"],
+    "validationGoal": "确认“室友盲测”是否比“功能介绍”更能提升到店与复述率。",
+    "productionConstraints": "1 名运营 + 1 名兼职拍摄，单周最多产出 6 条可用内容，预算主要用于试饮和校园达人置换。",
+    "currentStatus": "担心当前内容都在讲新品卖点，但真正能带朋友到店的触发点还不够清晰。"
   },
   "evidenceItems": [
     {
-      "type": "design_doc",
-      "title": "玩法草案",
-      "source": "内部策划稿",
+      "type": "note",
+      "title": "评论摘录",
+      "source": "小红书评论区归纳",
       "trust": "medium",
-      "summary": "玩家在基地建设阶段会遇到必须双人同步完成的机关。"
+      "summary": "用户愿意转发“室友一起试喝”的内容，但对纯口味参数介绍停留时间明显更短。"
     },
     {
       "type": "interview",
-      "title": "轻协作玩家反馈",
-      "source": "Discord 访谈",
+      "title": "KOC 访谈",
+      "source": "4 位校园达人回访",
       "trust": "high",
-      "summary": "玩家愿意合作解谜，但要求失败后能迅速重试。"
+      "summary": "达人更愿意拍“室友真实反应”和“宿舍站队”，不想做生硬口播。"
     }
   ]
 }

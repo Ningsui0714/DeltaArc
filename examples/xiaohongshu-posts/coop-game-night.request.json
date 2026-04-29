@@ -1,0 +1,24 @@
+{
+  "workspaceId": "xhs-coop-game-night",
+  "platform": "xiaohongshu",
+  "goal": "comment",
+  "mode": "quick",
+  "contentDraft": {
+    "title": "今晚别单排了：这个双人机关局太适合边玩边笑",
+    "body": "试玩一个双人合作原型，最有记忆点的是两个人同时踩机关、分头守营地、失败后一起复盘。它适合做小红书试玩笔记：不是硬讲玩法，而是把“默契到底在不在线”的瞬间剪出来。",
+    "script": "开头 3 秒：两个人同时按手柄，屏幕上一个人在营地救火，一个人在机关门前等配合。中段：拆 3 个真实吵点：同步失败、掉线补位、失败惩罚。结尾：让评论区投票，最怕队友哪一种操作。"
+  },
+  "mediaAssets": [
+    {
+      "id": "xhs-coop-game-cover",
+      "kind": "image",
+      "name": "xhs-coop-game-night.jpg",
+      "mimeType": "image/jpeg",
+      "imagePath": "images/xhs-coop-game-night.jpg"
+    }
+  ],
+  "accountContext": "游戏试玩与开黑内容账号，常发双人游戏、情侣/室友开黑、轻度合作游戏体验。用户喜欢看真实翻车和可复述的合作瞬间。",
+  "targetAudience": "双人开黑玩家、情侣/室友游戏用户、喜欢合作生存和轻度动作冒险的人，以及想找下一款一起玩的游戏用户。",
+  "desiredAction": "评论最怕哪类队友，收藏试玩清单，关注下一条失败惩罚和单人补位机制复盘。",
+  "brandGuardrails": "不能把概念原型说成正式上线游戏；不能承诺售价、上线平台或最终玩法；避免鼓励攻击队友，吐槽要保持轻松玩笑口吻。"
+}

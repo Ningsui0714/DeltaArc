@@ -24,7 +24,7 @@ export function AnalysisStatePanel({
     <section className="panel analysis-state-panel">
       <div className="panel-heading">
         <div>
-          <p className="eyebrow">{isEnglish ? 'Formal Run Required' : '需要先完成正式推理'}</p>
+          <p className="eyebrow">{isEnglish ? 'Formal Diagnosis Required' : '需要先完成正式诊断'}</p>
           <h3>{title}</h3>
         </div>
         <span className="panel-badge">{isEnglish ? 'Only formal outputs appear here' : '这里只显示正式结果'}</span>
@@ -46,7 +46,7 @@ export function AnalysisStatePanel({
             disabled={!canRunAnalysis}
             onClick={onRunQuickForecast}
           >
-            {isEnglish ? 'Run Quick Scan' : '开始快速扫描'}
+            {isEnglish ? 'Run Quick Diagnosis' : '开始快速诊断'}
           </button>
         ) : null}
         {onRunDeepForecast ? (
@@ -56,7 +56,7 @@ export function AnalysisStatePanel({
             disabled={!canRunAnalysis}
             onClick={onRunDeepForecast}
           >
-            {isEnglish ? 'Run Deep Dive' : '开始深度推演'}
+            {isEnglish ? 'Run Deep Simulation' : '开始深度推演'}
           </button>
         ) : null}
       </div>

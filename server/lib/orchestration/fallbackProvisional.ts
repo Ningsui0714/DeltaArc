@@ -25,7 +25,7 @@ function getFallbackSystemVerdict(
   ).length;
 
   if (bullishCount > bearishCount && dossier.supportRatio >= 60 && dossier.confidence >= 55) {
-    return '方向值得推进，但必须依赖多轮验证而不是单点乐观。';
+    return '内容策略方向值得推进，但必须依赖多轮真实受众验证，而非单点乐观信号。';
   }
 
   if (
@@ -34,10 +34,10 @@ function getFallbackSystemVerdict(
       dossier.supportRatio <= 50 &&
       dossier.confidence <= 55)
   ) {
-    return '方向暂不宜乐观扩张，先用更小成本验证关键前提。';
+    return '当前不宜放大分发投入，应先用更小样本验证关键转化前提。';
   }
 
-  return '方向有继续验证的价值，但当前更适合围绕分歧最大的前提做小步试探。';
+  return '方向仍有继续验证价值，但更适合围绕分歧最大的内容前提做小步试探。';
 }
 
 export function buildProvisionalFallback(
@@ -137,10 +137,10 @@ export function buildProvisionalFallback(
     redTeam,
     memorySignals: dossier.memorySignals as SandboxMemorySignal[],
     report: {
-      headline: '多阶段推演已完成，下一步应以验证而不是辩论继续收敛',
+      headline: '多阶段内容策略推演已完成，下一步应以验证而不是争论继续收敛',
       summary: dossier.systemFrame,
-      conclusion: '当前结果已经不再只是单个模型的直觉判断，而是多视角冲突后的暂时结论。',
-      whyNow: '在证据仍不完备时，越早把不同视角和失败路径显性化，后续迭代成本越低。',
+      conclusion: '当前结果不再是单点直觉，而是多视角冲突后的阶段性结论。',
+      whyNow: '证据仍不完备时，越早显性化分歧与失败路径，后续迭代成本越低。',
       risk: redTeam.thesis,
       actions:
         validationTracks.length > 0
@@ -244,7 +244,7 @@ export function buildProvisionalSeed(
     redTeam,
     memorySignals: dossier.memorySignals as SandboxMemorySignal[],
     report: {
-      headline: '待综合多视角结果后收束最终判断',
+      headline: '待综合多视角结果后收束最终内容策略判断',
       summary: dossier.systemFrame,
       conclusion: '',
       whyNow: '',

@@ -36,11 +36,11 @@ export function ProjectUnderstandingPanel({
       <div className="section-heading">
         <div>
           <p className="eyebrow">{isEnglish ? 'Current Read' : '当前系统理解'}</p>
-          <h4>{isEnglish ? 'Live product understanding' : '实时产品理解预览'}</h4>
+          <h4>{isEnglish ? 'Live strategy understanding' : '实时策略理解预览'}</h4>
           <p>
             {isEnglish
-              ? 'This is not the final verdict. It is a rolling read of what your current inputs already make clear.'
-              : '这不是正式结论，而是系统根据当前输入已经能读出来的产品判断。'}
+              ? 'This is not the final verdict. It is a rolling read of what your current brief already makes clear.'
+              : '这不是正式结论，而是系统根据当前输入已经能读出来的内容策略判断。'}
           </p>
         </div>
         <span className="meta-chip">{isEnglish ? 'Updates live' : '实时更新'}</span>
@@ -77,7 +77,7 @@ export function ProjectUnderstandingPanel({
             </ul>
           ) : (
             <p className="understanding-empty">
-              {isEnglish ? 'The strongest selling angle still is not clear enough.' : '现在还看不出足够明确的卖点轮廓。'}
+              {isEnglish ? 'The strongest content angle still is not clear enough.' : '现在还看不出足够明确的内容方向和传播卖点。'}
             </p>
           )}
         </article>
@@ -95,7 +95,7 @@ export function ProjectUnderstandingPanel({
             </ul>
           ) : (
             <p className="understanding-empty">
-              {isEnglish ? 'No explicit risk has been named yet.' : '你还没有明确写出主要风险。'}
+              {isEnglish ? 'No explicit execution risk has been named yet.' : '你还没有明确写出主要传播或执行风险。'}
             </p>
           )}
         </article>
@@ -118,8 +118,8 @@ export function ProjectUnderstandingPanel({
           ) : (
             <p className="understanding-empty">
               {isEnglish
-                ? 'The intake frame already looks complete enough for a sharper first analysis.'
-                : '当前输入骨架已经比较完整，足以支撑更清晰的第一轮分析。'}
+                ? 'The intake frame already looks complete enough for a sharper first diagnosis.'
+                : '当前输入骨架已经比较完整，足以支撑更清晰的第一轮内容诊断。'}
             </p>
           )}
         </article>

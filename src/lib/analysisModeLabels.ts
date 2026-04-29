@@ -6,8 +6,8 @@ export function getAnalysisModeLabel(
   language: UiLanguage = 'zh',
 ) {
   if (language === 'en') {
-    return mode === 'reasoning' ? 'Deep Dive' : 'Quick Scan';
+    return mode === 'reasoning' ? 'Deep Simulation' : 'Quick Diagnosis';
   }
 
-  return mode === 'reasoning' ? '深度推演' : '快速扫描';
+  return mode === 'reasoning' ? '深度推演' : '快速诊断';
 }

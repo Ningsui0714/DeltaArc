@@ -1,19 +1,19 @@
 {
-  "baselineId": "baseline_yuanaan_001",
+  "baselineId": "baseline_qingyu_001",
   "mode": "balanced",
   "variable": {
-    "id": "var_dual_gate_001",
-    "baselineId": "baseline_yuanaan_001",
-    "name": "双人协作机关",
+    "id": "var_roommate_blindtest_001",
+    "baselineId": "baseline_qingyu_001",
+    "name": "室友盲测",
     "category": "gameplay",
-    "intent": "提升中期合作乐趣和内容传播性",
-    "changeStatement": "在基地推进过程中加入需要双人配合才能通过的限时机关",
-    "injectionTargets": ["core_loop", "mid_game_pacing", "social"],
-    "expectedBenefits": ["合作记忆点更强", "朋友组队动机增强"],
-    "knownCosts": ["学习成本提高", "单人推进受阻"],
+    "intent": "提升到店冲动、评论复述率和自发 UGC",
+    "changeStatement": "把主内容从功能介绍改成“室友第一口盲测 + 现场站队”",
+    "injectionTargets": ["core_loop", "session_pacing", "player_cooperation"],
+    "expectedBenefits": ["真实反应更强", "更容易拉朋友一起到店", "评论区更容易站队互动"],
+    "knownCosts": ["需要更强的拍摄调度", "门店现场承接压力更高"],
     "activationStage": "mid",
-    "dependencies": ["需要单人补位机制", "需要清晰的协作反馈"],
-    "successSignals": ["玩家主动讨论合作解法", "中期回流意愿上升"],
-    "failureSignals": ["玩家抱怨必须等人", "新手在首轮理解失败"]
+    "dependencies": ["门店愿意配合拍摄", "评论区互动语准备充分"],
+    "successSignals": ["评论区主动站队", "到店券核销提升"],
+    "failureSignals": ["内容只剩热闹没有转化", "拍摄成本压垮周更节奏"]
   }
 }

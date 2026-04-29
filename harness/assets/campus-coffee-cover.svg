@@ -1,0 +1,29 @@
+<svg width="1080" height="1350" viewBox="0 0 1080 1350" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1080" height="1350" fill="#F4E9DA"/>
+  <rect x="60" y="60" width="960" height="1230" rx="48" fill="#FCF7EF" stroke="#D6C3A9" stroke-width="8"/>
+  <circle cx="870" cy="240" r="120" fill="#F2C389" opacity="0.72"/>
+  <circle cx="260" cy="1080" r="140" fill="#B8D3D0" opacity="0.52"/>
+  <rect x="164" y="280" width="752" height="520" rx="40" fill="#FFFDF9" stroke="#D6C3A9" stroke-width="6"/>
+  <rect x="224" y="362" width="220" height="296" rx="28" fill="#D38E59"/>
+  <rect x="464" y="336" width="164" height="338" rx="28" fill="#8D5A3C"/>
+  <rect x="646" y="382" width="182" height="292" rx="28" fill="#E7D8C7"/>
+  <path d="M290 322C290 266 336 220 392 220C448 220 494 266 494 322V362H290V322Z" fill="#F7EFE7"/>
+  <path d="M524 292C524 244 562 206 610 206C658 206 696 244 696 292V336H524V292Z" fill="#F7EFE7"/>
+  <path d="M698 334C698 286 736 248 784 248C832 248 870 286 870 334V382H698V334Z" fill="#F7EFE7"/>
+  <text x="170" y="132" fill="#8D5A3C" font-family="'Noto Serif SC','Songti SC',serif" font-size="64" font-weight="700">
+    室友盲测
+  </text>
+  <text x="170" y="210" fill="#1D242A" font-family="'IBM Plex Sans','Microsoft YaHei',sans-serif" font-size="42" font-weight="600">
+    新品咖啡到底是不是智商税？
+  </text>
+  <text x="168" y="920" fill="#1D242A" font-family="'IBM Plex Sans','Microsoft YaHei',sans-serif" font-size="38" font-weight="600">
+    4 个室友只凭第一口投票
+  </text>
+  <text x="168" y="980" fill="#5E6770" font-family="'IBM Plex Sans','Microsoft YaHei',sans-serif" font-size="28">
+    看看真实反应，别让封面先把人吓跑
+  </text>
+  <rect x="168" y="1040" width="360" height="86" rx="20" fill="#1D242A"/>
+  <text x="210" y="1094" fill="#FCF7EF" font-family="'IBM Plex Sans','Microsoft YaHei',sans-serif" font-size="30" font-weight="600">
+    评论区提名下一位盲测员
+  </text>
+</svg>

@@ -22,14 +22,14 @@ export function createVariableSandboxPageViewModel(
   return {
     latestBaseline,
     hero: {
-      eyebrow: input.language === 'en' ? 'Variable Sandbox' : '变量推演',
+      eyebrow: input.language === 'en' ? 'Variable Lab' : '变量实验',
       title:
         input.language === 'en'
-          ? 'Test one new variable on top of the formal result'
-          : '基于正式结果继续测试一个新变量',
+          ? 'Test one content variable on top of the formal strategy result'
+          : '基于正式策略结果继续测试一个内容变量',
       summary: input.reportSummary,
       backButtonLabel:
-        input.language === 'en' ? 'Back to Forecast Report' : '回到预测报告',
+        input.language === 'en' ? 'Back to Strategy Report' : '回到策略报告',
     },
     flow: buildVariableSandboxFlowViewModel(input),
     baseline: buildVariableSandboxBaselineViewModel(input, latestBaseline),

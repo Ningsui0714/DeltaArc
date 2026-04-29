@@ -43,7 +43,7 @@ export function createRedTeamSpecialistOutput(
       {
         name: '失败优先',
         keyQuestion: '如果这个方向会失败，最可能先从哪里坏掉？',
-        answer: '大概率先坏在首局乐趣兑现不足，而不是坏在题材包装。',
+        answer: '大概率先坏在首轮价值兑现不足，而不是坏在题材包装。',
       },
     ],
     validationTracks: [
@@ -51,7 +51,7 @@ export function createRedTeamSpecialistOutput(
         '失败路径收集',
         'P0',
         '收集至少 3 组失败样本，确认项目最容易先坏在哪里。',
-        '让目标玩家试玩后复盘“哪一刻开始不想继续”，而不是只问喜欢什么。',
+        '让目标受众体验后复盘“哪一刻开始不想继续”，而不是只问喜欢什么。',
         '能稳定归纳出一条最危险的失败路径。',
         '反馈只有抽象喜好，没有具体失真节点。',
       ),
@@ -82,9 +82,9 @@ export function createRedTeamSpecialistOutput(
       },
     ],
     redTeam: {
-      thesis: '当前方向最可能失败在“合作只是义务，不是奖励”，导致玩家把沟通成本误判成玩法成本。',
+      thesis: '当前方向最可能失败在“互动只是义务，不是奖励”，导致受众把沟通成本误判成内容成本。',
       attackVectors: ['首局高光出现太晚', '失败恢复成本过高', '传播叙事强于真实体验兑现'],
-      failureModes: ['玩家记住了负担而不是合作瞬间', '团队用题材或包装掩盖验证不足'],
+      failureModes: ['受众记住了负担而不是互动瞬间', '团队用题材或包装掩盖验证不足'],
       mitigation: '先用更短的验证环路收集失败样本，再决定是否扩大制作投入。',
     },
     warnings: warning ? [warning] : [],

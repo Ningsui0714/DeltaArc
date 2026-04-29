@@ -28,8 +28,8 @@ export function buildJourneySteps(
   return [
     {
       id: 'overview',
-      label: context.isEnglish ? 'Project Setup' : '项目设定',
-      brief: context.isEnglish ? 'Define the problem.' : '先定问题。',
+      label: context.isEnglish ? 'Campaign Brief' : '传播任务',
+      brief: context.isEnglish ? 'Define the campaign.' : '先定传播任务。',
       status: getOverviewStepStatus(context),
       metric: getOverviewStepMetric(context),
       locked: false,
@@ -46,8 +46,8 @@ export function buildJourneySteps(
     },
     {
       id: 'analysis',
-      label: context.isEnglish ? 'Formal Inference' : '正式推演',
-      brief: context.isEnglish ? 'Run the formal chain.' : '运行正式推演。',
+      label: context.isEnglish ? 'Formal Diagnosis' : '正式诊断',
+      brief: context.isEnglish ? 'Run the formal diagnosis.' : '运行正式诊断。',
       status: getAnalysisStepStatus(context),
       metric: getAnalysisStepMetric(context),
       locked: false,
@@ -55,8 +55,8 @@ export function buildJourneySteps(
     },
     {
       id: 'results',
-      label: context.isEnglish ? 'Formal Results' : '正式结果',
-      brief: context.isEnglish ? 'Review the result views.' : '查看正式结果。',
+      label: context.isEnglish ? 'Strategy Results' : '策略结果',
+      brief: context.isEnglish ? 'Review the result views.' : '查看诊断和策略。',
       status: getResultsStepStatus(context),
       metric: getResultsStepMetric(context),
       locked: !context.hasViewableAnalysis,
@@ -64,10 +64,10 @@ export function buildJourneySteps(
     },
     {
       id: 'sandbox',
-      label: context.isEnglish ? 'Variable Sandbox' : '变量推演',
+      label: context.isEnglish ? 'Variable Lab' : '变量实验',
       brief: context.isEnglish
         ? 'Freeze a baseline and test one variable.'
-        : '冻结基线再试变量。',
+        : '冻结基线再试一个内容变量。',
       status: getSandboxStepStatus(context),
       metric: getSandboxStepMetric(context),
       locked: !context.hasViewableAnalysis,

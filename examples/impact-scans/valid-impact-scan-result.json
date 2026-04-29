@@ -1,78 +1,78 @@
 {
-  "summary": "变量会先放大合作高光，也会先放大等待队友的挫败感。",
+  "summary": "变量会先放大真实反应和拉朋友到店的冲动，也会先暴露拍摄协同和店内承接的短板。",
   "baselineRead": {
-    "summary": "当前基线的合作乐趣成立，但单人补位偏弱。",
+    "summary": "当前基线已经找到反应类内容方向，但评论区机制和到店承接还不够稳。",
     "evidenceLevel": "medium",
-    "primaryRisk": "等待队友会把轻度玩家挤出局。",
+    "primaryRisk": "如果发布时间、互动句和店内权益没跟上，热度会停留在表面围观。",
     "scores": {
-      "coreFun": 72,
-      "learningCost": 58,
-      "novelty": 70,
-      "acceptanceRisk": 61,
-      "prototypeCost": 54
+      "coreFun": 78,
+      "learningCost": 34,
+      "novelty": 72,
+      "acceptanceRisk": 43,
+      "prototypeCost": 36
     }
   },
   "impactScan": [
     {
       "target": "core_loop",
-      "directEffect": "双人同步节点会把高光集中到中期推进。",
-      "upside": "可复述的合作记忆点更强。",
-      "downside": "单人补位失败时会迅速放大等待感。",
-      "confidence": 78
+      "directEffect": "把内容主线从产品说明切到“现场反应”，更容易驱动到店决策。",
+      "upside": "用户更容易把第一口反应复述给室友或朋友。",
+      "downside": "如果前 5 秒没有抓住人，内容会被当成普通探店短视频。",
+      "confidence": 80
     },
     {
-      "target": "social",
-      "directEffect": "朋友组队动机会变强，但弱配合容错必须同步提高。",
-      "upside": "更容易形成传播内容和二创素材。",
-      "downside": "如果队友缺席，挫败感会直接反噬评价。",
-      "confidence": 74
+      "target": "player_cooperation",
+      "directEffect": "室友共同出镜会明显增强评论区站队和二次模仿意愿。",
+      "upside": "更容易形成轻量 UGC 和宿舍内部转发。",
+      "downside": "拍摄组织与门店配合不到位时，执行成本会快速抬升。",
+      "confidence": 76
     }
   ],
   "affectedPersonas": [
     {
-      "personaName": "轻协作玩家",
-      "likelyReaction": "会喜欢成功配合，但对被迫等待非常敏感。",
-      "primaryTrigger": "失败后能否迅速重试。",
+      "personaName": "宿舍决策者",
+      "likelyReaction": "会更愿意拉朋友到店试喝，但前提是内容能快速说明“现在去试”的理由。",
+      "primaryTrigger": "真实反应是否足够强，且评论区是否有站队氛围。",
       "riskLevel": "medium"
     },
     {
-      "personaName": "内容传播者",
-      "likelyReaction": "如果高光足够集中，会更愿意录制和复述。",
-      "primaryTrigger": "是否能稳定出现可观看的翻盘瞬间。",
+      "personaName": "轻分享 KOC",
+      "likelyReaction": "更愿意拍，但需要脚本足够轻和现场足够顺。",
+      "primaryTrigger": "是否能在低负担下拍到自然反应。",
       "riskLevel": "low"
     }
   ],
   "guardrails": [
     {
-      "title": "补单人补位机制",
-      "reason": "先把等待队友的挫败压下来，再放大合作收益。",
+      "title": "先写好评论区互动句",
+      "reason": "让围观流量快速进入站队和拉人讨论，而不是停留在礼貌点赞。",
       "priority": "P0"
     },
     {
-      "title": "缩短失败回场时间",
-      "reason": "降低重复劳动，避免负面情绪覆盖合作高光。",
+      "title": "提前对齐门店承接动作",
+      "reason": "避免内容起量后，到店体验和权益承接掉链子。",
       "priority": "P1"
     }
   ],
   "validationPlan": [
     {
-      "step": "做 15 分钟短局原型",
-      "goal": "验证首局 10 分钟内是否会出现可复述高光。",
-      "successSignal": "玩家愿意主动复述协作瞬间。",
-      "failureSignal": "玩家把讨论焦点放在等待与失误惩罚上。"
+      "step": "做 6 条室友盲测快测",
+      "goal": "验证反应类内容是否显著提升评论站队和到店券核销。",
+      "successSignal": "评论区主动站队，且到店核销高于功能介绍对照组。",
+      "failureSignal": "互动热闹但核销不动，或者评论区没有持续复述。"
     },
     {
-      "step": "观察弱配合双人局",
-      "goal": "验证单人补位是否足以避免等待感失控。",
-      "successSignal": "弱配合下仍能完成中期机关。",
-      "failureSignal": "一名玩家卡住会拖垮整局推进。"
+      "step": "观察低预算拍摄周更",
+      "goal": "验证这条内容线是否能在当前人手下稳定执行。",
+      "successSignal": "单周 6 条内容能稳定产出且质量不明显下滑。",
+      "failureSignal": "拍摄协同失控，导致整体节奏被拖慢。"
     }
   ],
   "assumptions": [
-    "玩家能在首局内快速理解双人机关的目标。",
-    "失败后的快速重试不会过度抬高制作成本。"
+    "校园用户会把“室友第一口反应”当成有分享价值的内容。",
+    "门店现场可以在不打断运营的情况下支持轻量拍摄。"
   ],
-  "warnings": ["当前还没有真实可玩录像样本。"],
-  "confidence": 71,
+  "warnings": ["当前还缺少真实门店动线与高峰时段的观察样本。"],
+  "confidence": 73,
   "evidenceLevel": "medium"
 }

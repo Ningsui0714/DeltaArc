@@ -24,10 +24,10 @@ type ModelingPageProps = {
 
 function getTabs(isEnglish: boolean) {
   return [
-    { id: 'scores', label: isEnglish ? 'Current Read' : '当前判断', hint: isEnglish ? 'Start with the overall tilt' : '先看整体倾向' },
+    { id: 'scores', label: isEnglish ? 'Current Diagnosis' : '当前诊断', hint: isEnglish ? 'Start with the overall tilt' : '先看整体倾向' },
     { id: 'perspectives', label: isEnglish ? 'Perspectives' : '多视角', hint: isEnglish ? 'Then compare each lens' : '再看各维度结论' },
     { id: 'blindspots', label: isEnglish ? 'Blind Spots' : '盲点', hint: isEnglish ? 'Then inspect the gaps' : '接着看缺口' },
-    { id: 'personas', label: isEnglish ? 'Audience' : '人群', hint: isEnglish ? 'See who will buy in' : '最后看谁会买单' },
+    { id: 'personas', label: isEnglish ? 'Audiences' : '受众', hint: isEnglish ? 'See who reacts first' : '再看谁最先有反应' },
     { id: 'hypotheses', label: isEnglish ? 'Hypotheses' : '假设', hint: isEnglish ? 'And what is still unproven' : '以及还没证实什么' },
   ] as const;
 }
@@ -51,11 +51,11 @@ export function ModelingPage({
       <section className="panel staged-panel">
         <div className="panel-heading">
           <div>
-            <p className="eyebrow">{isEnglish ? 'Model View' : '建模视图'}</p>
-            <h3>{isEnglish ? 'Review the current judgment stage by stage' : '逐阶段查看当前判断'}</h3>
+            <p className="eyebrow">{isEnglish ? 'Diagnosis View' : '诊断视图'}</p>
+            <h3>{isEnglish ? 'Review the current strategy diagnosis stage by stage' : '逐阶段查看当前策略诊断'}</h3>
           </div>
           <button type="button" className="inline-button" onClick={onNavigateToStrategy}>
-            {isEnglish ? 'Open Future Evolution' : '进入未来演化'}
+            {isEnglish ? 'Open Spread Outlook' : '进入扩散演化'}
           </button>
         </div>
 
@@ -64,11 +64,11 @@ export function ModelingPage({
         {activeTab === 'scores' ? (
           <section className="stage-panel-body">
             <div className="score-grid">
-              <ScoreBar label={isEnglish ? 'Core Fun Strength' : '核心乐趣强度'} value={scores.coreFun} />
-              <ScoreBar label={isEnglish ? 'Learning Burden' : '上手理解负担'} value={scores.learningCost} reverse />
-              <ScoreBar label={isEnglish ? 'Differentiation Potential' : '差异化潜力'} value={scores.novelty} />
+              <ScoreBar label={isEnglish ? 'Content Appeal' : '内容吸引力'} value={scores.coreFun} />
+              <ScoreBar label={isEnglish ? 'Understanding Burden' : '理解门槛'} value={scores.learningCost} reverse />
+              <ScoreBar label={isEnglish ? 'Differentiation Strength' : '差异化强度'} value={scores.novelty} />
               <ScoreBar label={isEnglish ? 'Acceptance Risk' : '接受风险'} value={scores.acceptanceRisk} reverse />
-              <ScoreBar label={isEnglish ? 'Prototype Validation Cost' : '原型验证成本'} value={scores.prototypeCost} reverse />
+              <ScoreBar label={isEnglish ? 'Execution Cost' : '执行成本'} value={scores.prototypeCost} reverse />
             </div>
           </section>
         ) : null}
@@ -94,11 +94,11 @@ export function ModelingPage({
                   <p>{persona.motive}</p>
                   <dl>
                     <div>
-                      <dt>{isEnglish ? 'Accept Trigger' : '接受触发'}</dt>
+                      <dt>{isEnglish ? 'Positive Trigger' : '正向触发'}</dt>
                       <dd>{persona.accepts}</dd>
                     </div>
                     <div>
-                      <dt>{isEnglish ? 'Reject Trigger' : '拒绝触发'}</dt>
+                      <dt>{isEnglish ? 'Drop-off Trigger' : '流失触发'}</dt>
                       <dd>{persona.rejects}</dd>
                     </div>
                   </dl>

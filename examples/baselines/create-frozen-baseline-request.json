@@ -1,73 +1,73 @@
 {
   "project": {
-    "name": "代号：远岸旅团",
+    "name": "青屿咖啡春季新品种草",
     "mode": "Concept",
-    "genre": "合作生存建造",
-    "platforms": ["PC", "Steam Deck"],
-    "targetPlayers": ["轻中度合作生存玩家", "双人开黑玩家", "内容传播型玩家"],
-    "coreFantasy": "和朋友在连续失控的营地危机里临场补位，把一场快要崩盘的局面救回来。",
-    "ideaSummary": "验证双人协作机关是否能提升中期留存，并形成高传播性的合作瞬间。",
-    "coreLoop": "探索 -> 收集 -> 建造 -> 协作机关 -> 防守",
-    "sessionLength": "15-20 分钟一局，失败后应支持快速重开。",
-    "differentiators": "把合作机关做成高频高压的救场时刻，而不是低频脚本化谜题。",
-    "progressionHook": "局内逐步解锁机关组合，局外解锁营地支援和角色分工强化。",
-    "socialHook": "双人同步操作和临场沟通直接决定营地是否守住，但允许弱配合下继续补位。",
-    "monetization": "当前阶段先不验证付费，只关注玩法成立；后续再看装扮和赛季化内容。",
-    "referenceGames": ["双人成行", "饥荒联机版", "Deep Rock Galactic"],
-    "validationGoal": "确认首局 10 分钟内是否能稳定出现值得复述的协作高光。",
-    "productionConstraints": "2 人团队，2 周内只能做一个高密度短局原型，不能铺完整主线内容。",
-    "currentStatus": "担心学习成本和失败惩罚会掩盖合作乐趣。"
+    "genre": "campus-koc",
+    "platforms": ["小红书", "视频号"],
+    "targetPlayers": ["校园女生", "宿舍社交人群", "轻分享 KOC"],
+    "coreFantasy": "让新品第一口就值得拉室友一起试，再顺手拍成一条可复述的校园内容。",
+    "ideaSummary": "两周内验证哪种 KOC 内容角度更能带动新品到店和自发 UGC。",
+    "coreLoop": "刷到内容 -> 拉朋友到店试喝 -> 现场拍摄反应 -> 评论区站队 -> 二次扩散",
+    "sessionLength": "单条内容 20-40 秒，集中测试窗口为新品上线后 14 天。",
+    "differentiators": "把新品体验做成可拉室友参与的“第一口反应内容”，而不是单纯功能介绍。",
+    "progressionHook": "用户先看第一口反应，再持续关注不同宿舍组合、口味站队和复购反馈。",
+    "socialHook": "评论区鼓励带室友打分、站队和补充自己的第一口反应。",
+    "monetization": "优先看新品券核销、到店转化和 UGC 量级，不把短期 GMV 当唯一目标。",
+    "referenceGames": ["校园新品测评账号", "宿舍探店博主", "同城轻生活品牌案例"],
+    "validationGoal": "确认“室友盲测”是否比“功能介绍”更能提升到店与复述率。",
+    "productionConstraints": "1 名运营 + 1 名兼职拍摄，单周最多产出 6 条可用内容，预算主要用于试饮和校园达人置换。",
+    "currentStatus": "担心当前内容都在讲新品卖点，但真正能带朋友到店的触发点还不够清晰。"
   },
   "evidenceItems": [
     {
       "id": "evi_001",
-      "type": "design_doc",
-      "title": "玩法草案",
-      "source": "内部策划稿",
+      "type": "note",
+      "title": "评论摘录",
+      "source": "小红书评论区归纳",
       "trust": "medium",
-      "summary": "玩家在基地建设阶段会遇到必须双人同步完成的机关。"
+      "summary": "用户愿意转发“室友一起试喝”的内容，但对纯口味参数介绍停留时间明显更短。"
     },
     {
       "id": "evi_002",
       "type": "interview",
-      "title": "轻协作玩家反馈",
-      "source": "Discord 访谈",
+      "title": "KOC 访谈",
+      "source": "4 位校园达人回访",
       "trust": "high",
-      "summary": "玩家愿意合作解谜，但要求失败后能迅速重试。"
+      "summary": "达人更愿意拍“室友真实反应”和“宿舍站队”，不想做生硬口播。"
     }
   ],
   "analysis": {
-    "generatedAt": "2026-03-14T08:58:00.000Z",
+    "generatedAt": "2026-04-20T08:58:00.000Z",
     "mode": "balanced",
     "model": "deepseek-chat",
     "pipeline": ["dossier@deepseek-chat", "systems@deepseek-chat", "synthesis@deepseek-chat"],
     "meta": {
       "source": "remote",
       "status": "fresh",
-      "requestId": "analysis_yuanaan_001"
+      "requestId": "analysis_qingyu_001"
     },
-    "summary": "双人协作机关有机会制造中期记忆点，但失败惩罚和等待感必须被压住。",
-    "systemVerdict": "值得做单局原型，但必须优先补单人补位和快速重开。",
+    "summary": "“室友盲测”比纯功能介绍更有机会带动到店，但评论互动和店内承接要一起补。",
+    "systemVerdict": "值得做一轮 6 条内容快测，并把室友反应作为主线对照功能介绍。",
     "evidenceLevel": "medium",
-    "primaryRisk": "玩家会把等待队友的挫败感误记成玩法本身不好玩。",
-    "nextStep": "先做 15 分钟短局原型，重点观察失败反馈是否掩盖合作乐趣。",
-    "playerAcceptance": 68,
-    "confidence": 64,
-    "supportRatio": 62,
+    "primaryRisk": "如果评论区和发布时间没配好，反应类内容也会被看成普通探店，转化提不上来。",
+    "nextStep": "先做一周小范围 KOC 快测，观察到店券核销、评论站队和二次 UGC。",
+    "playerAcceptance": 74,
+    "confidence": 68,
+    "supportRatio": 66,
     "scores": {
-      "coreFun": 72,
-      "learningCost": 58,
-      "novelty": 70,
-      "acceptanceRisk": 61,
-      "prototypeCost": 54
+      "coreFun": 78,
+      "learningCost": 34,
+      "novelty": 72,
+      "acceptanceRisk": 43,
+      "prototypeCost": 36
     },
     "personas": [
       {
-        "name": "轻协作玩家",
-        "motive": "想和朋友轻松配合，又不愿背复杂规则。",
-        "accepts": "合作奖励直观，失败能迅速重开。",
-        "rejects": "单人无法推进，或机制学习像上课。",
-        "verdict": "中度看好，但对教学和节奏极其敏感。"
+        "name": "宿舍决策者",
+        "motive": "想快速找到值得拉室友一起试的新东西，不想踩雷。",
+        "accepts": "内容能快速说明为什么现在值得去试。",
+        "rejects": "只有卖点罗列，没有真实反应和社交场景。",
+        "verdict": "首波最关键的人群，对“要不要叫室友一起去”非常敏感。"
       }
     ],
     "hypotheses": [],
@@ -82,32 +82,32 @@
     "decisionLenses": [],
     "validationTracks": [
       {
-        "name": "短局原型测试",
+        "name": "校园快测",
         "priority": "P0",
-        "goal": "验证首局 10 分钟内是否会出现可复述高光。",
-        "method": "双人试玩 + 录像回看",
-        "successSignal": "玩家主动复述协作瞬间。",
-        "failureSignal": "玩家主要抱怨等待和失败惩罚。",
+        "goal": "验证“室友盲测”是否提升到店与评论复述率。",
+        "method": "6 条 KOC 内容 + 到店券核销 + 评论区回看",
+        "successSignal": "用户愿意在评论区站队并带朋友到店试喝。",
+        "failureSignal": "内容只有表面完播，没有评论、转发和到店承接。",
         "cost": "M",
-        "timeframe": "2 周"
+        "timeframe": "1 周"
       }
     ],
     "contrarianMoves": [],
     "unknowns": [],
     "redTeam": {
-      "thesis": "失败惩罚可能会压过合作乐趣。",
+      "thesis": "如果门店现场和评论区承接不到位，传播势能会在第一波就断掉。",
       "attackVectors": [],
       "failureModes": [],
-      "mitigation": "先缩小原型边界。"
+      "mitigation": "同步补评论区脚本、到店权益和发布时间策略。"
     },
     "memorySignals": [],
     "report": {
-      "headline": "值得做短局原型。",
-      "summary": "合作高光有潜力，但等待感要先压住。",
-      "conclusion": "继续做，但要优先补失败恢复。",
-      "whyNow": "当前最缺的是可玩样本。",
-      "risk": "等待队友的成本会被快速放大。",
-      "actions": ["做 15 分钟短局原型"]
+      "headline": "先做一轮内容快测。",
+      "summary": "反应类内容更像主路径，但需要同步验证承接链路。",
+      "conclusion": "继续做，但别只看表面播放，要一起看评论、UGC 和核销。",
+      "whyNow": "新品窗口短，越早筛出主线，越能省掉后续无效投放。",
+      "risk": "如果把品牌自说自话误当成种草，后续会越投越虚。",
+      "actions": ["确定 6 条快测脚本", "锁定发布时间", "补评论区互动句", "跟踪到店核销"]
     },
     "warnings": []
   }

@@ -65,19 +65,19 @@ function inferCategory(
   const text = `${variable.name} ${variable.intent} ${variable.changeStatement}`.toLowerCase();
 
   if (
-    /(付费|商业化|礼包|订阅|价格|变现|monet|payment|price|bundle|shop)/.test(text)
+    /(付费|转化|领券|下单|购买|价格|变现|monet|payment|price|coupon|conversion|purchase|cta)/.test(text)
   ) {
     return 'monetization';
   }
 
   if (
-    /(活动|赛季|运营|社区|回流|节日|event|season|live ops|community|campaign)/.test(text)
+    /(活动|节奏|运营|社区|评论区|返场|话题|campaign|community|comment|share|cadence|posting)/.test(text)
   ) {
     return 'live_ops';
   }
 
   if (
-    /(系统|经济|数值|成长|养成|产出|资源|循环层|system|economy|resource|progression|meta)/.test(
+    /(分发|发布时间|评论机制|系列化|脚本|选题结构|system|distribution|publish|comment|series|format)/.test(
       text,
     )
   ) {
@@ -105,9 +105,9 @@ export function buildResolvedVariable(
   const primaryBenefit =
     variable.expectedBenefits[0] ||
     variable.intent ||
-    `让${variable.name || '这个改动'}更有存在感`;
+    `让${variable.name || '这个变量'}更有存在感`;
   const baselineNextStep =
-    baseline?.analysisSnapshot.nextStep || '先补一轮小范围原型验证';
+    baseline?.analysisSnapshot.nextStep || '先补一轮小范围内容验证';
 
   return {
     ...variable,
@@ -124,7 +124,7 @@ export function buildResolvedVariable(
     knownCosts:
       variable.knownCosts.length > 0
         ? unique(variable.knownCosts)
-        : unique([primaryConcern || '可能会引入额外理解成本']),
+        : unique([primaryConcern || '可能会引入额外理解成本或执行负担']),
     dependencies:
       variable.dependencies.length > 0
         ? unique(variable.dependencies)
@@ -134,14 +134,14 @@ export function buildResolvedVariable(
         ? unique(variable.successSignals)
         : unique([
             variable.intent
-              ? `玩家能明确感知到：${variable.intent}`
-              : '玩家能主动提到这个改动带来的新价值',
+              ? `用户能明确感知到：${variable.intent}`
+              : '用户会主动提到这个变量带来的新价值',
           ]),
     failureSignals:
       variable.failureSignals.length > 0
         ? unique(variable.failureSignals)
         : unique([
-            primaryConcern || '玩家持续把注意力放在额外负担上',
+            primaryConcern || '用户持续把注意力放在额外负担上',
           ]),
   };
 }

@@ -27,7 +27,7 @@ export function ImpactScanHistorySection({
     <section className="panel staged-panel">
       <div className="panel-heading">
         <div>
-          <p className="eyebrow">{isEnglish ? 'Recent Scans' : '最近推演'}</p>
+          <p className="eyebrow">{isEnglish ? 'Recent Experiments' : '最近实验'}</p>
           <h3>
             {isEnglish
               ? 'Saved variable runs stay reusable'
@@ -42,7 +42,7 @@ export function ImpactScanHistorySection({
       </div>
 
       {historyStatus === 'loading' ? (
-        <p>{isEnglish ? 'Loading recent scan history...' : '正在加载最近的推演记录...'}</p>
+        <p>{isEnglish ? 'Loading recent experiment history...' : '正在加载最近的实验记录...'}</p>
       ) : history.length > 0 ? (
         <div className="stack-list">
           {history.slice(0, 6).map((scan) => (
@@ -62,7 +62,7 @@ export function ImpactScanHistorySection({
               <h4>
                 {scan.result?.summary ||
                   scan.message ||
-                  (isEnglish ? 'Saved scan result' : '已保存的推演结果')}
+                  (isEnglish ? 'Saved experiment result' : '已保存的实验结果')}
               </h4>
               <p>
                 {isEnglish
@@ -91,8 +91,8 @@ export function ImpactScanHistorySection({
       ) : (
         <p>
           {isEnglish
-            ? 'No saved scans yet. Once a variable run finishes, it will stay here for later comparison.'
-            : '还没有保存过推演结果。等第一轮变量推演完成后，它会留在这里方便后续回看。'}
+            ? 'No saved experiments yet. Once a variable run finishes, it will stay here for later comparison.'
+            : '还没有保存过实验结果。等第一轮变量实验完成后，它会留在这里方便后续回看。'}
         </p>
       )}
 

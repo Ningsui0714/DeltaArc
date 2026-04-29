@@ -1,0 +1,24 @@
+{
+  "workspaceId": "xhs-bigops-streaming-drama-reservation",
+  "platform": "xiaohongshu",
+  "goal": "comment",
+  "mode": "quick",
+  "contentDraft": {
+    "title": "新剧开播别只催预约：评论区话题要提前埋",
+    "body": "这条是长视频内容运营的发布前预演。新剧开播前如果只喊“快预约”，很容易变成硬广；更稳的做法是先拆剧情讨论点、角色关系猜测、会员权益和更新时间，让用户有理由评论、收藏和提醒自己开播当天回来。",
+    "script": "开头 3 秒：新剧预约看板 + 反常识标题。中段：拆预约提醒、剧情话题、会员权益和更新时间节奏。结尾：评论区让用户选最想追的讨论点。"
+  },
+  "mediaAssets": [
+    {
+      "id": "xhs-bigops-streaming-cover",
+      "kind": "image",
+      "name": "xhs-bigops-streaming-drama-reservation.jpg",
+      "mimeType": "image/jpeg",
+      "imagePath": "images/xhs-bigops-streaming-drama-reservation.jpg"
+    }
+  ],
+  "accountContext": "品牌中立的内容平台运营账号，关注剧集上线、预约转化、会员留存、评论区话题和追更节奏。",
+  "targetAudience": "长视频运营、内容宣发、会员增长、剧集爱好者，以及想学习内容上线节奏的新媒体运营。",
+  "desiredAction": "希望用户评论最想先聊的角色或剧情点，收藏开播提醒，并关注后续追更节奏复盘。",
+  "brandGuardrails": "不使用真实剧名、演员肖像或平台 logo；不承诺播放量、会员转化或热搜；避免剧透；正式发布必须替换为授权剧照和确认后的排播信息。"
+}

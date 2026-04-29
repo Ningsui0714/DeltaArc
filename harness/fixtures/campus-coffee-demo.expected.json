@@ -1,0 +1,46 @@
+{
+  "provider": "mock",
+  "mode": "quick",
+  "cohortShares": [
+    {
+      "tier": "core",
+      "share": 34
+    },
+    {
+      "tier": "broad",
+      "share": 28
+    },
+    {
+      "tier": "weak",
+      "share": 22
+    },
+    {
+      "tier": "misfire",
+      "share": 16
+    }
+  ],
+  "replyCounts": {
+    "core": 2,
+    "broad": 2,
+    "weak": 2,
+    "misfire": 2
+  },
+  "firstReplies": {
+    "core": "这个角度我会点开，想知道具体怎么买或者去哪体验。",
+    "broad": "这个在小红书刷到还挺像生活分享，但我不确定和我有什么关系。",
+    "weak": "刷到了但没看懂，是活动还是广告？",
+    "misfire": "怎么老给我推这个，我又不是目标用户。"
+  },
+  "riskTitles": [
+    "首屏利益点不够明确",
+    "误推用户带偏评论区",
+    "图片无法证明真实体验"
+  ],
+  "interventionTargets": [
+    "opening",
+    "cover",
+    "comment_prompt",
+    "proof"
+  ],
+  "attentionScore": 68
+}

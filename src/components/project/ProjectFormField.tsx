@@ -42,9 +42,9 @@ export function ProjectFormField({
           value={project.mode}
           onChange={(event) => onChange('mode', event.target.value as ProjectSnapshot['mode'])}
         >
-          <option value="Concept">{isEnglish ? 'Concept' : '概念阶段'}</option>
-          <option value="Validation">{isEnglish ? 'Validation' : '验证阶段'}</option>
-          <option value="Live">{isEnglish ? 'Live' : '上线阶段'}</option>
+          <option value="Concept">{isEnglish ? 'Planning' : '策划中'}</option>
+          <option value="Validation">{isEnglish ? 'Trial Launch' : '试投中'}</option>
+          <option value="Live">{isEnglish ? 'Active Operation' : '在运营'}</option>
         </select>
       ) : config.kind === 'list' ? (
         <input

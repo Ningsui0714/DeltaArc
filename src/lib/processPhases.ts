@@ -19,41 +19,41 @@ const localizedProcessPhases: Record<UiLanguage, ProcessPhaseDescriptor[]> = {
   zh: [
     {
       id: 'intake',
-      label: '输入与导入',
+      label: '任务输入',
       kicker: '01',
-      brief: '先整理输入。',
+      brief: '先整理 brief 和证据。',
     },
     {
       id: 'analysis',
-      label: '推理台',
+      label: '诊断台',
       kicker: '02',
-      brief: '在这里运行推理。',
+      brief: '在这里跑正式诊断。',
     },
     {
       id: 'output',
-      label: '结果输出',
+      label: '策略输出',
       kicker: '03',
-      brief: '在这里看结果。',
+      brief: '在这里看诊断和策略。',
     },
   ],
   en: [
     {
       id: 'intake',
-      label: 'Intake',
+      label: 'Brief Intake',
       kicker: '01',
-      brief: 'Prepare the inputs.',
+      brief: 'Prepare the brief and evidence.',
     },
     {
       id: 'analysis',
-      label: 'Inference Desk',
+      label: 'Diagnosis Desk',
       kicker: '02',
-      brief: 'Run inference here.',
+      brief: 'Run the formal diagnosis here.',
     },
     {
       id: 'output',
-      label: 'Outputs',
+      label: 'Strategy Outputs',
       kicker: '03',
-      brief: 'Review the outputs here.',
+      brief: 'Review the diagnosis and strategy outputs.',
     },
   ],
 };

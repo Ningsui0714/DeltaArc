@@ -79,7 +79,7 @@ export function PredictionGraphPanel({
     {
       zone: 'agents',
       index: '03',
-      title: isEnglish ? 'Agent Run' : '多代理推演',
+      title: isEnglish ? 'Agent Diagnosis' : '多代理诊断',
       metric: view.agentsStat,
       status: resolveAggregateStatus(view.agentCards.map((card) => card.status)),
     },
@@ -96,8 +96,8 @@ export function PredictionGraphPanel({
     <section className="graph-panel compact-graph">
       <div className="graph-panel-heading">
         <div>
-          <p className="eyebrow">{isEnglish ? 'Prediction Graph' : '预测图谱'}</p>
-          <h2>{isEnglish ? 'Left Inference Console' : '左侧推理控制台'}</h2>
+          <p className="eyebrow">{isEnglish ? 'Strategy Graph' : '策略图谱'}</p>
+          <h2>{isEnglish ? 'Left Diagnosis Console' : '左侧诊断控制台'}</h2>
         </div>
         <div className="chip-row">
           <span className="meta-chip">{view.progressChip}</span>
@@ -142,7 +142,7 @@ export function PredictionGraphPanel({
             <div className="graph-flow-heading">
               <div>
                 <p className="eyebrow">{isEnglish ? '01 Inputs' : '01 输入层'}</p>
-                <h3>{isEnglish ? 'Project and Evidence Load' : '项目与证据装载'}</h3>
+                <h3>{isEnglish ? 'Brief and Evidence Load' : '传播任务与证据装载'}</h3>
               </div>
               <span className="tiny-chip">{view.projectModeLabel}</span>
             </div>
@@ -150,7 +150,7 @@ export function PredictionGraphPanel({
             <div className="graph-zone-stack">
               <article className={`graph-module status-${view.projectCard.status}`}>
                 <div className="graph-module-topline">
-                  <span className="graph-module-label">{isEnglish ? 'Project Brief' : '项目简述'}</span>
+                  <span className="graph-module-label">{isEnglish ? 'Campaign Brief' : '传播任务简述'}</span>
                   <span className="tiny-chip">{getStatusLabel(view.projectCard.status, language)}</span>
                 </div>
                 <h4>{view.projectCard.title}</h4>
@@ -212,7 +212,7 @@ export function PredictionGraphPanel({
               </div>
             ) : (
               <div className="graph-mini-progress is-idle">
-                <strong>{isEnglish ? 'Formal Run Gate' : '正式推理闸门'}</strong>
+                <strong>{isEnglish ? 'Formal Diagnosis Gate' : '正式诊断闸门'}</strong>
                 <span>{isEnglish ? 'Waiting to start' : '等待启动'}</span>
               </div>
             )}
@@ -222,7 +222,7 @@ export function PredictionGraphPanel({
             <div className="graph-flow-heading">
               <div>
                 <p className="eyebrow">{isEnglish ? '03 Agents' : '03 多代理层'}</p>
-                <h3>{isEnglish ? 'Collaborative Run' : '协作推演'}</h3>
+                <h3>{isEnglish ? 'Collaborative Diagnosis' : '协作诊断'}</h3>
               </div>
               <div className="graph-module-metrics">
                 <span className="tiny-chip">{isEnglish ? `${view.agentCards.length} agents` : `${view.agentCards.length} 个代理`}</span>
@@ -257,7 +257,7 @@ export function PredictionGraphPanel({
             <div className="graph-flow-heading">
               <div>
                 <p className="eyebrow">{isEnglish ? '04 Outputs' : '04 输出层'}</p>
-                <h3>{isEnglish ? 'Forecast Output Closure' : '预测结果收束'}</h3>
+                <h3>{isEnglish ? 'Strategy Output Closure' : '策略结果收束'}</h3>
               </div>
               <span className="tiny-chip">{hasViewableAnalysis ? (isEnglish ? 'Connected' : '已接入') : isEnglish ? 'Incomplete' : '未完成'}</span>
             </div>
@@ -265,7 +265,7 @@ export function PredictionGraphPanel({
             <div className="graph-module-grid graph-output-grid">
               <article className={`graph-module status-${view.synthesisCard.status}`}>
                 <div className="graph-module-topline">
-                  <span className="graph-module-label">{isEnglish ? 'Synthesis' : '综合推演'}</span>
+                  <span className="graph-module-label">{isEnglish ? 'Synthesis' : '综合诊断'}</span>
                   <span className="tiny-chip">{getStatusLabel(view.synthesisCard.status, language)}</span>
                 </div>
                 <h4>{view.synthesisCard.title}</h4>
@@ -283,7 +283,7 @@ export function PredictionGraphPanel({
 
               <article className={`graph-module status-${view.reportCard.status}`}>
                 <div className="graph-module-topline">
-                  <span className="graph-module-label">{isEnglish ? 'Forecast Report' : '预测报告'}</span>
+                  <span className="graph-module-label">{isEnglish ? 'Strategy Report' : '策略报告'}</span>
                   <span className="tiny-chip">{getStatusLabel(view.reportCard.status, language)}</span>
                 </div>
                 <h4>{view.reportCard.title}</h4>

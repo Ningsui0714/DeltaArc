@@ -43,11 +43,11 @@ export function ProjectGuidedRefinementPanel({
       <div className="section-heading">
         <div>
           <p className="eyebrow">{isEnglish ? 'Guided Refinement' : '引导补全'}</p>
-          <h4>{isEnglish ? 'Use follow-up questions to sharpen the product call' : '用追问把产品判断补清楚'}</h4>
+          <h4>{isEnglish ? 'Use follow-up questions to sharpen the strategy call' : '用追问把内容策略判断补清楚'}</h4>
           <p>
             {isEnglish
-              ? 'This layer is structured first. It is also the cleanest place to plug in a chat model later.'
-              : '这里先用结构化追问打底，后面如果你要接 chat 模型做更深追问，也最适合从这里接。'}
+              ? 'This layer stays structured first so the campaign brief, audience promise, and execution limits remain clear.'
+              : '这里先用结构化追问打底，把 brief、内容承诺和执行约束讲清楚，后面再接更深的模型追问也更稳。'}
           </p>
         </div>
         <span className="meta-chip">
@@ -66,8 +66,8 @@ export function ProjectGuidedRefinementPanel({
           <strong>{isEnglish ? 'Fill the starter brief first' : '先补齐起跑信息'}</strong>
           <p>
             {isEnglish
-              ? 'Guided follow-up works better after the one-line concept, core loop, target players, and decision bar are already visible.'
-              : '先把一句话想法、核心循环、目标玩家和本轮验证目标写出来，引导追问才会更准。'}
+              ? 'Guided follow-up works better after the campaign goal, growth loop, target audience, and decision bar are already visible.'
+              : '先把一句话传播目标、内容增长回路、目标受众和本轮验证目标写出来，引导追问才会更准。'}
           </p>
           <ul className="bullet-list">
             {starterMissingFields.map((config) => (

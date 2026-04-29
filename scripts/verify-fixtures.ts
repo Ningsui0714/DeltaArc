@@ -31,7 +31,7 @@ async function readJson(relativePath: string) {
 
 async function main() {
   const validRequest = parseSandboxAnalysisRequest(await readJson('examples/requests/valid-analysis-request.json'));
-  assert.equal(validRequest.project.name, '代号：远岸旅团');
+  assert.equal(validRequest.project.name, '青屿咖啡春季新品种草');
   assert.equal(validRequest.evidenceItems.length, 2);
 
   let invalidErrored = false;
@@ -42,12 +42,12 @@ async function main() {
   }
   assert.equal(invalidErrored, true);
 
-  const jsonImport = parseJsonImport(await readText('examples/project-bundle-upload-sample.json'));
-  assert.equal(jsonImport.project?.name, '代号：远岸旅团');
+  const jsonImport = parseJsonImport(await readText('examples/imports/project-bundle-upload-sample.json'));
+  assert.equal(jsonImport.project?.name, '青屿咖啡春季新品种草');
   assert.equal(jsonImport.evidenceItems?.length, 3);
 
   const markdownImport = parseMarkdownImport(
-    await readText('examples/coop-camp-upload-sample.md'),
+    await readText('examples/imports/coop-camp-upload-sample.md'),
     'coop-camp-upload-sample.md',
   );
   assert.ok(markdownImport.project);
@@ -81,14 +81,14 @@ async function main() {
   assert.equal(createBaselineRequest.evidenceItems.length, 2);
 
   const frozenBaseline = parseFrozenBaseline(await readJson('examples/baselines/valid-frozen-baseline.json'));
-  assert.equal(frozenBaseline.projectId, 'project_yuanaan_001');
+  assert.equal(frozenBaseline.projectId, 'project_qingyu_001');
   assert.equal(frozenBaseline.analysisSnapshot.validationTracks.length, 1);
 
   const persistedLatestAnalysis = parsePersistedLatestAnalysis(
     await readJson('examples/baselines/valid-persisted-latest-analysis.json'),
   );
-  assert.equal(persistedLatestAnalysis.workspaceId, 'workspace_yuanaan_001');
-  assert.equal(persistedLatestAnalysis.analysis.meta.requestId, 'analysis_yuanaan_001');
+  assert.equal(persistedLatestAnalysis.workspaceId, 'workspace_qingyu_001');
+  assert.equal(persistedLatestAnalysis.analysis.meta.requestId, 'analysis_qingyu_001');
 
   const designVariable = parseDesignVariableV1(
     await readJson('examples/variables/valid-design-variable-v1.json'),
@@ -99,8 +99,8 @@ async function main() {
   const impactScanRequest = parseVariableImpactScanRequest(
     await readJson('examples/impact-scans/valid-impact-scan-request.json'),
   );
-  assert.equal(impactScanRequest.baselineId, 'baseline_yuanaan_001');
-  assert.equal(impactScanRequest.variable.name, '双人协作机关');
+  assert.equal(impactScanRequest.baselineId, 'baseline_qingyu_001');
+  assert.equal(impactScanRequest.variable.name, '室友盲测');
 
   const impactScanResult = parseVariableImpactScanResult(
     await readJson('examples/impact-scans/valid-impact-scan-result.json'),

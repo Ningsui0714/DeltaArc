@@ -72,7 +72,7 @@ export function buildFutureTimelineFromFallback(
       expectedReaction: `首批讨论会先围绕“${validationGoal}”是否被直观感知展开。`,
       likelyShift:
         dossier.evidenceLevel === 'high'
-          ? '如果玩家能很快复述具体亮点，讨论会从围观转向拆体验。'
+          ? '如果受众能很快复述具体亮点，讨论会从围观转向拆内容机制。'
           : '如果真实样本还薄，讨论更可能停留在概念层和表面好奇。',
       risk: dossier.coreTensions[0] ?? '首发叙事可能快于真实体验兑现速度。',
       watchSignals: uniqueStrings(
@@ -119,7 +119,7 @@ export function buildCommunityRhythmsFromFallback(
   dossier: Dossier,
   strategies: SandboxAnalysisResult['strategies'],
 ): SandboxAnalysisResult['communityRhythms'] {
-  const targetPlayers = request.project.targetPlayers.join(' / ') || '当前目标人群';
+  const targetPlayers = request.project.targetPlayers.join(' / ') || '当前目标受众';
   const leadStrategy = strategies[0];
   const supportStrategy = strategies[1];
 
@@ -135,7 +135,7 @@ export function buildCommunityRhythmsFromFallback(
       name: '分层复盘节奏',
       timing: '第 3 天到第 7 天',
       pattern: `社区会开始按 ${targetPlayers} 的不同诉求分层，声音不再是一股。`,
-      trigger: leadStrategy?.recommendation ?? dossier.openQuestions[0] ?? '玩家开始用不同标准评价项目',
+      trigger: leadStrategy?.recommendation ?? dossier.openQuestions[0] ?? '受众开始用不同标准评价项目',
       implication: '这是判断真正目标人群和真实留存理由的最佳窗口。',
     },
     {
@@ -159,7 +159,7 @@ export function buildTrajectorySignalsFromFallback(
 
   return [
     {
-      signal: validationTracks[0]?.successSignal ?? '玩家开始自发复述同一个高光时刻',
+      signal: validationTracks[0]?.successSignal ?? '受众开始自发复述同一个高光时刻',
       direction: 'positive',
       timing: validationTracks[0]?.timeframe ?? '首波反馈内',
       impact: positiveEffect?.outcome ?? '说明卖点正在变成社区语言，后续传播效率会抬升。',

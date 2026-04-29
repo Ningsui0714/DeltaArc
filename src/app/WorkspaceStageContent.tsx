@@ -49,8 +49,8 @@ export function WorkspaceStageContent({ workspace }: WorkspaceStageContentProps)
   const outputStageTitle = isSandboxStep
     ? currentStep.label
     : isEnglish
-      ? 'Formal Results'
-      : '正式结果';
+      ? 'Strategy Outputs'
+      : '策略输出';
   const outputStageEyebrow = isSandboxStep
     ? isEnglish
       ? 'Step 5'
@@ -60,11 +60,11 @@ export function WorkspaceStageContent({ workspace }: WorkspaceStageContentProps)
       : '第 4 步';
   const outputStageCopy = isSandboxStep
     ? isEnglish
-      ? 'Current view: Variable Sandbox. This is a first-class Step 5 workflow built on top of the formal result. Step 4 keeps the formal result set, while Step 5 freezes a baseline and tests one new variable.'
-      : '当前视图：变量推演。这是建立在正式结果之上的第 5 步核心流程。第 4 步承载正式结果，第 5 步则冻结基线并继续测试一个新变量。'
+      ? 'Current view: Variable Lab. This is a first-class Step 5 workflow built on top of the formal strategy result. Step 4 keeps the formal result set, while Step 5 freezes a baseline and tests one new content variable.'
+      : '当前视图：变量实验。这是建立在正式策略结果之上的第 5 步核心流程。第 4 步承载策略结果，第 5 步则冻结基线并继续测试一个内容变量。'
     : isEnglish
-      ? `Current view: ${currentStep.label}. Current Judgment, Future Evolution, and Forecast Report are parallel views inside Step 4. Variable Sandbox stays visible as its own Step 5 workflow.`
-      : `当前视图：${currentStep.label}。当前判断、未来演化、预测报告都在第 4 步里并列查看；变量推演则作为独立的第 5 步持续可见。`;
+      ? `Current view: ${currentStep.label}. Current Diagnosis, Spread Outlook, and Strategy Report are parallel views inside Step 4. Variable Lab stays visible as its own Step 5 workflow.`
+      : `当前视图：${currentStep.label}。当前诊断、扩散演化、策略报告都在第 4 步里并列查看；变量实验则作为独立的第 5 步持续可见。`;
 
   return (
     <section className="focus-stage-panel workflow-focus-panel">
@@ -106,7 +106,7 @@ export function WorkspaceStageContent({ workspace }: WorkspaceStageContentProps)
                 disabled={!workspace.canRunAnalysis}
                 onClick={() => workspace.selectPhase('analysis')}
               >
-                {isEnglish ? 'Open Inference Desk' : '进入推理台'}
+                {isEnglish ? 'Open Diagnosis Desk' : '进入诊断台'}
               </button>
             </>
           ) : (
@@ -130,7 +130,7 @@ export function WorkspaceStageContent({ workspace }: WorkspaceStageContentProps)
               </span>
               {workspace.activeOutputStep === 'sandbox' ? (
                 <button type="button" className="accent-button" onClick={() => workspace.navigate('report')}>
-                  {isEnglish ? 'Back to Formal Results' : '回正式结果'}
+                  {isEnglish ? 'Back to Strategy Report' : '回策略报告'}
                 </button>
               ) : workspace.activeOutputStep !== 'report' ? (
                 <button type="button" className="accent-button" onClick={() => workspace.navigate('report')}>
@@ -139,11 +139,11 @@ export function WorkspaceStageContent({ workspace }: WorkspaceStageContentProps)
               ) : null}
               {!isSandboxStep && workspace.hasViewableAnalysis ? (
                 <button type="button" className="ghost-button" onClick={() => workspace.navigate('sandbox')}>
-                  {isEnglish ? 'Open Variable Sandbox' : '进入变量推演'}
+                  {isEnglish ? 'Open Variable Lab' : '进入变量实验'}
                 </button>
               ) : null}
               <button type="button" className="ghost-button" onClick={() => workspace.selectPhase('analysis')}>
-                {isEnglish ? 'Back to Desk' : '回推理台'}
+                {isEnglish ? 'Back to Desk' : '回诊断台'}
               </button>
             </>
           )}

@@ -1,0 +1,24 @@
+{
+  "workspaceId": "xhs-bigops-ecommerce-return-campaign",
+  "platform": "xiaohongshu",
+  "goal": "conversion",
+  "mode": "quick",
+  "contentDraft": {
+    "title": "大促返场别乱发券：先把这 4 类人群分清楚",
+    "body": "这条是给电商大促返场做发布前预演：不是把优惠券一把撒出去，而是先拆老客复购、刚需补货、价格敏感和只看热闹四类人。封面想突出“返场券梯度 + 库存补货 + 用户留存”，正文会用一张清单讲清楚哪些用户该推券，哪些用户该推售后体验和补货提醒。",
+    "script": "开头 3 秒：先放“别乱发券”的反常识标题。中段：拆返场券梯度、库存补货、会员权益和售后体验四个动作。结尾：评论区让运营同学投票，返场期最怕哪个指标被误读。"
+  },
+  "mediaAssets": [
+    {
+      "id": "xhs-bigops-ecommerce-cover",
+      "kind": "image",
+      "name": "xhs-bigops-ecommerce-return-campaign.jpg",
+      "mimeType": "image/jpeg",
+      "imagePath": "images/xhs-bigops-ecommerce-return-campaign.jpg"
+    }
+  ],
+  "accountContext": "品牌中立的大厂运营观察账号，关注电商增长、活动节奏、用户分层和发布前风险复盘，不代指任何真实公司。",
+  "targetAudience": "电商运营、活动运营、用户增长、会员运营、商家运营，以及想学习大促节奏设计的内容运营新人。",
+  "desiredAction": "希望用户收藏返场清单，在评论区说自己最常踩的发券坑，并关注后续会员留存拆解。",
+  "brandGuardrails": "不能出现真实平台 logo；不能承诺 GMV、转化率或补贴金额；不能诱导刷单；所有数据只能作为模拟口径，正式发布要替换成授权素材和真实复盘数据。"
+}

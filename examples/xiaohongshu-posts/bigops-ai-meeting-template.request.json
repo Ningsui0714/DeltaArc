@@ -1,0 +1,24 @@
+{
+  "workspaceId": "xhs-bigops-ai-meeting-template",
+  "platform": "xiaohongshu",
+  "goal": "lead",
+  "mode": "quick",
+  "contentDraft": {
+    "title": "AI 纪要模板别急着全量推，先过这 3 个运营关",
+    "body": "这条模拟大厂效率工具的企业运营笔记。AI 会议纪要模板上线前，不能只讲“省时间”，还要讲清楚适用会议、管理员开启路径、隐私权限和试点节奏。想测试用户会不会关心数据安全、模板质量和团队落地成本。",
+    "script": "开头 3 秒：AI 纪要模板 + “别急着全量推”。中段：拆试点人群、模板场景、权限边界和成功指标。结尾：评论区问企业团队最怕 AI 纪要踩哪条线。"
+  },
+  "mediaAssets": [
+    {
+      "id": "xhs-bigops-ai-meeting-cover",
+      "kind": "image",
+      "name": "xhs-bigops-ai-meeting-template.jpg",
+      "mimeType": "image/jpeg",
+      "imagePath": "images/xhs-bigops-ai-meeting-template.jpg"
+    }
+  ],
+  "accountContext": "品牌中立的企业效率运营账号，关注 SaaS 增长、AI 功能上线、企业试点、权限治理和客户成功。",
+  "targetAudience": "企业服务运营、SaaS 产品运营、客户成功、行政协同团队、对 AI 办公落地感兴趣的管理者。",
+  "desiredAction": "希望用户评论自己团队最想试的会议场景，留下试点需求，并收藏上线检查清单。",
+  "brandGuardrails": "不展示真实客户名、邮箱、会议内容或内部数据；不承诺自动准确率；不诱导绕过审批；正式发布必须补充隐私边界、权限说明和人工复核提示。"
+}

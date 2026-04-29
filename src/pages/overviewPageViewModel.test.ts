@@ -46,13 +46,13 @@ test('createOverviewPageViewModel guides intake before inference is unlocked', (
 
   assert.equal(
     viewModel.hero.title,
-    'Start from a blank project and define what this round is trying to validate.',
+    'Start from a blank brief and define the campaign goal for this round.',
   );
   assert.equal(viewModel.launchpad.steps[0]?.status, 'current');
   assert.equal(viewModel.launchpad.steps[1]?.status, 'upcoming');
   assert.equal(
     viewModel.runStatus.copy,
-    'Fill the 4/4 minimum setup and 3 evidence items first, then go to the Inference Desk to run Quick Scan.',
+    'Fill the 4/4 minimum setup and 3 evidence items first, then go to the Diagnosis Desk to run Quick Diagnosis.',
   );
   assert.equal(viewModel.metrics[2]?.value, 'Locked');
 });
@@ -68,13 +68,13 @@ test('createOverviewPageViewModel marks stale outputs as viewable but needing re
     isAnalysisDegraded: false,
   });
 
-  assert.equal(viewModel.runStatus.title, '上一份正式结果仍可继续查看');
+  assert.equal(viewModel.runStatus.title, '上一份策略结果仍可继续查看');
   assert.equal(
     viewModel.runStatus.bullets[0],
-    '当前可见结果已经过期，因为当前输入与上次正式推理时不再一致。',
+    '当前可见结果已经过期，因为当前输入与上次正式诊断时不再一致。',
   );
   assert.equal(viewModel.metrics[2]?.value, '过期');
-  assert.equal(viewModel.launchpad.steps[2]?.metric, '已有旧正式结果，建议重跑');
+  assert.equal(viewModel.launchpad.steps[2]?.metric, '已有旧策略结果，建议重跑');
   assert.equal(viewModel.launchpad.steps[3]?.actionLabel, '打开输出区');
 });
 
@@ -93,5 +93,5 @@ test('createOverviewPageViewModel keeps fresh outputs ready to open', () => {
   assert.equal(viewModel.launchpad.steps[3]?.status, 'current');
   assert.equal(viewModel.launchpad.steps[3]?.actionStep, 'modeling');
   assert.equal(viewModel.metrics[2]?.tone, 'good');
-  assert.equal(viewModel.timeline.steps[2]?.title, 'Run Quick Scan first');
+  assert.equal(viewModel.timeline.steps[2]?.title, 'Run Quick Diagnosis first');
 });

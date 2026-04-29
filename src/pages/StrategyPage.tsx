@@ -33,8 +33,8 @@ type StrategyPageProps = {
 
 function getTabs(isEnglish: boolean) {
   return [
-    { id: 'routes', label: isEnglish ? 'Routes' : '路线', hint: isEnglish ? 'Start with the main route' : '先看推哪条' },
-    { id: 'timeline', label: isEnglish ? 'Timeline' : '时间线', hint: isEnglish ? 'Then review the next beats' : '再看未来三拍' },
+    { id: 'routes', label: isEnglish ? 'Routes' : '策略路线', hint: isEnglish ? 'Start with the main route' : '先看主路线' },
+    { id: 'timeline', label: isEnglish ? 'Spread' : '扩散节奏', hint: isEnglish ? 'Then review the next beats' : '再看未来三拍' },
     { id: 'branches', label: isEnglish ? 'Branches' : '分支', hint: isEnglish ? 'Inspect alternate paths' : '查看可能岔路' },
     { id: 'validation', label: isEnglish ? 'Validation' : '验证', hint: isEnglish ? 'Finish with disproof plans' : '最后看怎么证伪' },
   ] as const;
@@ -63,8 +63,8 @@ export function StrategyPage({
       <section className="panel staged-panel">
         <div className="panel-heading">
           <div>
-            <p className="eyebrow">{isEnglish ? 'Future Forecast' : '未来演化'}</p>
-            <h3>{isEnglish ? 'Review future evolution stage by stage' : '逐阶段查看未来演化'}</h3>
+            <p className="eyebrow">{isEnglish ? 'Spread Outlook' : '扩散演化'}</p>
+            <h3>{isEnglish ? 'Review future spread stage by stage' : '逐阶段查看未来扩散演化'}</h3>
           </div>
           <button
             type="button"
@@ -72,14 +72,14 @@ export function StrategyPage({
             disabled={!canGenerateReport}
             onClick={onGenerateReport}
           >
-            {isEnglish ? 'Generate Report' : '生成预测报告'}
+            {isEnglish ? 'Generate Report' : '生成策略报告'}
           </button>
         </div>
         {!canGenerateReport ? (
           <p className="analysis-trust-note">
             {isEnglish
               ? 'Generating a fresh report is locked until the setup and evidence gate are ready again.'
-              : '想生成一份新的预测报告，需要先把设定和证据门槛重新补齐。'}
+              : '想生成一份新的策略报告，需要先把设定和证据门槛重新补齐。'}
           </p>
         ) : null}
 
@@ -101,7 +101,7 @@ export function StrategyPage({
                   <p>{strategy.recommendation}</p>
                   <div className="strategy-metrics">
                     <MetricRow label={isEnglish ? 'Expected Acceptance' : '预期接受度'} value={`${strategy.acceptance}%`} />
-                    <MetricRow label={isEnglish ? 'Execution Cost' : '实施成本'} value={strategy.cost} />
+                    <MetricRow label={isEnglish ? 'Execution Cost' : '执行成本'} value={strategy.cost} />
                     <MetricRow label={isEnglish ? 'Primary Risk' : '主要风险'} value={strategy.risk} />
                   </div>
                 </article>

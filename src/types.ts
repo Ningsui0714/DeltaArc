@@ -9,3 +9,14 @@ export type {
   StrategyCard,
   TrustLevel,
 } from '../shared/domain';
+
+export type {
+  PreflightGoal,
+  PreflightMediaAsset,
+  PreflightPlatform,
+  PreflightPushCohort,
+  PreflightSimulatedReply,
+  PreflightSimulationJob,
+  PreflightSimulationRequest,
+  PreflightSimulationResult,
+} from '../shared/preflightSimulation';

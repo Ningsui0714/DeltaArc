@@ -82,49 +82,49 @@ export function buildWorkspaceHeaderCopy(
   const currentGoalTitle =
     activePhase === 'analysis'
       ? isEnglish
-        ? 'Step 3 · Inference'
-        : '第3步·正式推演'
+        ? 'Step 3 · Diagnosis'
+        : '第3步·正式诊断'
       : activePhase === 'output'
         ? outputStep === 'sandbox'
           ? isEnglish
-            ? 'Step 5 · Sandbox'
-            : '第5步·变量推演'
+            ? 'Step 5 · Variable Lab'
+            : '第5步·变量实验'
           : isEnglish
-            ? 'Step 4 · Results'
-            : '第4步·正式结果'
+            ? 'Step 4 · Strategy Outputs'
+            : '第4步·策略输出'
         : inputStep === 'overview'
           ? isEnglish
-            ? 'Step 1 · Setup'
-            : '第1步·项目设定'
+            ? 'Step 1 · Brief'
+            : '第1步·传播任务'
           : isEnglish
             ? 'Step 2 · Evidence'
             : '第2步·证据信号';
   const headline =
     activePhase === 'analysis'
       ? isRunActive || hasRunError
-        ? progress?.message ?? (isEnglish ? 'Formal inference is running.' : '正式推演进行中。')
+        ? progress?.message ?? (isEnglish ? 'Formal diagnosis is running.' : '正式诊断进行中。')
         : hasViewableAnalysis
           ? isAnalysisFresh
             ? trimCopy(
                 analysis.report.headline || analysis.systemVerdict,
-                isEnglish ? 'Formal inference is ready.' : '正式推演已完成。',
+                isEnglish ? 'Formal diagnosis is ready.' : '正式诊断已完成。',
               )
             : isAnalysisDegraded
               ? isEnglish
-                ? 'A stabilized formal output is preserved'
-                : '已保留一份经过回退稳定的正式结果'
+                ? 'A stabilized formal diagnosis is preserved'
+                : '已保留一份经过回退稳定的正式诊断结果'
               : isEnglish
-                ? 'Previous formal output is still viewable'
-                : '上一份正式结果仍可继续查看'
+                ? 'Previous diagnosis is still viewable'
+                : '上一份正式诊断结果仍可继续查看'
           : isEnglish
-            ? 'Formal inference has not started yet.'
-            : '正式推演还没开始。'
+            ? 'Formal diagnosis has not started yet.'
+            : '正式诊断还没开始。'
       : activePhase === 'output'
         ? hasViewableAnalysis
           ? outputStep === 'sandbox'
             ? isEnglish
               ? 'Use the formal result as the launch point for a new variable test.'
-              : '用正式结果作为起点，继续试一个新变量。'
+              : '用正式策略结果作为起点，继续试一个内容变量。'
             : trimCopy(analysis.report.headline || analysis.systemVerdict, currentStep.brief)
           : currentStep.brief
         : trimCopy(project.ideaSummary, currentStep.brief);
@@ -152,8 +152,8 @@ export function buildWorkspaceHeaderCopy(
                 : '最近一次运行失败，请重新发起。'
             : hasViewableAnalysis
               ? isEnglish
-                ? 'Formal inference is complete.'
-                : '正式推演已完成。'
+                ? 'Formal diagnosis is complete.'
+                : '正式诊断已完成。'
               : canRunAnalysis
                 ? isEnglish
                   ? 'The minimum gate is ready.'
@@ -164,11 +164,11 @@ export function buildWorkspaceHeaderCopy(
       : activePhase === 'intake'
         ? hasViewableAnalysis
           ? isEnglish
-            ? 'A formal result already exists.'
-            : '当前已经有正式结果。'
+            ? 'A formal diagnosis already exists.'
+            : '当前已经有正式诊断结果。'
           : isEnglish
-            ? 'Start with project setup and evidence.'
-            : '先整理项目和证据。'
+            ? 'Start with the campaign brief and evidence.'
+            : '先整理传播任务和证据。'
         : isShowingFallbackAnalysis && hasViewableAnalysis && requestedModeLabel
           ? isShowingDifferentModeFallback
             ? isEnglish
@@ -181,8 +181,8 @@ export function buildWorkspaceHeaderCopy(
             ? outputStep === 'sandbox'
               ? isAnalysisFresh
                 ? isEnglish
-                  ? 'You are in Step 5: Variable Sandbox.'
-                  : '你现在在第5步：变量推演。'
+                  ? 'You are in Step 5: Variable Lab.'
+                  : '你现在在第5步：变量实验。'
                 : isAnalysisDegraded
                   ? isEnglish
                     ? 'You are in Step 5. The source result used fallback handling.'
@@ -202,8 +202,8 @@ export function buildWorkspaceHeaderCopy(
                     ? `You are in Step 4. View: ${currentStep.label}. Output is stale.`
                     : `你现在在第4步。当前视图：${currentStep.label}，结果已过期。`
             : isEnglish
-              ? `Run formal inference first. Step ${outputStep === 'sandbox' ? '5' : '4'} is still locked.`
-              : `先完成正式推演，第${outputStep === 'sandbox' ? '5' : '4'}步才会解锁。`;
+              ? `Run the formal diagnosis first. Step ${outputStep === 'sandbox' ? '5' : '4'} is still locked.`
+              : `先完成正式诊断，第${outputStep === 'sandbox' ? '5' : '4'}步才会解锁。`;
 
   return {
     activeJourneyStep,

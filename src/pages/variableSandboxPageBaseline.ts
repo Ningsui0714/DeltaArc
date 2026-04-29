@@ -37,18 +37,18 @@ function getEmptyBaselineDescription(
   if (sourceStatus === 'degraded') {
     return language === 'en'
       ? 'Freeze it first so later variable scans stop depending on a transient job, but treat follow-up conclusions more cautiously.'
-      : '先冻结下来，避免后续变量推演继续依赖临时任务，但把后续结论当作更谨慎的验证基线。';
+      : '先冻结下来，避免后续变量实验继续依赖临时任务，但把后续结论当作更谨慎的验证基线。';
   }
 
   if (sourceStatus === 'stale') {
     return language === 'en'
-      ? 'The visible result is no longer the latest truth source. Rerun formal inference before freezing.'
-      : '当前可见结果已经不是最新真相源，必须先重跑正式推演，才能继续冻结基线。';
+      ? 'The visible result is no longer the latest truth source. Rerun formal diagnosis before freezing.'
+      : '当前可见结果已经不是最新真相源，必须先重跑正式诊断，才能继续冻结基线。';
   }
 
   return language === 'en'
     ? 'Once frozen, later variable scans no longer depend on a transient in-memory job. Refreshes and restarts will still find the same truth source.'
-    : '一旦冻结完成，后续变量推演就不再依赖临时的内存任务。刷新页面或重启服务后，仍会读到同一份真相源。';
+    : '一旦冻结完成，后续变量实验就不再依赖临时的内存任务。刷新页面或重启服务后，仍会读到同一份真相源。';
 }
 
 function getExistingBaselineDescription(
@@ -74,7 +74,7 @@ function getExistingBaselineDescription(
         ' The current visible result is degraded but still eligible for freezing as a new snapshot.';
     } else if (sourceStatus === 'stale') {
       suffix =
-        ' The current visible result is stale, so rerun formal inference before freezing another snapshot.';
+        ' The current visible result is stale, so rerun formal diagnosis before freezing another snapshot.';
     }
 
     return `Latest baseline frozen at ${frozenAt} from the formal result completed at ${sourceAt}.${suffix}`;
@@ -85,7 +85,7 @@ function getExistingBaselineDescription(
   if (sourceStatus === 'degraded') {
     suffix = ' 当前可见结果虽然是降级结果，但仍可继续冻结成新快照。';
   } else if (sourceStatus === 'stale') {
-    suffix = ' 当前可见结果已经过期，需先重跑正式推演后才能再冻结新快照。';
+    suffix = ' 当前可见结果已经过期，需先重跑正式诊断后才能再冻结新快照。';
   }
 
   return `最新基线冻结于 ${frozenAt}，来源正式结果完成于 ${sourceAt}。${suffix}`;
@@ -109,7 +109,7 @@ function getEmptyBaselineBullet(
 
   return language === 'en'
     ? 'Freeze once, and this area becomes the stable truth source for the sandbox.'
-    : '完成第一次冻结后，这里就会成为变量推演稳定可复用的真相源。';
+    : '完成第一次冻结后，这里就会成为变量实验稳定可复用的真相源。';
 }
 
 function buildBaselineBullets(

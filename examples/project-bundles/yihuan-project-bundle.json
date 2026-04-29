@@ -16,7 +16,14 @@
     "referenceGames": ["绝区零", "原神", "鸣潮", "女神异闻录5"],
     "validationGoal": "判断当前热度到底只是题材与美术的新鲜感，还是足以转化为上线后 2 到 6 周的留存、口碑与持续内容消费。",
     "productionConstraints": "高规格都市开放世界对内容量、设备性能、首发稳定性和后续更新节奏要求都很高，任何一项掉链子都会迅速放大舆情波动。",
-    "currentStatus": "前期讨论度很强，但真正的分水岭会是首发新鲜感能否在上线后转成稳定留存与持续讨论。"
+    "currentStatus": "前期讨论度很强，但发布前仍要把小红书笔记从“热度吹风”改成“用户可评论的验证清单”，避免只种草不设边界。"
+  },
+  "xiaohongshuPost": {
+    "fixtureId": "xhs-yihuan-city-preview",
+    "coverImagePath": "../xiaohongshu-posts/images/xhs-yihuan-city-preview.jpg",
+    "title": "异环预约前先看：我最想验证的 4 个都市开放世界点",
+    "desiredAction": "评论最想先验证的玩法点，收藏公开信息清单，关注后续首发体验复盘。",
+    "guardrails": "只基于公开信息和内部样例推演；AI 图仅用于发布前预演，正式发布必须替换为授权素材。"
   },
   "evidenceItems": [
     {

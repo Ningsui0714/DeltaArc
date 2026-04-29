@@ -26,18 +26,18 @@ function joinLines(values: string[]) {
 
 function formatTargetLabel(value: string, isEnglish: boolean) {
   const labels: Record<string, { zh: string; en: string }> = {
-    core_loop: { zh: '核心循环', en: 'Core Loop' },
-    session_pacing: { zh: '局内节奏', en: 'Session Pacing' },
-    player_cooperation: { zh: '玩家协作', en: 'Player Cooperation' },
-    resource_flow: { zh: '资源流转', en: 'Resource Flow' },
-    progression_curve: { zh: '成长曲线', en: 'Progression Curve' },
-    failure_recovery: { zh: '失败恢复', en: 'Failure Recovery' },
-    event_rhythm: { zh: '活动节奏', en: 'Event Rhythm' },
-    return_triggers: { zh: '回流触发', en: 'Return Triggers' },
-    community_coordination: { zh: '社区协同', en: 'Community Coordination' },
+    core_loop: { zh: '内容主线', en: 'Content Spine' },
+    session_pacing: { zh: '发布时间 / 节奏', en: 'Posting Pace' },
+    player_cooperation: { zh: '互动机制', en: 'Interaction Trigger' },
+    resource_flow: { zh: '分发路径', en: 'Distribution Flow' },
+    progression_curve: { zh: '系列化结构', en: 'Series Structure' },
+    failure_recovery: { zh: '评论补救', en: 'Comment Recovery' },
+    event_rhythm: { zh: '运营节奏', en: 'Campaign Rhythm' },
+    return_triggers: { zh: '回访触发', en: 'Return Triggers' },
+    community_coordination: { zh: '协同分发', en: 'KOC Coordination' },
     value_perception: { zh: '价值感知', en: 'Value Perception' },
     conversion_moment: { zh: '转化时刻', en: 'Conversion Moment' },
-    retention_tradeoff: { zh: '留存权衡', en: 'Retention Tradeoff' },
+    retention_tradeoff: { zh: '复访权衡', en: 'Return Tradeoff' },
   };
 
   const entry = labels[value];
@@ -79,11 +79,11 @@ export function VariableEditorCard({
     <section className="panel project-editor-panel variable-editor-panel">
       <div className="panel-heading">
         <div>
-          <p className="eyebrow">{isEnglish ? 'After The Report' : '报告之后'}</p>
-          <h3>
-            {isEnglish
-              ? 'Test one new variable against this report'
-              : '基于这份正式结果，继续试一个新变量'}
+            <p className="eyebrow">{isEnglish ? 'After The Report' : '报告之后'}</p>
+            <h3>
+              {isEnglish
+              ? 'Test one new content variable against this report'
+              : '基于这份策略结果，继续试一个内容变量'}
           </h3>
         </div>
         <span className="panel-badge">
@@ -101,22 +101,22 @@ export function VariableEditorCard({
         </strong>
         <p>
           {isEnglish
-            ? `You are working on baseline ${baseline.id}. After these four prompts, the system drafts the targets, gains, risks, and validation signals for you.`
-            : `你现在基于基线 ${baseline.id} 在继续往前走。先把这 4 个问题答完，系统就会自动补出目标、收益、风险和验证信号。`}
+            ? `You are working on baseline ${baseline.id}. After these four prompts, the system drafts the affected content targets, gains, risks, and validation signals for you.`
+            : `你现在基于基线 ${baseline.id} 在继续往前走。先把这 4 个问题答完，系统就会自动补出受影响内容目标、收益、风险和验证信号。`}
         </p>
       </div>
 
       <div className="project-form-grid variable-idea-grid">
         <label className="field-group">
-          <span>{isEnglish ? 'What is the idea called?' : '这个想法叫什么？'}</span>
+          <span>{isEnglish ? 'What is the variable called?' : '这个内容变量叫什么？'}</span>
           <input
             type="text"
             value={variable.name}
             onChange={(event) => onChange({ name: event.target.value })}
             placeholder={
               isEnglish
-                ? 'For example: Two-player relay gate'
-                : '例如：双人协作机关'
+                ? 'For example: Roommate blind-test angle'
+                : '例如：室友盲测角度'
             }
           />
         </label>
@@ -131,9 +131,9 @@ export function VariableEditorCard({
               })
             }
           >
-            <option value="early">{isEnglish ? 'Early stage' : '前段'}</option>
-            <option value="mid">{isEnglish ? 'Mid stage' : '中段'}</option>
-            <option value="late">{isEnglish ? 'Late stage' : '后段'}</option>
+            <option value="early">{isEnglish ? 'First impression' : '首屏 / 首波'}</option>
+            <option value="mid">{isEnglish ? 'Interaction stage' : '互动中段'}</option>
+            <option value="late">{isEnglish ? 'Conversion stage' : '转化后段'}</option>
           </select>
         </label>
 
@@ -145,8 +145,8 @@ export function VariableEditorCard({
             onChange={(event) => onChange({ changeStatement: event.target.value })}
             placeholder={
               isEnglish
-                ? 'Describe the change in one concrete sentence.'
-                : '用一句具体的话写清楚这次改动。'
+                ? 'Describe the content change in one concrete sentence.'
+                : '用一句具体的话写清楚这次内容改动。'
             }
           />
         </label>
@@ -159,8 +159,8 @@ export function VariableEditorCard({
             onChange={(event) => onChange({ intent: event.target.value })}
             placeholder={
               isEnglish
-                ? 'Describe the user or system behavior you want to improve.'
-                : '写你最希望它改善的玩家感受、系统表现，或者项目问题。'
+                ? 'Describe the audience behavior, interaction signal, or conversion problem you want to improve.'
+                : '写你最希望它改善的用户反应、互动信号，或者转化问题。'
             }
           />
         </label>
@@ -183,11 +183,11 @@ export function VariableEditorCard({
       <section className="variable-preview-shell">
         <div className="panel-heading">
           <div>
-            <p className="eyebrow">{isEnglish ? 'System Draft' : '系统初稿'}</p>
+              <p className="eyebrow">{isEnglish ? 'System Draft' : '系统初稿'}</p>
             <h4>
               {isEnglish
-                ? 'This is how the system currently interprets your idea'
-                : '系统目前会先这样理解你的想法'}
+                ? 'This is how the system currently interprets your content variable'
+                : '系统目前会先这样理解你的内容变量'}
             </h4>
           </div>
         </div>
@@ -198,19 +198,19 @@ export function VariableEditorCard({
             <strong>
               {resolvedVariable.category === 'gameplay'
                 ? isEnglish
-                  ? 'Gameplay'
-                  : '玩法'
+                  ? 'Content Theme'
+                  : '内容主题'
                 : resolvedVariable.category === 'system'
                   ? isEnglish
-                    ? 'System'
-                    : '系统'
+                    ? 'Distribution Mechanism'
+                    : '分发机制'
                   : resolvedVariable.category === 'live_ops'
                     ? isEnglish
-                      ? 'Live Ops'
-                      : '运营'
+                      ? 'Campaign Rhythm'
+                      : '运营节奏'
                     : isEnglish
-                      ? 'Monetization'
-                      : '商业化'}
+                      ? 'Conversion Action'
+                      : '转化动作'}
             </strong>
           </article>
           <article className="variable-preview-card">
@@ -264,10 +264,10 @@ export function VariableEditorCard({
                 onCategoryChange(event.target.value as DesignVariableV1['category'])
               }
             >
-              <option value="gameplay">{isEnglish ? 'Gameplay' : '玩法'}</option>
-              <option value="system">{isEnglish ? 'System' : '系统'}</option>
-              <option value="live_ops">{isEnglish ? 'Live Ops' : '运营'}</option>
-              <option value="monetization">{isEnglish ? 'Monetization' : '商业化'}</option>
+              <option value="gameplay">{isEnglish ? 'Content Theme' : '内容主题'}</option>
+              <option value="system">{isEnglish ? 'Distribution Mechanism' : '分发机制'}</option>
+              <option value="live_ops">{isEnglish ? 'Campaign Rhythm' : '运营节奏'}</option>
+              <option value="monetization">{isEnglish ? 'Conversion Action' : '转化动作'}</option>
             </select>
           </label>
 
@@ -364,10 +364,10 @@ export function VariableEditorCard({
           {isRunning
             ? isEnglish
               ? 'Running'
-              : '推演中'
+              : '实验中'
             : isEnglish
-              ? 'Start Quick Scan'
-              : '开始快速扫描'}
+              ? 'Start Quick Diagnosis'
+              : '开始快速诊断'}
         </button>
         <button
           type="button"
@@ -375,7 +375,7 @@ export function VariableEditorCard({
           onClick={onRunDeepScan}
           disabled={!canRunImpactScan || isRunning}
         >
-          {isEnglish ? 'Need More Detail? Use Deep Mode' : '想看更细，就继续跑深度推演'}
+          {isEnglish ? 'Need More Detail? Use Deep Simulation' : '想看更细，就继续跑深度推演'}
         </button>
       </div>
     </section>

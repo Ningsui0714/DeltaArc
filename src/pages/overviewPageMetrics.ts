@@ -28,7 +28,7 @@ export function buildOverviewMetricsViewModel(
 ): OverviewPageViewModel['metrics'] {
   return [
     {
-      label: input.language === 'en' ? 'Project Readiness' : '项目准备度',
+      label: input.language === 'en' ? 'Brief Readiness' : '任务准备度',
       value: `${setupFieldCount}/4`,
       tone: projectReady ? 'good' : 'alert',
     },
@@ -38,7 +38,7 @@ export function buildOverviewMetricsViewModel(
       tone: evidenceReady ? 'good' : 'info',
     },
     {
-      label: input.language === 'en' ? 'Formal Run Status' : '正式推理状态',
+      label: input.language === 'en' ? 'Formal Diagnosis Status' : '正式诊断状态',
       value: getFormalRunStatusValue(input),
       tone: input.hasViewableAnalysis
         ? input.isAnalysisFresh

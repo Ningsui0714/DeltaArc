@@ -61,18 +61,18 @@ export function buildVariableImpactScanMessages(params: {
     {
       role: 'system',
       content:
-        `你是一个游戏项目变量推演器。你的任务不是重跑完整正式预测，也不是基于空想补洞，而是严格基于一份已经冻结的正式 baseline，评估“注入这一个新变量之后，原本的判断会怎么变化”。${groundedFactsInstruction}${inferenceLabelingInstruction}${contradictionInstruction}${missingEvidenceInstruction}${embeddedDataInstruction}你只能使用 frozen baseline、项目快照、证据快照和当前变量本身，不得擅自新增参考游戏、玩法机制、团队规模、平台、商业化方案、玩家反馈或实现条件。输出必须是一个严格合法 JSON 对象，不要输出 markdown，不要解释，不要前后缀文本。如果不确定，就降低 confidence，并把不确定项写进 assumptions 或 warnings。`,
+        `你是一个内容策略变量实验器。你的任务不是重跑完整正式诊断，也不是基于空想补洞，而是严格基于一份已经冻结的正式 baseline，评估“注入这一个内容变量之后，原本的判断会怎么变化”。${groundedFactsInstruction}${inferenceLabelingInstruction}${contradictionInstruction}${missingEvidenceInstruction}${embeddedDataInstruction}你只能使用 frozen baseline、传播任务快照、证据快照和当前变量本身，不得擅自新增对标账号、内容机制、团队规模、平台、转化方案、用户反馈或执行条件。输出必须是一个严格合法 JSON 对象，不要输出 markdown，不要解释，不要前后缀文本。如果不确定，就降低 confidence，并把不确定项写进 assumptions 或 warnings。`,
     },
     {
       role: 'user',
-      content: `请对下面这个变量执行一次${mode === 'reasoning' ? '深度' : '快速'}变量推演，并返回严格 JSON。
+      content: `请对下面这个变量执行一次${mode === 'reasoning' ? '深度' : '快速'}变量实验，并返回严格 JSON。
 
 任务边界：
-1. 这是“基于正式结果继续试一个变量”，不是重写整个项目分析。
+1. 这是“基于正式结果继续试一个变量”，不是重写整个传播任务分析。
 2. baselineRead 必须忠于 frozen baseline，evidenceLevel 必须保持和 baseline 一致。
-3. impactScan 重点回答：变量先改写了哪些位置、最先放大的收益是什么、最先放大的代价是什么。
-4. affectedPersonas 只写最关键的 1-3 类人，不要泛泛而谈。
-5. guardrails 必须是进入原型或验证前就应该先压住的护栏。
+3. impactScan 重点回答：这个内容变量先改写了哪些位置、最先放大的收益是什么、最先放大的代价是什么。
+4. affectedPersonas 只写最关键的 1-3 类受众，不要泛泛而谈。
+5. guardrails 必须是进入快测或验证前就应该先压住的护栏。
 6. validationPlan 必须贴合当前 productionConstraints，不能偷写成脱离约束的大工程。
 7. assumptions 只写真正的不确定前提，并显式标注“推断：...”。
 8. warnings 用来暴露证据不足、约束冲突、变量描述不完整或 baseline 自身的可靠性问题。
@@ -188,7 +188,7 @@ async function requestVariableImpactScanResponse(params: {
     return {
       data: fallbackResponse.data,
       warnings: [
-        `变量推演在 reasoning 模型超时后，已切换到 ${serverConfig.balancedModel} 继续生成。`,
+        `变量实验在 reasoning 模型超时后，已切换到 ${serverConfig.balancedModel} 继续生成。`,
         ...fallbackResponse.warnings,
       ],
     };
@@ -209,7 +209,7 @@ export function normalizeVariableImpactScanResult(params: {
     .map((item) => (item.startsWith('推断：') ? item : `推断：${item}`));
 
   if (parsed.evidenceLevel !== baseline.analysisSnapshot.evidenceLevel) {
-    evidenceLevelWarnings.push('变量推演输出的 evidenceLevel 已被校正回 frozen baseline 的证据等级。');
+    evidenceLevelWarnings.push('变量实验输出的 evidenceLevel 已被校正回 frozen baseline 的证据等级。');
   }
 
   if (parsed.baselineRead.evidenceLevel !== baseline.analysisSnapshot.evidenceLevel) {

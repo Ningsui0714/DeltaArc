@@ -64,7 +64,7 @@ export function ReportPage({
   return (
     <section className="page-grid">
       <article className="hero-panel report-hero">
-        <p className="eyebrow">{isEnglish ? 'Final Forecast' : '最终预测'}</p>
+        <p className="eyebrow">{isEnglish ? 'Strategy Report' : '策略报告'}</p>
         <h3>{systemVerdict}</h3>
         <p className="hero-copy">{summary}</p>
         <div className="chip-row">
@@ -80,7 +80,7 @@ export function ReportPage({
         <div className="panel-heading">
           <div>
             <p className="eyebrow">{isEnglish ? 'Formal Report' : '正式报告'}</p>
-            <h3>{isEnglish ? 'Read the formal result first' : '先把正式结果看完'}</h3>
+            <h3>{isEnglish ? 'Read the strategy result first' : '先把策略结果看完'}</h3>
           </div>
         </div>
 
@@ -91,7 +91,7 @@ export function ReportPage({
             <div className="report-grid">
               <div className="report-card">
                 <p className="eyebrow">{isEnglish ? 'Conclusion' : '结论'}</p>
-                <h4>{isEnglish ? 'Current judgment' : '当前判断'}</h4>
+                <h4>{isEnglish ? 'Current strategy call' : '当前策略判断'}</h4>
                 <p>{summary}</p>
                 <strong>{systemVerdict}</strong>
               </div>
@@ -183,23 +183,23 @@ export function ReportPage({
         <div className="panel-heading">
           <div>
             <p className="eyebrow">{isEnglish ? 'Step 5' : '第 5 步'}</p>
-            <h3>{isEnglish ? 'Open the Variable Sandbox next' : '下一步进入变量推演'}</h3>
+            <h3>{isEnglish ? 'Open the Variable Lab next' : '下一步进入变量实验'}</h3>
             <p className="panel-copy">
               {isEnglish
-                ? 'Variable Sandbox is a first-class Step 5 workflow, not a hidden appendix. Freeze the formal result into a baseline, inject a new variable, and inspect direct effects, risks, guardrails, and validation steps.'
-                : '变量推演是独立的第 5 步核心流程，不是藏在报告后的附录。你可以把正式结果冻结成基线，再注入一个新变量，继续查看直接影响、风险、护栏和验证动作。'}
+                ? 'Variable Lab is a first-class Step 5 workflow, not a hidden appendix. Freeze the strategy result into a baseline, inject a new content variable, and inspect direct effects, risks, guardrails, and validation steps.'
+                : '变量实验是独立的第 5 步核心流程，不是藏在报告后的附录。你可以把策略结果冻结成基线，再注入一个新的内容变量，继续查看直接影响、风险、护栏和验证动作。'}
             </p>
           </div>
         </div>
         <div className="sandbox-entry-side">
           <div className="chip-row">
             <button type="button" className="accent-button" onClick={onOpenSandbox}>
-              {isEnglish ? 'Open Variable Sandbox' : '进入变量推演'}
+              {isEnglish ? 'Open Variable Lab' : '进入变量实验'}
             </button>
           </div>
           <ul className="bullet-list">
-            <li>{isEnglish ? 'Start from the latest formal result and freeze one baseline' : '从最新正式结果出发并冻结一份基线'}</li>
-            <li>{isEnglish ? 'Describe one new variable with the lightweight idea-first form' : '用轻量表单写一个新变量想法'}</li>
+            <li>{isEnglish ? 'Start from the latest strategy result and freeze one baseline' : '从最新策略结果出发并冻结一份基线'}</li>
+            <li>{isEnglish ? 'Describe one new content variable with the lightweight idea-first form' : '用轻量表单写一个新的内容变量想法'}</li>
             <li>{isEnglish ? 'Run one quick or deep impact scan' : '先跑一轮快速扫描，需要更细时再做深度推演'}</li>
           </ul>
         </div>

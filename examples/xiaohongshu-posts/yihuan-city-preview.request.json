@@ -1,0 +1,24 @@
+{
+  "workspaceId": "xhs-yihuan-city-preview",
+  "platform": "xiaohongshu",
+  "goal": "awareness",
+  "mode": "quick",
+  "contentDraft": {
+    "title": "异环预约前先看：我最想验证的 4 个都市开放世界点",
+    "body": "这条按小红书发布前预演来写，不急着喊“必玩”，先把用户第一眼会关心的点讲清楚：城市是不是能逛、驾驶是不是进循环、异象委托有没有新鲜感、角色日常能不能持续产出截图和讨论。",
+    "script": "开头 3 秒：城市天际线 + 异象入口，先抓住都市奇观。中段：按城市探索、车辆移动、异象委托、角色生活感四段快速过。结尾：评论区选一个你最在意的验证点，下一条单独拆。"
+  },
+  "mediaAssets": [
+    {
+      "id": "xhs-yihuan-city-cover",
+      "kind": "image",
+      "name": "xhs-yihuan-city-preview.jpg",
+      "mimeType": "image/jpeg",
+      "imagePath": "images/xhs-yihuan-city-preview.jpg"
+    }
+  ],
+  "accountContext": "二次元开放世界观察账号，内容以发布前预期管理、公开物料解读和首发风险拆解为主。需要保持理性，不把热度当作留存结论。",
+  "targetAudience": "二次元开放世界玩家、都市题材爱好者、角色收集玩家，以及对新游首发完成度敏感的观望用户。",
+  "desiredAction": "评论最想先验证的玩法点，收藏公开信息清单，关注后续首发体验和配置表现复盘。",
+  "brandGuardrails": "只基于公开物料和内部样例推演；AI 图仅用于发布前预演，正式发布必须替换为授权素材；不承诺上线时间、福利、抽卡概率或未公开内容。"
+}
